@@ -7,6 +7,6 @@ buildAll<-function(composerFiles="./ComposerFiles"){
   do.documentation(es.DT)
   source("./svgcreatoR.R")
   source("./eleDefBldr.R")
-  eleDefBldr(svgFnQ=svgFnQ, composerFiles=composerFiles) 
+  eleDefBldr(svgFnQ, composerFiles=composerFiles) 
 }
 buildAll()

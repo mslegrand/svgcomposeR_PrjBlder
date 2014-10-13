@@ -5,17 +5,20 @@
 # 3. Add a copy fn to copy to Composer Project (or make a link)
 # 4. 
 
+# eleBld<-function(nm){
+#   bd<-paste(deparse(body(svgFnQ[[nm]])), collapse="\n")
+#   tmp<-paste('"',nm,'"',"=function(...)\n",bd, sep="")
+#   tmp
+# }
 
-eleDefBldr<-function(svgFnQ=svgFnQ,composerFiles="./ComposerFiles"){
-  eleBld<-function(x){
-    bd<-paste(deparse(body(svgFnQ[[name]])), collapse="\n")
-    tmp<-paste('"',name,'"',"=function(...)\n",bd, sep="")   
-  }
-  fns<-sapply(names(svgFnQ), eleBld)
-  eleDefs<-paste(fns,collapse=",\n")
-  #next we write it to file
-  cat("eleDefs<-list(\n",eleDefs,"\n)", 
+
+eleDefBldr<-function(svgFnQ, composerFiles="./ComposerFiles"){
+
+  tmp<-paste(deparse(svgFnQ),collapse="\n")
+  cat("eleDefs<-",tmp, 
       file=paste(composerFiles,"eleDefs.R", sep="/"))
 }
 
-#eleDefBldr()
+eleDefBldr(svgFnQ)
+
+
