@@ -22,6 +22,7 @@
 # use svgComposer in svgShiny
 # write examples!!!
 
+#testing 123
 
 #buildDocumentation
 library(data.table)
