@@ -6,15 +6,16 @@
 # 4. 
 
 
-eleDefBldr<-function(){
+eleDefBldr<-function(svgFnQ=svgFnQ,composerFiles="./ComposerFiles"){
   eleBld<-function(x){
     bd<-paste(deparse(body(svgFnQ[[name]])), collapse="\n")
-    tmp<-paste(name,"=function(...)\n",bd, sep="")   
+    tmp<-paste('"',name,'"',"=function(...)\n",bd, sep="")   
   }
   fns<-sapply(names(svgFnQ), eleBld)
   eleDefs<-paste(fns,collapse=",\n")
   #next we write it to file
-  cat("eleDefs<-list(\n",eleDefs,"\n)", file="./ComposerFiles/eleDefs.R")
+  cat("eleDefs<-list(\n",eleDefs,"\n)", 
+      file=paste(composerFiles,"eleDefs.R", sep="/"))
 }
 
-eleDefBldr()
+#eleDefBldr()

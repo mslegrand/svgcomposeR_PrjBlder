@@ -16,7 +16,7 @@
 # compare avel with attr
 
 
-#todo!!! 
+# todo!!! 
 # save docs to link to svgComposer
 # save source to link to svgComposer
 # use svgComposer in svgShiny
@@ -26,7 +26,7 @@
 
 #buildDocumentation
 library(data.table)
-fread("elementSummary.csv")->es.DT #triples: element, type, value
+#fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
 
 addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
     txt<-c(
@@ -116,16 +116,14 @@ get.Attr.defs<-function(es.DT){
 }
 
 
-do.documentation<-function(es.DT){
+do.documentation<-function(es.DT, composerFiles="./ComposerFiles"){
   #elecat doc
    elemCatDoc<-get.Elem.categories(es.DT)
-   cat(elemCatDoc, file="./R/elemCatDoc.R")
+   cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
   #ele def doc
   elemDefDoc<-get.Element.defs(es.DT)
-  cat(elemDefDoc, file="./R/elemDefDoc.R")
+  cat(elemCatDoc, file=paste(composerFiles, "elemDefDoc.R", sep="/") )
   #attr doc
   attrDefDoc<-get.Attr.defs(es.DT)
-  cat(attrDefDoc, file="./R/attrDefDoc.R") 
+  cat(elemCatDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
 }
-
-
