@@ -116,7 +116,7 @@ get.Attr.defs<-function(es.DT){
 }
 
 
-do.documentation<-function(es.DT, composerFiles="./ComposerFiles"){
+do.documentation<-function(es.DT, composerFiles="composerFiles"){
   #elecat doc
    elemCatDoc<-get.Elem.categories(es.DT)
    cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )

@@ -12,13 +12,13 @@
 # }
 
 
-eleDefBldr<-function(svgFnQ, composerFiles="./ComposerFiles"){
+eleDefBldr<-function(svgFnQ, composerFiles="composerFiles"){
 
   tmp<-paste(deparse(svgFnQ),collapse="\n")
   cat("eleDefs<-",tmp, 
       file=paste(composerFiles,"eleDefs.R", sep="/"))
 }
 
-eleDefBldr(svgFnQ)
+#eleDefBldr(svgFnQ)
 
 
