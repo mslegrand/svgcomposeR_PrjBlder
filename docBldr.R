@@ -122,8 +122,8 @@ do.documentation<-function(es.DT, composerFiles="composerFiles"){
    cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
   #ele def doc
   elemDefDoc<-get.Element.defs(es.DT)
-  cat(elemCatDoc, file=paste(composerFiles, "elemDefDoc.R", sep="/") )
+  cat(elemDefDoc, file=paste(composerFiles, "elemDefDoc.R", sep="/") )
   #attr doc
   attrDefDoc<-get.Attr.defs(es.DT)
-  cat(elemCatDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
+  cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
 }
