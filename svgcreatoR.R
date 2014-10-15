@@ -414,8 +414,20 @@ build.svgFnQ<-function(){
                 root
               },
               getNode=function(rootNode,id){
-                kidV<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]' ) )
-              }         
+                if(id!='root'){
+                  kidV <- getNodeSet(rootNode, paste("//*[@id=\"", id, "\"]", sep=""))
+                } else {
+                  kidV <- list(rootNode)
+                }
+                if (length(kidV)==0){
+                  stop("Cannot find node with id=",id)
+                }
+                kidV
+              }
+#               
+#               getNode=function(rootNode,id){
+#                 kidV<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]' ) )
+#               }         
   )
   )
   svgFnQ

@@ -34,7 +34,7 @@ addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
         paste("@title", name), #!!!todo add something
         paste("@description ", description),
         paste("\\itemize{"),
-        paste(" \\item{}{ \\code{\\link{", elemArgs, "}}}", sep=""),
+        paste(" \\item{}{ \\code{\\link[svgcomposeR]{", elemArgs, "}}}", sep=""),
         "}"
     )
     tmp<-paste("#' ", txt, sep="", collapse="\n")
