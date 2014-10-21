@@ -1,0 +1,113 @@
+Presentation attributes need to be added to elements in svgcreator.R
+
+-----------
+https://github.com/donbright/font_to_svg
+
+http://www.w3.org/TR/html4/sgml/entities.html#h-24.3
+For math consider Hershey vector fonts:
+  http://emergent.unpythonic.net/software/hershey
+  Also check out 
+  http://commons.wikimedia.org/wiki/Category:SVG_typography
+Alternatively, use " Times, Helvetica and Courier 
+    all support the Greek and mathematical symbols."
+see
+    http://www.w3.org/TR/html4/sgml/entities.html#h-24.3 (ref from http://mozilla.6506.n7.nabble.com/Symbol-font-in-SVG-td247704.html)
+
+https://git.gnome.org/browse/lasem/ (latex to svg?)
+
+
+unicode reference
+http://www.ssec.wisc.edu/~tomw/java/unicode.html#x2200
+
+
+For enabling dragging
+http://www.codedread.com/blog/archives/2005/12/21/how-to-enable-dragging-in-svg/
+http://www.petercollingridge.co.uk/interactive-svg-components/draggable-svg-element
+http://svg-whiz.com/svg/DragAndDrop.svg
+
+
+
+latex2 inkscape package
+https://groups.google.com/forum/#!msg/comp.text.tex/kFUa4xUPer0/gEUxmyNrD4QJ
+http://www.codecogs.com/latex/eqneditor.php
+http://dvisvgm.sourceforge.net/  A fast  DVI to SVG converter
+http://svgkit.sourceforge.net/SVGFontKit.html
+
+https://groups.google.com/forum/#!msg/comp.text.tex/kFUa4xUPer0/gEUxmyNrD4QJ
+
+To create a soft link, issue the following command from .
+ln -s /home/sup/R/svgcomposeR/R svgcomposeR
+------------
+
+#For testing:
+R -e "shiny::runApp('~/shinyapp')"
+
+
+https://gist.github.com/trestletech/5948876
+_________
+
+ToCheck
+
+same elements?
+same attributes?
+for each element, same attributes?
+same values?
+for each attribute, same values?
+
+
+
+#Done
+# X 1. make a dot alias for all fns with dash, ie  make font.face for "font-face" (already done for attributes)
+#  X 3. if an attr is unnamed but of class list,  promote it's members as children.
+#   a. collect all unamed args which are themselfs a list, unL
+#   b. remove unl from args and promote each member to attr (shall this be recursive??)
+#   c. .children will be unamed args that are either character or numeric or xmlNode
+
+#todo 
+
+# 3. Add a copy fn to copy to Composer Project (or make a link)
+# 4. Add a getAttribValue(doc, id) (or getAttr(id) inside of doc???)
+
+#todo:
+# ?  change project name from svgCreator to svgComposer
+# ?2. make a default for c(x,y) to be space seperated (check to see if this is already the case)
+# ?4. What happens to a non-list (vector) that should be ws seperated (or sc or cl ...)?
+# 5. Add function completions HOW???
+# 6. Add documentation HOW???
+# 7. Add sample programs 
+# 8. Add unit testing (regression testing?) and other methods
+# 9.Animation:
+#    doc['initialize']
+#    doc["set"]( color(id)="red", ...)
+#    doc["animate"]( XY(id)=c(1,2), xy(id)=(1,2), ...)
+#    or 
+#    doc[[id]], replace by doc$build(rootNode=id,...) 
+#           or build(doc, rootNode=id,  ...)
+#           or doc$root(...)
+#    doc["set"], replace by doc$set(...) or  set(doc, ...)
+#    doc["animate], replace by doc$animate(...) or animate(doc, ...)
+
+#   Do we need 
+#       1. ids(doc) ? (return all ids)
+#       2. def(doc) ? (return ids of defs)
+#       3. svgnode(id) ?
+#       4. 
+#       
+#todo!!! (for help docs)
+# add cxy, ... and other custom attributes (i.e for gradient)
+# add alias for . and - and :  elements
+# add alias for . and - (and :? ) attributes
+# add description
+# add meaningful titles
+# rename element categories (ends and refererences ending with :)
+# add categories for attributes (such as presentation, ...)
+# implement the name completions in .onload
+# add a main category page
+# add example docs
+# check if we still need an alias for add attribute entry
+# compare avel with attr
+
+
+#todo!!! 
+
+# write examples!!!
