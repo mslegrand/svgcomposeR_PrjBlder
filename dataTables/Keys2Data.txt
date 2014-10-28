@@ -18,7 +18,7 @@ elementSummary and AVETable should (in principle) contain the same information
 3.  presentationAttr.csv
 contains details of the presentation properties (attributes)
 
-Is created by preseitationAttr.R by scraping the pages:
+Is created by presentationAttr.R by scraping the pages:
 "text.html",  "masking.html",  "painting.html", "color.html", "interact.html", "filters.html", "pservers.html"
 
 4. propIndex.csv
