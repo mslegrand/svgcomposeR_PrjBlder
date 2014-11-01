@@ -30,12 +30,13 @@ library(data.table)
 
 addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
     txt<-c(
-        paste("@name", name),
+        paste("@name", name), #blue
         paste("@title", name), #!!!todo add something
         paste("@description ", description),
         paste("\\itemize{"),
         paste(" \\item{}{ \\code{\\link[svgcomposeR]{", elemArgs, "}}}", sep=""),
-        "}"
+        "}",
+        "@keywords internal"
     )
     tmp<-paste("#' ", txt, sep="", collapse="\n")
 }
@@ -77,10 +78,44 @@ addAttributeEntry<-function(name, elemArgs, description=""){
   tmp<-paste("#' ", txt, sep="", collapse="\n")  
 }
 
+#
+get.categories<-function(es.DT){
+  cats<-unique(es.DT[type=="category"]$value)
+  cats<-sort(cats)
+  #paste("\\item{",cats,"}", sep="")
+  #cats2<-paste(" \\item{",cats,"}{ \\code{\\link[svgcomposeR]{", cats, "}}}", sep="") 
+  cats2<-paste(" \\item \\code{\\link[svgcomposeR]{", cats, "}}", sep="")
+  txt<-c(
+    paste("\\itemize{"),
+    cats2,
+    "}",
+    paste("@name",  "Elements by Category"),
+    paste("@title", "Elements Index by Category")
+  )
+  tmp<-paste("#' ", txt, sep="", collapse="\n")  
+  tmp<-paste(tmp,"\nNULL\n")
+}
 
-#returns txt for element cat list ing doc
+#returns listing of all elements
+get.Elem.all<-function(es.DT){
+  el<-sort(unique(es.DT$element))
+  el<-paste(" \\item \\code{\\link[svgcomposeR]{", el, "}}", sep="")
+  txt<-c(
+    paste("\\itemize{"),
+    el,
+    "}",
+    paste("@name",  "Elements"),
+    paste("@title", "Alphabetical Index of All Elements")
+  )
+  tmp<-paste("#' ", txt, sep="", collapse="\n")  
+  tmp<-paste(tmp,"\nNULL\n")
+  
+}
+
+#returns doc listing elements for eac category
 get.Elem.categories<-function(es.DT){
   es.DT[type=="category", list(list(I(.I))), by=value]->tmp
+  tmp<-tmp[order(value)]
   catsL<-sapply(1:nrow(tmp), 
     function(i){ addEleCategoryEntry(name=tmp$value[i], elemArgs= es.DT$element[ tmp$V1[[i]] ] )}
   )
@@ -117,9 +152,15 @@ get.Attr.defs<-function(es.DT){
 
 
 do.documentation<-function(es.DT, composerFiles="composerFiles"){
+  #listing of all elements
+  eleAllListingDoc<-get.Elem.all(es.DT)
+  cat(eleAllListingDoc, file=paste(composerFiles, "eleAllListingDoc.R", sep="/"))
+  #listing of Element Categories
+  eCatListingDoc<-get.categories(es.DT)
+  cat(eCatListingDoc, file=paste(composerFiles, "eCatListingDoc.R", sep="/") )
   #elecat doc
-   elemCatDoc<-get.Elem.categories(es.DT)
-   cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
+  elemCatDoc<-get.Elem.categories(es.DT)
+  cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
   #ele def doc
   elemDefDoc<-get.Element.defs(es.DT)
   cat(elemDefDoc, file=paste(composerFiles, "elemDefDoc.R", sep="/") )
