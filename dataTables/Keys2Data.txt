@@ -8,7 +8,7 @@ and following the links
 
 
 2. elementSummary.csv is currently being used to generate documentation for elements and
-regualar attributes. 
+regular attributes. 
 
 It is created by elementSummary.R by scraping the pages occurring as links found on
 "http://www.w3.org/TR/SVG/eltindex.html"
@@ -18,7 +18,7 @@ elementSummary and AVETable should (in principle) contain the same information
 3.  presentationAttr.csv
 contains details of the presentation properties (attributes)
 
-Is created by preseitationAttr.R by scraping the pages:
+Is created by presentationAttr.R by scraping the pages:
 "text.html",  "masking.html",  "painting.html", "color.html", "interact.html", "filters.html", "pservers.html"
 
 4. propIndex.csv
@@ -30,7 +30,7 @@ and propIndx is wide while presentationAttr is long
 
 
 5. Terminology.csv
-defines element classes such as shapes and also some attribute classes. Not know if this information is implict in elementSummary.csv
+defines element classes such as shapes and also some attribute classes. Not known if this information is implict in elementSummary.csv
 
 Obtain by scrapping the single page http://www.w3.org/TR/SVG/intro.html#Terminology
 
