@@ -1,18 +1,17 @@
 # Custom attributes
 
+#Todo!!! # "xChannelSelector"
 # aev.
 
+#Done:
 #search for x, y, z
 #search for X, Y, Z
-
 #search for x and y
 #search for X and Y
-
 #search for 1 and 2
-
 #search for 1, 2, 3, 4, ...
-
 #search for width and height
+
 library(data.table)
 
 elements<-unique(ave.DT$element)
@@ -23,13 +22,6 @@ el.contains.attrs<-function(el, sought.attrs){
   prod(match(sought.attrs, elAttr, 0L))>0
 }
 
-# findAllElContainingAttrs<-function(...){
-#   sought.attrs<-c(...)
-#   unique(ave.DT$element)->elements
-#   indx<-sapply(unique(ave.DT$element), el.contains.attrs, sought.attrs)
-#   elements[indx]
-# }
-
 getDT.Containing.Attrs<-function(el, variable, sought.attrs){
   if( el.contains.attrs(el,sought.attrs) ){
     DT<-data.table(element=el, variable=variable, sought.attrs=sought.attrs)
@@ -38,7 +30,6 @@ getDT.Containing.Attrs<-function(el, variable, sought.attrs){
   }
   DT
 }
-
 
 # returns DT with attrs that match attrs ending in x
 # that is look for attrs of el ending with x, then
@@ -72,36 +63,6 @@ getDT.Matching.XEndAttrs<-function(el, x){
     rbindlist(tmp)   
 }
 
-# findBoth<-function(el, x, y){
-#   xd<-paste0(x,'$')
-#   #cat(xd,"\n")
-#   elAttr<-ave.DT[element==el]$attr
-#   elAttrx<-elAttr[grep(xd,elAttr)]
-#   
-#   fn<-function(ax){
-#     ay<-sub(xd,y, ax) 
-#     #cat(ax,ay,"\n")
-#     if(ay %in% elAttr ){     
-#       data.table(element=el, v1=ax, v2=ay , v12=paste0(ax,y) )
-#     } else
-#       data.table()    
-#   }
-#   
-#   tmp<-lapply(elAttrx, fn)
-#   rbindlist(tmp) 
-# }
-# 
-# tmp<-sapply(elements, function(el){findBoth(el,"x","y")})
-# rbindlist(tmp)->xy.DT
-# 
-# tmp<-sapply(elements, function(el){findBoth(el,"X","Y")})
-# rbindlist(tmp)->XY.DT
-# 
-# tmp<-sapply(elements, function(el){findBoth(el,"1","2")})
-# rbindlist(tmp)->t12.DT
-# 
-
-
 tmp<-c(
   lapply(elements, function(el){getDT.Matching.XEndAttrs(el,'x')}),
   lapply(elements, function(el){getDT.Matching.XEndAttrs(el,'X')}),
@@ -126,11 +87,6 @@ write.table(comboParams.DT,file="dataTables/comboParams.tsv",
             row.names=FALSE,
             quote=FALSE)
 
-# write.table(es.DT,file="dataTableLink/elementSummary.tsv",
-#             sep="\t",
-#             row.names=FALSE,
-#             quote=FALSE)
-
 
 specParamsCXY.list<-lapply(elements, function(el){
     getDT.Containing.Attrs(el, 'cxy', 
@@ -143,65 +99,3 @@ write.table(specParamsCXY.DT,file="dataTables/specParamsCXY.tsv",
             row.names=FALSE,
             quote=FALSE)
 
-# write.table(es.DT,file="dataTableLink/elementSummary.tsv",
-#             sep="\t",
-#             row.names=FALSE,
-#             quote=FALSE)
-
-# # preprocXtras
-# # xy, cxy, rxy, xy1, xy2, wh
-# attrSplitX<-function(attrs,  a1, a2, a12){
-#   if(a12 %in% names(attrs)){
-#     attrs[c(a1,a2)]<-attrs[[a12]]
-#     attrs[[a12]]<-NULL
-#   }
-#   attrs
-#}
-
-# todo:
-# presentation attribute
-# required attrs???, required elements???
-# allowable attrs, all attrs from AVE.DT and preprocAttr.DT, and attribAlias.DT and 
-# special ... special should contain 
-# cxy + width height =>xy
-# cxy (text, tspan textPath)=> anchor, ...
-# gradients colors, offsets, opacities => stops
-# 
-
-# todo: straight substitutions for dash, colon to dot (also maybe include in=>in1)
-# todo: customize for c('text' , 'textPath' , 'tspan')
-# (add -font) ) ))|((weight))|((variant))|((size))|((family 
-#  anchor
-# todo: customize for linearGradient",  "radialGradient"
-#   colors, offsets, opacities 
-# 
-# todo: for stop, color=>stop-color, opacity=>stop-opacity???
-# 
-# todo: rgb???
-# 
-  
-
-# 
-# makePreProcSplitList<-function(){
-#   a1<- c("horiz-origin-x","vert-origin-x", "dx", "x",  "xChannelSelector", "cx", "rx" ,  "x1" , "x2" , "fx")            
-#   a2<-gsub("x","y",a1)
-#   a12<-gsub("x","xy",a1)
-#   b2<-c("g2",  "u2", "k2",  "x2",  "y2")
-#   b1<-gsub("2","1",b2)
-#   b12<-gsub("2","12",b2)  
-#   as.list(data.frame(
-#     cbind(
-#       rbind("width","height","wh"),
-#       rbind("in","in2","in12"),
-#       rbind(a1,a2,a12),
-#       rbind(b1,b2,b12)
-#     ), stringsAsFactors=F , row.names=c("a1","a2","a12")
-#   ))
-#   tmp<-cbind(
-#     rbind("width","height","wh"),
-#     rbind("in","in2","in12"),
-#     rbind(a1,a2,a12),
-#     rbind(b1,b2,b12)
-#   )
-#   apply(tmp, 2, function(x)list(a1=x[1],a2=x[2], a12=x[3]))->tmplist
-#   
