@@ -108,6 +108,7 @@ library(XML)
 
 fread("./dataTables/AVETable.csv")->ave.DT
 
+fread("dataTables/comboParams.tsv")->comboParams.DT
 # preSubList<-list(
 #   list(sfrom = "in1", sto = "in"),
 #   list(sfrom = "xlink\\.href", sto = "xlink:href"),
@@ -307,6 +308,21 @@ build.svgFnQ<-function(){
       quote( args <- promoteUnamedLists(args) ),
       quote( attrs <- named(args) )
     )
+    # tmp<-comboParams.DT[etag]
+    # split(tmp$value, tmp$variable)
+    
+    qcomboParamsFn<-function(etag){
+      tmp<-comboParams.DT[element==etag]
+      if(nrow(tmp)>0){
+        cp.list<-split(tmp$value, tmp$variable)
+        # for each element of tmp.list, add the appropriate quote
+        substitute(attrs<-comboParamHandler(attrs, cp ), list(cp=cp.list))
+      } else {
+        quote(NULL)
+      }
+    }
+    
+    #this makes the attrSplitX call
     qPreproXtrasFn<-function(x, etag){
       if(nrow(ave.DT[element==etag & (attr==x$a1 | attr==x$a2) ,])==2){
         substitute(attrs<-attrSplitX(attrs, a1, a2, a12), x)
@@ -316,8 +332,11 @@ build.svgFnQ<-function(){
     }
     
     
-    lapply(preprocSplitList, qPreproXtrasFn, etag=ele.tag )->ppXtraCL #a list of calls
+    ppXtraCL<-list( qcomboParamsFn(ele.tag) )
     
+#   add all attrSplitX calls  
+#   lapply(preprocSplitList, qPreproXtrasFn, etag=ele.tag )->ppXtraCL #a list of calls
+#     
     if(nrow(ave.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapCenteredXY(attrs) ) ) # append a call
     }
@@ -325,17 +344,22 @@ build.svgFnQ<-function(){
     ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls
     body1<-ppXtraCL
     
+    # add code to treat special lists, ie. comma list, space list, semicolon list ...
     split(treat_attrs.dt, rownames(treat_attrs.dt))->tmp # (convert rows of treat_attrs.dt table to list)  
     preprocAttrValueFn<-function(tvaAttr){
       c(
         substitute( indx<-sapply(names(attrs),function(x)grepl(paste('(^| )',x,'($| )',sep=''), V1 )),tvaAttr),      
-        substitute( attrs[indx]<-lapply(attrs[indx], function(x){ svgPreproc[[treatValueAs]](x) }), tvaAttr)
+        substitute( if(length(indx)>0){ attrs[indx]<-lapply(attrs[indx], function(x){ svgPreproc[[treatValueAs]](x) })}, tvaAttr)
       )
     } 
     body2<-lapply(tmp, function(tvaAttr){preprocAttrValueFn(tvaAttr)}) 
     unlist(body2, use.names=F)->body2
     as.list(body2)->body2
+
+    #add code to add to node children
     body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args)), list(ele.tag=ele.tag))
+    
+    #special cases for text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
       body3<-c(
         quote(if(!is.null(names(attrs))){
@@ -359,9 +383,7 @@ build.svgFnQ<-function(){
         body3
       )    
     }
-    #   if(ele.tag=="radialGradient"){
-    #     body3<-c(quote(attrs<-mapArg(attrs,"fxy", c("fx","fy")) ), body3)
-    #   }
+    #special code for gradients
     if(ele.tag %in% c("linearGradient",  "radialGradient")){
       body3<-c(
         quote(
