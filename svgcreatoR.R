@@ -12,14 +12,11 @@ library(XML)
 #   c. .children will be unamed args that are either character or numeric or xmlNode
 
 #todo:
-# ?  change project name from svgCreator to svgComposer
-# ?2. make a default for c(x,y) to be space seperated (check to see if this is already the case)
-# ?4. What happens to a non-list (vector) that should be ws seperated (or sc or cl ...)?
 # 5. Add function completions HOW???
 # 6. Add documentation HOW???
 # 7. Add sample programs 
 # 8. Add unit testing (regression testing?) and other methods
-# 9.Animation:
+# 9.  Animation:
 #    doc['initialize']
 #    doc["set"]( color(id)="red", ...)
 #    doc["animate"]( XY(id)=c(1,2), xy(id)=(1,2), ...)
@@ -40,7 +37,6 @@ library(XML)
 # for filter should we always append % to the x,y width, heigth values???
 # k for k1,k2,k3,k4 in feComposite ?
 
-
 #1. how to add function completion:
 # i) utils:::.addFunctionInfo(fn=c("cat","dog")) #note 3 colons
 # ii)alternatively: 
@@ -49,49 +45,18 @@ library(XML)
 #2. How to add function documentation???
 
 
-# done, not tested!
-# 1. x,y => xy for all of
-# "horiz-origin-x"   "vert-origin-x"    "dx"               "x"                
-# "xChannelSelector"
-#  "cx"               "rx"               "x1"               "x2"               "fx"              
-# generate list by:
-# unique(ave.DT[attr %like% "y",]$attr)->tmp2
-# sub("y","x",tmp2)->tmp3
-# unique(ave.DT$attr[sapply(ave.DT$attr, function(attr)attr %in% tmp3)] )
-
-# 1,2 =>12 for all of "g2"  "u2"  "in2" "k2"  "x2"  "y2" 
-
-# inn for in, in2 (or just inn for in???) or should we use .in???
-# or should we use in1 in2 and in12 ??
-#
-# u12 for u1, u2 (or should we use u)
-# g12 for g1, g2 
-# fxy for fx, fy in radial gradient
-# xlink:href as xlink..href???
-# what about the following
-# "xlink:href"    "xml:base"      "xml:lang"      "xml:space"     "xlink:actuate" "xlink:arcrole" "xlink:role"    "xlink:show"    "xlink:title"   "xlink:type" 
-# generate list by:
-# unique(ave.DT[attr %like% ":",]$attr)
-#
-
-#the following line is required because of a bug in devtools (maybe they will fix it some day)
+# The following line is required because of a bug in devtools 
+# (maybe they will fix it some day)
 .datatable.aware=TRUE
 
 fread("./dataTables/AVETable.csv")->ave.DT
 fread("dataTables/comboParams.tsv")->comboParams.DT
 
-
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
   ele.tags<-unique(ave.DT$element)
   
-#   splitAtt<-function(etag, x){
-#     ifelse(
-#       nrow(ave.DT[element==etag & (attr==x['a1'] | attr==x['a2']) ,])==2,
-#       paste("attrs<-attrSplitX(attrs, '" ,x['a1'], "','" ,x['a2'], "','" ,x['a12'], "')", sep=""),
-#       ""
-#     )
-#   }
+  ele.tags.attributeName<-ave.DT[attr=="attributeName"]$element
   
   centerable<-function(ele.tag, ave.DT){
     ifelse(
@@ -102,34 +67,7 @@ build.svgFnQ<-function(){
       ""
     )  
   }
-  
-  
-  makePreProcSplitList<-function(){
-    a1<- c("horiz-origin-x","vert-origin-x", "dx", "x",  "xChannelSelector", "cx", "rx" ,  "x1" , "x2" , "fx")            
-    a2<-gsub("x","y",a1)
-    a12<-gsub("x","xy",a1)
-    b2<-c("g2",  "u2", "k2",  "x2",  "y2")
-    b1<-gsub("2","1",b2)
-    b12<-gsub("2","12",b2)  
-    as.list(data.frame(
-      cbind(
-        rbind("width","height","wh"),
-        rbind("in","in2","in12"),
-        rbind(a1,a2,a12),
-        rbind(b1,b2,b12)
-      ), stringsAsFactors=F , row.names=c("a1","a2","a12")
-    ))
-    tmp<-cbind(
-      rbind("width","height","wh"),
-      rbind("in","in2","in12"),
-      rbind(a1,a2,a12),
-      rbind(b1,b2,b12)
-    )
-    apply(tmp, 2, function(x)list(a1=x[1],a2=x[2], a12=x[3]))->tmplist
-  }
-  
-  preprocSplitList<-makePreProcSplitList()
-  
+    
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
   createEleFnQ<-function(ele.tag, ave.DT){
     ave.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
@@ -152,26 +90,18 @@ build.svgFnQ<-function(){
         quote(NULL)
       }
     }
-    
-    #this makes the attrSplitX call
-#     qPreproXtrasFn<-function(x, etag){
-#       if(nrow(ave.DT[element==etag & (attr==x$a1 | attr==x$a2) ,])==2){
-#         substitute(attrs<-attrSplitX(attrs, a1, a2, a12), x)
-#       } else {
-#         quote(NULL)
-#       }
-#     }
-#     
-    
+        
     ppXtraCL<-list( qcomboParamsFn(ele.tag) )
     
-#   add all attrSplitX calls  
-#   lapply(preprocSplitList, qPreproXtrasFn, etag=ele.tag )->ppXtraCL #a list of calls
-#     
+    
     if(nrow(ave.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapCenteredXY(attrs) ) ) # append a call
     }
-    
+
+    if(ele.tag %in% ele.tags.attributeName){
+      ppXtraCL<-c(ppXtraCL, quote(attrs<-mapAttributeName(attrs)))
+    }
+      
     ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls
     body1<-ppXtraCL
     

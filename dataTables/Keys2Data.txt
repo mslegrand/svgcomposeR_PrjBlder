@@ -1,27 +1,38 @@
 Brief description of data files:
 
-1. AVETable.csv is currently being used by svgcreator to build the svg element functions. 
+1. 
+AVETable.tsv
+Created by: AVEL.R
+Scrapes: links in  url="http://www.w3.org/TR/SVG/attindex.html" 
+Used by: is currently being used by svgcreator to build the svg element functions. 
 
 It is created by AEVL.R by scraping 
  url="http://www.w3.org/TR/SVG/attindex.html" 
 and following the links
 
 
-2. elementSummary.csv is currently being used to generate documentation for elements and
-regular attributes. 
+2. 
+elementSummary.tsv 
+Created by: elementSummary.R
+Used by: 1. is currently being used to generate documentation for elements and
+               regular attributes. 
+	       2. adjustES.R
+
 
 It is created by elementSummary.R by scraping the pages occurring as links found on
 "http://www.w3.org/TR/SVG/eltindex.html"
 
 elementSummary and AVETable should (in principle) contain the same information
 
-3.  presentationAttr.csv
+3.  presentationAttr.tsv
+Created by:  presentationAttr.R
 contains details of the presentation properties (attributes)
 
 Is created by presentationAttr.R by scraping the pages:
 "text.html",  "masking.html",  "painting.html", "color.html", "interact.html", "filters.html", "pservers.html"
 
-4. propIndex.csv
+4. propIndex.tsv
+Created by: propIndx.R
 also contains details of presentation properties. 
 
 Created by propertyIndx.R by scraping a single page: url="http://www.w3.org/TR/SVG/propidx.html"
@@ -31,15 +42,32 @@ and propIndx is wide while presentationAttr is long
 
 5. Terminology.csv
 defines element classes such as shapes and also some attribute classes. Not known if this information is implict in elementSummary.csv
-
 Obtain by scrapping the single page http://www.w3.org/TR/SVG/intro.html#Terminology
+
 
 http://www.w3.org/TR/SVG/intro.html#Terminology
 
+6 AttrCat.tsv: 
+created by: terminology.R
 
-6. Unicode
+7 ElCat.tsv
+created by: terminology.R
+
+8 elementAttrCategorySummary.tsv
+elementClassSummary.R
+
+9. specParamsCXY.tsv
+customAttrs.R
+
+10. comboParams.tsv
+customAttrs.R
+
+
+11. Unicode
 
 created by getUnicodeTables.R
 
 #---------------------
+
+
 
