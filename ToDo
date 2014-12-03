@@ -1,3 +1,25 @@
+
+For custom controls:
+
+http://shiny.rstudio.com/articles/building-inputs.html
+
+http://stackoverflow.com/questions/25231016/shiny-custom-output-not-rendering
+
+http://toddmotto.com/hacking-svg-traversing-with-ease-addclass-removeclass-toggleclass-functions/
+
+http://stackoverflow.com/questions/8638621/jquery-svg-why-cant-i-addclass
+
+http://shiny.rstudio.com/gallery/custom-input-control.html
+
+http://shiny.rstudio.com/articles/building-outputs.html
+
+----------
+svg refer
+http://floopily.com/blog/2012/10/25/svg-shinies-1
+
+
+__________
+
 Presentation attributes need to be added to elements in svgcreator.R
 
 -----------

@@ -28,7 +28,11 @@
 library(data.table)
 #fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
 fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
-aCS.DT<-eaCS.DT[name %like% " attributes"]
+
+eCS.DT<-eaCS.DT[grep("elements$", eaCS.DT$name)]
+aCS.DT<-eaCS.DT[grep("attributes$", eaCS.DT$name)]
+
+
 
 capitalizeIt<-function(name){
   gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", name, perl=TRUE)
@@ -47,28 +51,6 @@ addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
     tmp<-paste("#' ", txt, sep="", collapse="\n")
 }
 
-
-
-addAttributeEntry<-function(name, elemArgs, description=""){
-  if(length(name)>1){
-    namea<-paste(name, collapse=" ")
-    name<-paste(name, collapse=".")
-    alias<-paste("@alias", namea) 
-  } else
-    alias<-NULL
-  elemArgsF<-paste("\\code{\\link{", elemArgs, "}}", sep="", collapse=", ")
-  txt<-c(
-    paste("@name", name),
-    paste("@title",name), #todo!!! replace with something meaninful
-    alias,
-    paste("@description ", description),
-    paste("\\itemize{"),
-    paste(" \\item{Used by the Elements:}{ ",   elemArgsF, "}", sep=""),
-    "}",
-    "@keywords internal"
-  )
-  tmp<-paste("#' ", txt, sep="", collapse="\n")  
-}
 
 # # Generates an Listing of Element Categories (Index of Ele Cats)
 # generate.ele.cat.Index<-function(es.DT){
@@ -89,7 +71,7 @@ addAttributeEntry<-function(name, elemArgs, description=""){
 #   tmp<-paste(tmp,"\nNULL\n")
 # }
 
-#generates an alphebetical Index of All Elements
+#generates an alphebetical Index of All Elements (no longer using)
 gen.all.Elem.Index<-function(es.DT){
   unique(es.DT$element)->ele
   sort(gsub("-",".", ele))->ele
@@ -107,7 +89,8 @@ gen.all.Elem.Index<-function(es.DT){
 
 # Generates an Listing of Element Categories (Index of Ele Cats)
 # Generates an Listing of Element Categories (Index of Ele Cats)
-generate.ele.cat.Index<-function(es.DT){
+generate.ele.cat.Index<-function(){
+  
   oneCatListing<-function(category){
     #category name
     es.DT[variable=="category" & value==category]$element->ele    
@@ -147,21 +130,91 @@ get.Elem.categories<-function(es.DT){
 
 
 
-#generates element documentation  for each element from es.DT
+#generates element documentation  for each element found in es.DT
 # resulting for each element
 # element name, content.model, attributes
-generate.element.pages<-function(es.DT){
+generate.element.pages<-function(){
 
   #begin content element handleing
-  getEleInGrp<-function(category){
+  #return all members of a given cat
+  expand.Cat<-function(cat.name){
+    eaCS.DT[name==cat.name]$value->members
+  }
+  
+  expand.arg.names<-function(arg.names){
+    fn<-function(x){
+      if(grepl(":$",x)){
+        xx<-gsub(":$","",x)
+        x<-eaCS.DT[name==xx]$value
+      } else {
+        x
+      }    
+    }    
+    unlist(lapply(arg.names, fn))   
+  }
+  
+  extract.CatMember.List<-function(members, other="other"){
+    #expand??
+    #other<-"Other"
+    if(length(members)==0){
+      tmp.list<-list()
+    } else {
+      rowNum<-match(members, eaCS.DT$value, nomatch=0L)
+      missing<-members[rowNum==0]
+      tmp.DT<-eaCS.DT[value %in% members]
+      cats<-sort(unique(tmp.DT$name))
+      if(length(missing)>0){
+        cats<-c(cats,other)
+        tmp.DT<-rbind(tmp.DT, data.table(name=other, value=missing))
+      } 
+      tmp.list<-structure(lapply(cats, function(kit)tmp.DT[name==kit]$value) ,
+                     names=cats)
+      #tmp.list<-sort(gsub("[-:]",".", tmp.list)) # convert - to . in values
+    } 
+    tmp.list
+  }
+  
+  
+  
+  #returns all the elements in the given category
+  get.All.EleInGrp<-function(category){
     category<-sub("s$","",category)
     es.DT[variable=="category" & value==category]$element->ele 
     if(length(ele)==0){
       ele<-"Empty"
-    } else {
-      ele<-sort(gsub("-",".", ele)) # convert - to . in element names
     }
     ele
+  }
+  
+#   #returns a named vector giving the locations
+#   getAttrLocation<-function(attrArgs, elName){
+#    # AVEL.DT[attr==attrArgs & element==elName]$loc 
+#     aCS.DT[name=="presentation attributes"]$value->presAttrs
+#     gsub("[-:]","."presAttrs)->presAttrsV
+#     AL.DT<-
+#       rbind( AVEL.DT[element==elName, list(attr, loc)],
+#              data.table[attr=presAttrsV, loc=attrpresV]
+#     #append to this the location of any presentation elements
+#     structure(AL.DT$loc, names=AL.DT$attr)
+#   }
+  
+  makeAttrLinkItems<-function(attrArgs, elName){
+    # AVEL.DT[attr==attrArgs & element==elName]$loc 
+    if(length(attrArgs)>0){
+      aCS.DT[name=="presentation attributes"]$value->presAttrs
+      gsub("[-:]",".",presAttrs)->presAttrsV
+      AL.DT<-
+        rbind( AVEL.DT[element==elName, list(attr,  loc)],
+               data.table(attr=presAttrs, loc=presAttrsV)
+        )    
+      dest<-AL.DT$loc
+      names<- AL.DT$attr
+      displayName<-gsub("[-:]",".",names)      
+      attrLinkItems<-structure( paste0("\\link[=", dest,"]{",displayName,"}"), names=names)      
+    } else {
+      attrLinkItems<-c()
+    }
+    attrLinkItems
   }
   
   getAttrInGrp<-function(category){
@@ -169,14 +222,15 @@ generate.element.pages<-function(es.DT){
     aCS.DT[name==category]$value->attrs
     if(length(attrs)==0){
       attrs<-"Empty"
-    } else {
-      attrs<-sort(gsub("[-:]",".", attrs)) # convert - to . in attr names
-    }
+    } 
+#     else {
+#       attrs<-sort(gsub("[-:]",".", attrs)) # convert - to . in attr names
+#     }
     attrs   
   }
   
   splitIntoGrps<-function(args, fn=getAttrInGrp){
-    #process rrgs
+    #process args
     if(length(args)==0){
       grp.list<-list( Empty= "No available content elements")
     } else {
@@ -200,12 +254,13 @@ generate.element.pages<-function(es.DT){
         spec.names<-args
       }     
       if(length(spec.names)>0){
-        spec.names<-sort(spec.names)
+        #spec.names<-sort(spec.names)
         grp.list<-c(grp.list, list("Other Elements:"= spec.names))
         grp.names<-c(grp.names,"Other Elements:")
       }
     }
-    
+    grp.list<-lapply(grp.list, function(x) sort(gsub("[-:]",".", x)))
+      #gsub("[-:]",".",x))
     grp.list<-lapply(grp.names, function(x){ paste0("\\code{\\link{", grp.list[[x]], "}}")})
     names(grp.list)<-grp.names
     grp.list
@@ -214,40 +269,57 @@ generate.element.pages<-function(es.DT){
   
   
   #helper fn to write doc for single element
-  addElementEntry<-function(name, elemArgs, attrArgs, description="Needs Description Written!!!"){
+  addElementEntry<-function(elName){#, 
+                            #elemArgs, attrArgs, description="Needs Description Written!!!"){
+    #change here
+    #content.elements
+    elemArgs<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
+    elemArgs<-expand.arg.names(elemArgs)
+    description="Need to be written!!!"
+      
     #process elemArgs
-    showMe(name)
-    if(length(elemArgs)==0){
-      elemCats<-list( Empty= "No available content elements")
-    } else {
-      grpIndx<-grep(":$",elemArgs)
-      specIndx<-setdiff(1:length(elemArgs), grpIndx)
-      elemGrps<-elemArgs[grpIndx]
-      elemSpec<-elemArgs[specIndx]
-      if(length(grpIndx)>0){ #we have some groups (i.e.  categories)
-        elemGrps<-elemArgs[grpIndx]
-        #for elemGrps remove final colon  and captilize 
-        elemGrps<-sub(":$","",elemGrps)
-        elemGrps<-capitalizeIt(elemGrps)
-        elemCats<-lapply(elemGrps, getEleInGrp) #!!!
-        names(elemCats)<-elemGrps
-        elemGrps<-sort(elemGrps) #sorting the names
-        #elemGrps<-sub(" ","-",elemGrps)
-      } else { #no groups
-        elemCats<-list()
-        elemSpec<-elemArgs
-      }     
-      if(length(elemSpec)>0){
-        elemSpec<-sort(elemSpec)
-        elemCats<-c(elemCats,list("Other Elements:"= elemSpec))
-      }
-    }
-    elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
-    elemArgsItems<-lapply(names(elemCats),function(category){
+    showMe(elName)
+ 
+    
+    elemCats<-extract.CatMember.List(elemArgs, 
+                           other="Other Elements:")
+    
+#     if(length(elemArgs)==0){
+#       elemCats<-list( Empty= "No available content elements")
+#     } else {
+#       grpIndx<-grep(":$",elemArgs)
+#       specIndx<-setdiff(1:length(elemArgs), grpIndx)
+#       elemGrps<-elemArgs[grpIndx]
+#       elemSpec<-elemArgs[specIndx]
+#       if(length(grpIndx)>0){ #we have some groups (i.e.  categories)
+#         elemGrps<-elemArgs[grpIndx]
+#         #for elemGrps remove final colon  and captilize 
+#         elemGrps<-sub(":$","",elemGrps)
+#         elemGrps<-capitalizeIt(elemGrps)
+# #         elemCats<-lapply(elemGrps, getEleInGrp) #!!!
+# #         names(elemCats)<-elemGrps
+#         elemCats<-structure( lapply(elemGrps, get.All.EleInGrp), names=elemGrps)
+#         elemGrps<-sort(elemGrps) #sorting the names
+#         #elemGrps<-sub(" ","-",elemGrps)
+#       } else { #no groups
+#         elemCats<-list()
+#         elemSpec<-elemArgs
+#       }     
+#       if(length(elemSpec)>0){
+#         elemSpec<-sort(elemSpec)
+#         elemCats<-c(elemCats,list("Other Elements:"= elemSpec))
+#       }
+#     }
+# 
+#elemCats<-lapply(elemCats, function(x) sort(gsub("[-:]",".", x)))
+
+  elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
+  elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
+  elemArgsItems<-lapply(names(elemCats),function(category){
       paste(
         "\\subsection{",
         category,
-        "} {",
+        "}{",
         paste(elemCats[[category]],collapse=", "),
         "}",
         sep="",
@@ -259,10 +331,51 @@ generate.element.pages<-function(es.DT){
     #---end content element handlers------------------------------------
     
     #---begin attribute  handlers---------------------------------------
-    attrArgs<-splitIntoGrps(args=attrArgs, fn=getAttrInGrp)
-    attrArgsItems<-sapply(names(attrArgs),function(n){
-      paste0("\\item{ ", n,"}{", paste(attrArgs[[n]],collapse=", "), "}")
+    #use AVEL to get attrLoc and attrNames for that element,
+#!!!    AVEL.DT[element==element]$
+# we can get reg attrs via AVEL.DT, and then use presentationAttr for the rest
+# or pick off from es.DT
+      
+    attrArgs<-es.DT[ element==elName & variable=="attr"]$value    
+    attrArgs<-expand.arg.names(attrArgs)
+
+    #attrArgs<-splitIntoGrps(args=attrArgs, fn=getAttrInGrp)
+    attrCats<-extract.CatMember.List(attrArgs, 
+                                 other="Other Attributes:")
+
+    #attrCats<-lapply(attrCats, function(x) gsub("[-:]",".", x)) 
+    # elements of attrCats are modified names
+    #attrLoc<-getAttrLocation(attrArgs, elName) #attrArgs is still the original
+    # but attrLoc is vector with modified attr names
+    #sapply(attrArgs, getAttrLocation, list(elName=elName))
+
+    #For each attrArg create a single rd item based upon loctation and name
+    attrLinkItems<- makeAttrLinkItems(attrArgs, elName)
+ 
+    #attrCats<-lapply(names(attrCats), function(x)paste0("\\code{\\link{",x,"}}" ) )
+
+    attrArgsItems<-lapply(names(attrCats),function(category){     
+      attr.cat.members<-attrCats[[category]]
+      #attrs.location<-attrLoc[attr.names]
+      attr.links.in.cat<-attrLinkItems[attr.cat.members]
+      paste(
+        "\\item{",
+        category,
+        "}{",
+        paste(attr.links.in.cat, collapse=", "),
+        "}",
+        sep="",
+        collapse=", "
+      )
     })
+    unlist(attrArgsItems)->attrArgsItems
+    
+
+#     attrArgsItems<-sapply(names(attrCats),function(n){
+#       paste0("\\item{ ", n,"}{", paste(attrArgs[[n]],collapse=", "), "}")
+#     })
+
+
     #attrArgsItems<-paste0("\\item{ ", attrArgs, "}")  
     # if ends with colon is group 
     # to find attrs in group must remove colon
@@ -275,10 +388,10 @@ generate.element.pages<-function(es.DT){
     
     #---begin attribute  handlers---------------------------------------
     # if ends with a colon, find the attribute class
-    
+    name<-gsub("[-:]",".",elName)
     txt<-c(
-      paste("@name", name),
-      paste("@title", name), #todo!!! add something
+      paste("@name", name), #
+      paste("@title", name), #todo!!! add something meaningfull??
       "@description ",
       description,
       "@section Available Content Elements:",
@@ -343,56 +456,136 @@ generate.element.pages<-function(es.DT){
 #     tmp
 #   }
 #   
-  
+  #vector of all elements
   unique(es.DT$element)->all.elements
+  # content.DT
   es.DT[variable=="content.model", list(content=list(I(.I))), by=element]->content.DT
   es.DT[variable=="attr",  list(attr=list(I(.I))), by=element]->attributes.DT
-  eleL<-lapply( all.elements,
-                function(elName){
-                  content<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
-                  attr<-es.DT$value[attributes.DT[element==elName]$attr[[1]] ]
-                  addElementEntry(name=elName, elemArgs=content, attrArgs=attr, 
-                                  description="Description Needs to be Written!!!")
-                }
+
+#   get.Content<-function(elName){
+#     content<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
+#   }
+#   get.
+  
+  eleL<-lapply( all.elements, addElementEntry)
+#                 function(elName){
+#                   content<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
+#                   attr<-es.DT$value[attributes.DT[element==elName]$attr[[1]] ]
+#                   addElementEntry(name=elName, elemArgs=content, attrArgs=attr, 
+#                                   description="Description Needs to be Written!!!")
+#                 }
+#  )
+  rtv<-paste(eleL, "\nNULL\n", collapse="\n")
+}
+
+# #generates all individual attribute definitions pages
+# #todo : rewrite using AVDTable.tsv and presentationAttr.tsv
+# get.Attr.defs<-function(es.DT){
+#   addAttributeEntry<-function(name, elemArgs, description=""){
+#     if(length(name)>1){
+#       namea<-paste(name, collapse=" ")
+#       name<-paste(name, collapse=".")
+#       alias<-paste("@alias", namea) 
+#     } else
+#       alias<-NULL
+#     elemArgsF<-paste("\\code{\\link{", elemArgs, "}}", sep="", collapse=", ")
+#     txt<-c(
+#       paste("@name", name),
+#       paste("@title",name), #todo!!! replace with something meaninful
+#       alias,
+#       paste("@description ", description),
+#       paste("\\itemize{"),
+#       paste("\\item{Used by the Elements:}{ ",   elemArgsF, "}", sep=""),
+#       "}",
+#       "@keywords internal"
+#     )
+#     tmp<-paste("#' ", txt, sep="", collapse="\n")  
+#   }
+#   
+#   es.DT[variable=="attr",]->attributes.DT
+#   attributes.DT[, list(elements=list(I(.I))), by=value]->tmp.DT
+#   all.attrs<-tmp.DT$value
+#   eleL<-lapply( all.attrs,
+#                 function(attName){
+#                   eleIndices<-tmp.DT[value==attName,]$elements[[1]]
+#                   elemArgs<-attributes.DT$element[eleIndices] 
+#                   addAttributeEntry(name=attName, elemArgs=elemArgs, description="")
+#                 }
+#   )
+#   rtv<-paste(eleL, "\nNULL\n", collapse="\n")
+# }
+
+generate.Reg.Attr.Pages<-function(){
+  #requries AVD.DT, AVE.DT
+  addAttributeEntry<-function(alink){
+    #showMe(alink)
+    tmp1.DT<-AVEL.DT[loc==alink]
+    elements<-tmp1.DT$element
+    anim<-unique(tmp.DT$anim) #works since there is at most 1
+    tmp2.DT<-AVD.DT[loc==alink]
+    values<-AVD.DT[loc==alink]$value
+    valDes<-AVD.DT[loc==alink]$value.def
+    #showMe(valDes)
+    #valDes<-gsub( "(@[-\\w:]+)" ,"\\1 attribute", valDes, perl=T)
+    valDes<-gsub('[-:]',".",valDes)
+    valDes<-gsub('@','',valDes)
+    
+    title<-unique(AVEL.DT[loc==alink]$attr )
+    elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
+    txt<-c(
+      paste("@name", alink),
+      paste("@title",title), 
+      paste("@section Available Attribute Values:"),     
+      paste("\\describe{"),
+      paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
+      "}",
+      paste("@section Used by the Elements:"),           
+      paste("\\itemize{"),
+      paste("\\item{ ",   elements, "}", sep=""),
+      "}",
+      "@keywords internal"
     )
-  rtv<-paste(eleL, "\nNULL\n", collapse="\n")
+    tmp<-paste("#' ", txt, sep="", collapse="\n")  
+  }
+  links<-unique(AVEL.DT$loc)
+  attrDefsPages.List<-lapply( links, addAttributeEntry)
+ 
+  rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
+  #need 1. loc (becomes @Name)
+  #     2. AttrName = @title
+  #     3. Attr Values
+  #     4. Attr Values Des
+  #     5. Elements which attr applies to
+  #     6. Animatable??
+  #     7. related attrs??
+  #     
+
+  
 }
 
-get.Attr.defs<-function(es.DT){
-  es.DT[variable=="attr",]->attributes.DT
-  attributes.DT[, list(elements=list(I(.I))), by=value]->tmp.DT
-  all.attrs<-tmp.DT$value
-  eleL<-lapply( all.attrs,
-                function(attName){
-                  eleIndices<-tmp.DT[value==attName,]$elements[[1]]
-                  elemArgs<-attributes.DT$element[eleIndices] 
-                  addAttributeEntry(name=attName, elemArgs=elemArgs, description="")
-                }
-  )
-  rtv<-paste(eleL, "\nNULL\n", collapse="\n")
-}
-
-
-do.documentation<-function(es.DT, composerFiles="composerFiles"){
-  #listing of all elements
+# requires es.DT, AVEL.DT, AVD.DT,
+do.documentation<-function(es.DT, composerFiles="composerFiles"){ 
+#listing of all elements
 #   eleAlphabeticalIndexDoc<-gen.all.Elem.Index(es.DT) 
 #   cat(eleAlphabeticalIndexDoc, file=paste(composerFiles, "eleAlphabeticalIndexDoc.R", sep="/"))
   
-  #listing of Element Categories
-  ele.cat.indx<-generate.ele.cat.Index(es.DT)
+  #listing of Element by Categories
+  ele.cat.indx<-generate.ele.cat.Index()
   cat( ele.cat.indx, file=paste(composerFiles, " ele.cat.indx.page.R", sep="/") )
   
   #elecat doc
 #   elemCatDoc<-get.Elem.categories(es.DT)
 #   cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
   
-  #ele def doc
-  ele.pages<-generate.element.pages(es.DT)
-  cat(ele.pages, file=paste(composerFiles, "ele.pages.R", sep="/") )
+  #individual element documentation
+  ele.pages<-generate.element.pages()
+  cat(ele.pages, file=paste(composerFiles, "ele.pages.doc.R", sep="/") )
 
+  regAttrPagesDoc<-generate.Reg.Attr.Pages()
+  cat(regAttrPagesDoc, file=paste(composerFiles, "regAttr.pages.doc.R", sep="/") )
   #attr doc
-  attrDefDoc<-get.Attr.defs(es.DT)
-  cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
+  #attrDefDoc<-get.Attr.defs(es.DT)
+  #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
 }
 
-do.documentation(es.DT)
+#do.documentation(es.DT)
