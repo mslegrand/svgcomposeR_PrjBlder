@@ -62,7 +62,8 @@ addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
 
 
 
-#generates an alphebetical Index of All Elements (no longer using)
+# generates an alphebetical Index of All Elements 
+# NOT USING ANYMORE!!!
 gen.all.Elem.Index<-function(es.DT){
   unique(es.DT$element)->ele
   sort(gsub("-",".", ele))->ele
@@ -77,6 +78,7 @@ gen.all.Elem.Index<-function(es.DT){
   tmp<-paste("#' ", txt, sep="", collapse="\n")  
   tmp<-paste(tmp,"\nNULL\n") 
 }
+
 
 # Generates an Listing of Element Categories (Index of Ele Cats)
 # Generates an Listing of Element Categories (Index of Ele Cats)
@@ -121,6 +123,7 @@ get.Elem.categories<-function(es.DT){
   rtv<-paste(catsL, "\nNULL\n", collapse="\n")
 }
 
+# convert presAttr name into a location reference
 getPresAttrsLoc<-function(presAttrs){
   gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
   presAttrsLoc<-paste0("presAttrs.", presAttrs)
@@ -133,18 +136,17 @@ getPresAttrsLoc<-function(presAttrs){
 # element name, content.model, attributes
 generate.element.pages<-function(){
 
-  #begin content element handleing
-  #return all members of a given cat
-  expand.Cat<-function(cat.name){
-    eaCS.DT[name==cat.name]$value->members
-  }
+# ---------begin helper function
   
   #todo replace reference to eaCS.DT: 
   # with AVEL.DT and PA.DT
+  # done: replace for attrs, but still used to
+  # expand element categoris (to get content.elements)
   expand.arg.names<-function(arg.names){
     fn<-function(x){
       if(grepl(":$",x)){
         xx<-gsub(":$","",x)
+        #x<-eaCS.DT[name==xx]$value
         x<-eaCS.DT[name==xx]$value
       } else {
         x
@@ -152,7 +154,13 @@ generate.element.pages<-function(){
     }    
     unlist(lapply(arg.names, fn))   
   }
-  
+
+
+#--------
+
+  # This takes a vector of  element members and split it 
+  # into a list by category 
+  #
   extract.CatMember.List<-function(members, other="other"){
     #expand??
     #other<-"Other"
@@ -173,18 +181,33 @@ generate.element.pages<-function(){
     } 
     tmp.list
   }
+
+  # convert a vector of elements into a list index by category
+  ele.by.cat.list<-function(elements, other="other"){
+    if(length(elements)==0){
+      tmp.list<-list()
+    } else {
+      rowNum<-match(elements, eaCS.DT$value, nomatch=0L)
+      cats<-rep(other,length(elements))
+      cats[rowNum>0]<-eaCS.DT$value[rowNum>0]
+      tmp.list<-split(elements,cats)
+    } 
+    tmp.list
+  }
   
-  
+
+#--------
+
   
   #returns all the elements in the given category
-  get.All.EleInGrp<-function(category){
-    category<-sub("s$","",category)
-    es.DT[variable=="category" & value==category]$element->ele 
-    if(length(ele)==0){
-      ele<-"Empty"
-    }
-    ele
-  }
+#   get.All.EleInGrp<-function(category){
+#     category<-sub("s$","",category)
+#     es.DT[variable=="category" & value==category]$element->ele 
+#     if(length(ele)==0){
+#       ele<-"Empty"
+#     }
+#     ele
+#   }
   
   #   #returns a named vector giving the locations
   #   getAttrLocation<-function(attrArgs, elName){
@@ -197,25 +220,25 @@ generate.element.pages<-function(){
   #     #append to this the location of any presentation elements
   #     structure(AL.DT$loc, names=AL.DT$attr)
   #   }  
-  makeAttrLinkItems<-function(attrArgs, elName){
-    # AVEL.DT[attr==attrArgs & element==elName]$loc 
-    if(length(attrArgs)>0){
-      aCS.DT[name=="presentation attributes"]$value->presAttrs
-      gsub("[-:]",".",presAttrs)->presAttrsV
-      paste("presAttr",presAttrsV,sep="")->presAttrsV
-      AL.DT<-
-        rbind( AVEL.DT[element==elName, list(attr,  loc)],
-               data.table(attr=presAttrs, loc=presAttrsV)
-        )    
-      dest<-AL.DT$loc
-      names<- AL.DT$attr
-      displayName<-gsub("[-:]",".",names)      
-      attrLinkItems<-structure( paste0("\\link[=", dest,"]{",displayName,"}"), names=names)      
-    } else {
-      attrLinkItems<-c()
-    }
-    attrLinkItems
-  }
+#   makeAttrLinkItems<-function(attrArgs, elName){
+#     # AVEL.DT[attr==attrArgs & element==elName]$loc 
+#     if(length(attrArgs)>0){
+#       aCS.DT[name=="presentation attributes"]$value->presAttrs
+#       gsub("[-:]",".",presAttrs)->presAttrsV
+#       paste("presAttr",presAttrsV,sep="")->presAttrsV
+#       AL.DT<-
+#         rbind( AVEL.DT[element==elName, list(attr,  loc)],
+#                data.table(attr=presAttrs, loc=presAttrsV)
+#         )    
+#       dest<-AL.DT$loc
+#       names<- AL.DT$attr
+#       displayName<-gsub("[-:]",".",names)      
+#       attrLinkItems<-structure( paste0("\\link[=", dest,"]{",displayName,"}"), names=names)      
+#     } else {
+#       attrLinkItems<-c()
+#     }
+#     attrLinkItems
+#   }
   
 #   getPresAttrsLoc<-function(presAttrs){
 #     gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
@@ -272,65 +295,65 @@ generate.element.pages<-function(){
   
 
   
-  
-  getAttrInGrp<-function(category){
-    #category<-sub("s$","",category)
-    aCS.DT[name==category]$value->attrs
-    if(length(attrs)==0){
-      attrs<-"Empty"
-    } 
-    attrs   
-  }
-  
-  splitIntoGrps<-function(args, fn=getAttrInGrp){
-    #process args
-    if(length(args)==0){
-      grp.list<-list( Empty= "No available content elements")
-    } else {
-      grpIndx<-grep(":$",args)
-      specIndx<-setdiff(1:length(args), grpIndx)
-      #grps<-args[grpIndx]
-      spec.names<-args[specIndx]
-      if(length(grpIndx)>0){ #we have some groups (i.e.  categories)
-        grp.names<-args[grpIndx]
-        #for elemGrps remove final colon  and captilize 
-        grp.names<-sub(":$","",grp.names)       
-        grp.list<-lapply(grp.names, fn) #!!!
-        grp.names<-capitalizeIt(grp.names)
-        names(grp.list)<-grp.names
-        grp.names<-sort(grp.names)
-        
-        #elemGrps<-sub(" ","-",elemGrps)
-      } else { #no groups
-        grp.names<-c()
-        grp.list<-list()
-        spec.names<-args
-      }     
-      if(length(spec.names)>0){
-        #spec.names<-sort(spec.names)
-        grp.list<-c(grp.list, list("Other Elements:"= spec.names))
-        grp.names<-c(grp.names,"Other Elements:")
-      }
-    }
-    grp.list<-lapply(grp.list, function(x) sort(gsub("[-:]",".", x)))
-      #gsub("[-:]",".",x))
-    grp.list<-lapply(grp.names, function(x){ paste0("\\code{\\link{", grp.list[[x]], "}}")})
-    names(grp.list)<-grp.names
-    grp.list
-  }
-  
+#   
+#   getAttrInGrp<-function(category){
+#     #category<-sub("s$","",category)
+#     aCS.DT[name==category]$value->attrs
+#     if(length(attrs)==0){
+#       attrs<-"Empty"
+#     } 
+#     attrs   
+#   }
+#   
+#   splitIntoGrps<-function(args, fn=getAttrInGrp){
+#     #process args
+#     if(length(args)==0){
+#       grp.list<-list( Empty= "No available content elements")
+#     } else {
+#       grpIndx<-grep(":$",args)
+#       specIndx<-setdiff(1:length(args), grpIndx)
+#       #grps<-args[grpIndx]
+#       spec.names<-args[specIndx]
+#       if(length(grpIndx)>0){ #we have some groups (i.e.  categories)
+#         grp.names<-args[grpIndx]
+#         #for elemGrps remove final colon  and captilize 
+#         grp.names<-sub(":$","",grp.names)       
+#         grp.list<-lapply(grp.names, fn) #!!!
+#         grp.names<-capitalizeIt(grp.names)
+#         names(grp.list)<-grp.names
+#         grp.names<-sort(grp.names)
+#         
+#         #elemGrps<-sub(" ","-",elemGrps)
+#       } else { #no groups
+#         grp.names<-c()
+#         grp.list<-list()
+#         spec.names<-args
+#       }     
+#       if(length(spec.names)>0){
+#         #spec.names<-sort(spec.names)
+#         grp.list<-c(grp.list, list("Other Elements:"= spec.names))
+#         grp.names<-c(grp.names,"Other Elements:")
+#       }
+#     }
+#     grp.list<-lapply(grp.list, function(x) sort(gsub("[-:]",".", x)))
+#       #gsub("[-:]",".",x))
+#     grp.list<-lapply(grp.names, function(x){ paste0("\\code{\\link{", grp.list[[x]], "}}")})
+#     names(grp.list)<-grp.names
+#     grp.list
+#   }
+#   
   
   #helper fn to write doc for single element
   addElementEntry<-function(elName){#, 
     #content.elements
     elemArgs<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
-    elemArgs<-expand.arg.names(elemArgs)
+    elemArgs<-expand.arg.names(elemArgs) #expands el-categories in content.elements
     description="Need to be written!!!"
       
     #process elemArgs
     showMe(elName)
  
-    
+    # break up  elements back into el-categoris, but now is list
     elemCats<-extract.CatMember.List(elemArgs, 
                            other="Other Elements:")
     
@@ -494,7 +517,7 @@ generate.Pres.Attr.Pages<-function(){
     #process elemArgs
     #showMe(elName)
     
-    
+    # bundle into list
     elemCats<-extract.CatMember.List(AppliesTo.elements, 
                                      other="Other Elements:")
        
