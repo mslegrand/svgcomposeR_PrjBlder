@@ -272,37 +272,6 @@ generate.element.pages<-function(){
     elemArgs<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
     elemArgs<-expand.arg.names(elemArgs) #expands el-categories in content.elements
     # break up  elements back into el-categoris, but now is list
-#    elemCats<-extract.CatMember.List(elemArgs, other="Other Elements:") 
-#     elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
-#     elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
-#     elemArgsItems<-lapply(names(elemCats),function(category){
-#         paste(
-#           "\\subsection{",
-#           category,
-#           "}{",
-#           paste(elemCats[[category]],collapse=", "),
-#           "}",
-#           sep="",
-#           collapse=", "
-#         )
-#       })
-#     unlist(elemArgsItems)->elemArgsItems
-#  
-#     elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
-#     elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
-#     
-#     elemArgsItems<-lapply(names(elemCats),function(category){
-#       paste(
-#         "\\item{\\emph{",
-#         capitalizeIt(category),
-#         "}}{",
-#         paste(elemCats[[category]],collapse=", "),
-#         "}",
-#         sep="",
-#         collapse=", "
-#       )
-#     })
-#     unlist(elemArgsItems)->elemArgsItems
 
     elemArgsItems<- elements.by.category.listing(elemArgs)
     
@@ -410,25 +379,7 @@ generate.Pres.Attr.Pages<-function(){
     
     #process elemArgs
     #showMe(elName)
-    
-    # bundle into list
-#     elemCats<-extract.CatMember.List(AppliesTo.elements, other="Other Elements:")       
-#     elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
-#     elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
-#     
-#     elemArgsItems<-lapply(names(elemCats),function(category){
-#       paste(
-#         "\\item{",
-#         capitalizeIt(category),
-#         "}{",
-#         paste(elemCats[[category]],collapse=", "),
-#         "}",
-#         sep="",
-#         collapse=", "
-#       )
-#     })
-#     unlist(elemArgsItems)->elemArgsItems
-    
+        
     elemArgsItems<- elements.by.category.listing(AppliesTo.elements)
     
     Animatable<-tmp1.DT[variable=="Animatable"]$value 
