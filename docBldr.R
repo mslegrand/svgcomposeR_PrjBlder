@@ -28,6 +28,14 @@
 library(data.table)
 #fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
 fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
+fread("dataTables/presentationAttr.tsv")->PA.DT
+#------------------------ATTENTION!!!!-----------------------------------------
+# tmp kludge to remove the presentation attrs
+#------------------------BEGIN KLUDGE!!!!-----------------------------------------
+eaCS.DT[name!="presentation attributes"]->eaCS.DT
+#rbind(eaCS.DT, data.table(name="presentation attributes", value="alignment-baseline"))
+#------------------------END KLUDGE!!!!-----------------------------------------
+
 
 eCS.DT<-eaCS.DT[grep("elements$", eaCS.DT$name)]
 aCS.DT<-eaCS.DT[grep("attributes$", eaCS.DT$name)]
@@ -86,15 +94,17 @@ generate.ele.cat.Index<-function(){
       "}"
     )
     paste(res, collapse="\n#' ")    
-  }
+  } 
+  #categories identified by es.DT
   cats<-unique(es.DT[variable=="category"]$value)
   cats<-sort(cats)
   # Element Group Name
   sapply(cats, oneCatListing)->cat.index
   c(
     cat.index,
-    "@name SVG Element Creators",
-    "@title Elements Indexed by Category"  
+    "@name Element Index",
+    "@title Element Generators Indexed by Category",  
+    "@description This is a listing by category of generators to use when generating an svg markup."
   )->cat.index 
   paste(cat.index, collapse="\n#' ")->cat.index 
   paste0("#' ",cat.index, "\nNULL\n")
@@ -111,6 +121,11 @@ get.Elem.categories<-function(es.DT){
   rtv<-paste(catsL, "\nNULL\n", collapse="\n")
 }
 
+getPresAttrsLoc<-function(presAttrs){
+  gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
+  presAttrsLoc<-paste0("presAttrs.", presAttrs)
+  presAttrsLoc
+}
 
 
 #generates element documentation  for each element found in es.DT
@@ -124,6 +139,8 @@ generate.element.pages<-function(){
     eaCS.DT[name==cat.name]$value->members
   }
   
+  #todo replace reference to eaCS.DT: 
+  # with AVEL.DT and PA.DT
   expand.arg.names<-function(arg.names){
     fn<-function(x){
       if(grepl(":$",x)){
@@ -169,23 +186,23 @@ generate.element.pages<-function(){
     ele
   }
   
-#   #returns a named vector giving the locations
-#   getAttrLocation<-function(attrArgs, elName){
-#    # AVEL.DT[attr==attrArgs & element==elName]$loc 
-#     aCS.DT[name=="presentation attributes"]$value->presAttrs
-#     gsub("[-:]","."presAttrs)->presAttrsV
-#     AL.DT<-
-#       rbind( AVEL.DT[element==elName, list(attr, loc)],
-#              data.table[attr=presAttrsV, loc=attrpresV]
-#     #append to this the location of any presentation elements
-#     structure(AL.DT$loc, names=AL.DT$attr)
-#   }
-  
+  #   #returns a named vector giving the locations
+  #   getAttrLocation<-function(attrArgs, elName){
+  #    # AVEL.DT[attr==attrArgs & element==elName]$loc 
+  #     aCS.DT[name=="presentation attributes"]$value->presAttrs
+  #     gsub("[-:]","."presAttrs)->presAttrsV
+  #     AL.DT<-
+  #       rbind( AVEL.DT[element==elName, list(attr, loc)],
+  #              data.table[attr=presAttrsV, loc=attrpresV]
+  #     #append to this the location of any presentation elements
+  #     structure(AL.DT$loc, names=AL.DT$attr)
+  #   }  
   makeAttrLinkItems<-function(attrArgs, elName){
     # AVEL.DT[attr==attrArgs & element==elName]$loc 
     if(length(attrArgs)>0){
       aCS.DT[name=="presentation attributes"]$value->presAttrs
       gsub("[-:]",".",presAttrs)->presAttrsV
+      paste("presAttr",presAttrsV,sep="")->presAttrsV
       AL.DT<-
         rbind( AVEL.DT[element==elName, list(attr,  loc)],
                data.table(attr=presAttrs, loc=presAttrsV)
@@ -199,6 +216,62 @@ generate.element.pages<-function(){
     }
     attrLinkItems
   }
+  
+#   getPresAttrsLoc<-function(presAttrs){
+#     gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
+#     presAttrsLoc<-paste0("presAttrs.", presAttrs)
+#     presAttrsLoc
+#   }
+  
+  #returns attr-link-items of all reg attrs, given an elements name
+  makeAttrLinkItems2<-function(elName){
+      #regular attributes
+      AL.DT<- AVEL.DT[element==elName, list(loc), key=attr]
+      #setkey(AL.DT, attr)
+      setkey(eaCS.DT, value) #do just once please
+      CAL.DT<-eaCS.DT[AL.DT]
+      setnames(CAL.DT, c("category", "attr", "loc"))
+      if(nrow(CAL.DT)>0){
+        CAL.DT[is.na(category), category:='unclassified']
+        CAL.DT[, attr:=gsub("[-:]", ".", attr)]
+      }     
+     
+      #presentation attributes
+      presAttrs<-PA.DT[variable=="Applies to" & value==elName]$attr
+      if(length(presAttrs)>0){
+        gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
+        presAttrsLoc<-getPresAttrsLoc(presAttrs) #paste0("presAttrs.", presAttrs)      
+        CAL.DT<-rbind(
+          CAL.DT,
+          data.table(category="presentation attributes", attr=presAttrs, loc=presAttrsLoc)
+        )
+      }
+# tmp<-data.table(name=c("a","b"), x=1:6, y=7:12)
+# split(tmp[,paste("x=",x,"y=",y)], tmp$name)
+      if(nrow(CAL.DT)>0){
+        setkey(CAL.DT, category, attr)
+        CAL.LIST<-split(CAL.DT[,paste0("\\link[=", loc,"]{",attr,"}")] , CAL.DT$category)
+        
+        fn<-function(cat.name){
+          paste(
+            "\\item{",
+            capitalizeIt(cat.name),
+            "}{",
+            paste(CAL.LIST[[cat.name]], collapse=", "),
+            "}",
+            sep="",
+            collapse=", "
+          )
+        }        
+        attributesListing<-unlist(lapply(names(CAL.LIST), fn ))
+      } else {
+        attributesListing<-"{No Attributes Available}{!}"
+      }
+    attributesListing
+  }
+  
+
+  
   
   getAttrInGrp<-function(category){
     #category<-sub("s$","",category)
@@ -261,20 +334,20 @@ generate.element.pages<-function(){
     elemCats<-extract.CatMember.List(elemArgs, 
                            other="Other Elements:")
     
-
-  elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
-  elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
-  elemArgsItems<-lapply(names(elemCats),function(category){
-      paste(
-        "\\subsection{",
-        category,
-        "}{",
-        paste(elemCats[[category]],collapse=", "),
-        "}",
-        sep="",
-        collapse=", "
-      )
-    })
+  
+    elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
+    elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
+    elemArgsItems<-lapply(names(elemCats),function(category){
+        paste(
+          "\\subsection{",
+          category,
+          "}{",
+          paste(elemCats[[category]],collapse=", "),
+          "}",
+          sep="",
+          collapse=", "
+        )
+      })
     unlist(elemArgsItems)->elemArgsItems
     #elemArgsItems<-paste0("\\item{ \\code{\\link{", elemArgs, "}}}")
     #---end content element handlers------------------------------------
@@ -282,50 +355,51 @@ generate.element.pages<-function(){
     #---begin attribute  handlers---------------------------------------
     #use es.DT to get attrLoc and attrNames for that element,
       
-    attrArgs<-es.DT[ element==elName & variable=="attr"]$value    
-    attrArgs<-expand.arg.names(attrArgs)
-
-    #attrArgs<-splitIntoGrps(args=attrArgs, fn=getAttrInGrp)
-    attrCats<-extract.CatMember.List(attrArgs, 
-                                 other="Other Attributes:")
-
-    #For each attrArg create a single rd item based upon loctation and name
-    attrLinkItems<- makeAttrLinkItems(attrArgs, elName)
- 
-    #attrCats<-lapply(names(attrCats), function(x)paste0("\\code{\\link{",x,"}}" ) )
-
-    attrArgsItems<-lapply(names(attrCats),function(category){     
-      attr.cat.members<-attrCats[[category]]
-      #attrs.location<-attrLoc[attr.names]
-      attr.links.in.cat<-attrLinkItems[attr.cat.members]
-      paste(
-        "\\item{",
-        category,
-        "}{",
-        paste(attr.links.in.cat, collapse=", "),
-        "}",
-        sep="",
-        collapse=", "
-      )
-    })
-    unlist(attrArgsItems)->attrArgsItems
-    
-
-#     attrArgsItems<-sapply(names(attrCats),function(n){
-#       paste0("\\item{ ", n,"}{", paste(attrArgs[[n]],collapse=", "), "}")
+#     attrArgs<-es.DT[ element==elName & variable=="attr"]$value    
+#     attrArgs<-expand.arg.names(attrArgs)
+# 
+#     #-------------------------------------------------------------------------------------------------------------------
+#     #-------------------------------------------------------------------------------------------------------------------
+#     
+#     attrArgs2<-sort(AVEL.DT[element==elName]$attr)
+#     #remove the pres attr from attrArgs
+#     attrArgs3<-sort(setdiff(attrArgs, "alignment-baseline"))
+#     #and compare
+#     if(!identical(attrArgs3,attrArgs2)){
+#       showMe(elName)
+#       difference.between.attrArgs3.attrArgs2<-setdiff(attrArgs3,attrArgs2)
+#       showMe(difference.between.attrArgs3.attrArgs2)
+#       browser()
+#     }
+#    #-------------------------------------------------------------------------------------------------------------------
+#    #-------------------------------------------------------------------------------------------------------------------
+#                        
+#     
+#     attrCats<-extract.CatMember.List(attrArgs, 
+#                                  other="Other Attributes:")
+# 
+#     #For each attrArg create a single rd item based upon loctation and name
+#     attrLinkItems<- makeAttrLinkItems(attrArgs, elName)
+#  
+#     attrArgsItems<-lapply(names(attrCats),function(category){     
+#       attr.cat.members<-attrCats[[category]]
+#       #attrs.location<-attrLoc[attr.names]
+#       attr.links.in.cat<-attrLinkItems[attr.cat.members]
+#       paste(
+#         "\\item{",
+#         category,
+#         "}{",
+#         paste(attr.links.in.cat, collapse=", "),
+#         "}",
+#         sep="",
+#         collapse=", "
+#       )
 #     })
-
-
-    #attrArgsItems<-paste0("\\item{ ", attrArgs, "}")  
-    # if ends with colon is group 
-    # to find attrs in group must remove colon
-    # 1. split into group and specific
-    # 2. populate grp 
-    # 3. populate spec
-    # 4. reformat attrs having - and colons
-    # 5. add custom attrs
-    # 6. 
-    
+#    
+#     unlist(attrArgsItems)->attrArgsItems
+###8***********************************************************************   
+   #attrArgsItems<-c()
+    attrArgsItems<-makeAttrLinkItems2(elName)   
     #---begin attribute  handlers---------------------------------------
     # if ends with a colon, find the attribute class
     name<-gsub("[-:]",".",elName)
@@ -347,20 +421,25 @@ generate.element.pages<-function(){
     tmp<-paste("#' ", txt, sep="", collapse="\n")
     tmp
   }
-    
-
   #vector of all elements
   unique(es.DT$element)->all.elements
   # content.DT
   es.DT[variable=="content.model", list(content=list(I(.I))), by=element]->content.DT
   es.DT[variable=="attr",  list(attr=list(I(.I))), by=element]->attributes.DT
-
-  
+ 
   eleL<-lapply( all.elements, addElementEntry)
   rtv<-paste(eleL, "\nNULL\n", collapse="\n")
+  
 }
 
-
+#needs 1. loc (becomes @Name)
+#      2. AttrName = @title
+#      3. Attr Values
+#      4. Attr Values Des
+#      5. Elements which attr applies to
+#      6. Animatable??
+#      7. related attrs??
+#     
 generate.Reg.Attr.Pages<-function(){
   #requries AVD.DT, AVE.DT
   addAttributeEntry<-function(alink){
@@ -397,17 +476,86 @@ generate.Reg.Attr.Pages<-function(){
   attrDefsPages.List<-lapply( links, addAttributeEntry)
  
   rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
-  #need 1. loc (becomes @Name)
-  #     2. AttrName = @title
-  #     3. Attr Values
-  #     4. Attr Values Des
-  #     5. Elements which attr applies to
-  #     6. Animatable??
-  #     7. related attrs??
-  #     
-
-  
+  rtv 
 }
+
+generate.Pres.Attr.Pages<-function(){
+  #requries PA.DT
+  addAttributeEntry<-function(attribute){ #
+    #showMe(alink)
+    
+    tmp1.DT<-PA.DT[attr==attribute]
+    AppliesTo.elements<-tmp1.DT[variable=="Applies to"]$value
+   
+    #expand the categegories
+    #AppliesTo.elements<-expand.arg.names(AppliesTo.elements)
+    
+    
+    #process elemArgs
+    #showMe(elName)
+    
+    
+    elemCats<-extract.CatMember.List(AppliesTo.elements, 
+                                     other="Other Elements:")
+       
+    elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
+    elemCats<-lapply(elemCats, function(x)paste0("\\code{\\link{",x,"}}" ) )
+    elemArgsItems<-lapply(names(elemCats),function(category){
+      paste(
+        "\\item{",
+        capitalizeIt(category),
+        "}{",
+        paste(elemCats[[category]],collapse=", "),
+        "}",
+        sep="",
+        collapse=", "
+      )
+    })
+    unlist(elemArgsItems)->elemArgsItems
+    
+    Animatable<-tmp1.DT[variable=="Animatable"]$value 
+    Initial<-tmp1.DT[variable=="Initial"]$value
+    Inherited<-tmp1.DT[variable=="Inherited"]$value
+    values<-tmp1.DT[variable=="Value"]$value
+    Percentages<-tmp1.DT[variable=="Percentages"]$value
+    #showMe(valDes)
+    #valDes<-gsub( "(@[-\\w:]+)" ,"\\1 attribute", valDes, perl=T)
+#     valDes<-gsub('[-:]',".",valDes)
+#     valDes<-gsub('@','',valDes)
+    valDes<-" "
+    title<-gsub("[-:]", ".", attribute) 
+    presAttrLoc<-getPresAttrsLoc(title)
+    # AppliesTo.elements<-paste("\\code{\\link{", AppliesTo.elements, "}}", sep="", collapse=", ")
+    txt<-c(
+      paste("@name", presAttrLoc),
+      paste("@title",title), 
+      paste("@section Available Attribute Values:"),     
+      paste("\\itemize{"), #paste("\\describe{"),
+      paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
+      "}",
+      paste("@section Used by the Elements:"), 
+      "\\describe{",
+      elemArgsItems,
+      "}",
+#        paste("\\itemize{"),
+#        paste("\\item{ ",   AppliesTo.elements, "}", sep=""),
+#        "}",
+      "@keywords internal"
+    )
+    tmp<-paste("#' ", txt, sep="", collapse="\n")  
+  }
+
+  attrs<-unique(PA.DT[variable=="Applies to"]$attr)
+  #attrs[-grep("@",attrs)]->links #kludge to accomadate some bad data
+  #links<-paste0("presAttrs.", attrs) 
+
+
+  attrDefsPages.List<-lapply( attrs, addAttributeEntry)
+  
+  rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
+  rtv 
+}
+
 
 # requires es.DT, AVEL.DT, AVD.DT,
 do.documentation<-function(es.DT, composerFiles="composerFiles"){ 
@@ -429,6 +577,10 @@ do.documentation<-function(es.DT, composerFiles="composerFiles"){
 
   regAttrPagesDoc<-generate.Reg.Attr.Pages()
   cat(regAttrPagesDoc, file=paste(composerFiles, "regAttr.pages.doc.R", sep="/") )
+
+  presAttrPagesDoc<-generate.Pres.Attr.Pages()
+  cat(presAttrPagesDoc, file=paste(composerFiles, "presAttr.pages.doc.R", sep="/") )
+
   #attr doc
   #attrDefDoc<-get.Attr.defs(es.DT)
   #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
