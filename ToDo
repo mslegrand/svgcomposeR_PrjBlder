@@ -1,3 +1,41 @@
+DOC TODOS
+# 1. Add doc for custom attributes, 
+#  Some possible names are combined attributes, combination attributes, ...
+#  Deal with in1 How??? and document!
+# 2. Add see also cxy, xy, ... for attrs x, y, ... (when appropriate??)
+# 3. Add descriptions and better doc
+# 4. Add notes (for handling some special requirement or restriction on element params)
+# 5. Add 
+
+#DESIGN QUESTIONS
+1. SHOULD I IMPLEMENT A SYNTAX SOMETHING LIKE
+    A: doc[[id]]$add(...), or add(doc[[id]], ...)
+        INSTEAD OF doc[[id]](...)
+    B: IF SO, BESIDES add,  WHAT OTHER FUNCTIONALITY SHOULD I IMPLEMENT?
+        i) for animation: set.color(doc[[id]], 'red', t=2), 
+              or color(doc[[id]])='red',?
+              or doc( id@color='red' )?
+              or doc[[id]]@color='red' )?
+              or tstep(doc, { color(id):='red', xy(id2) , xy(id3):=5})?
+    
+              need to design symbolics for (:=, =, ~
+                a. changes immediately :=
+                b. changes to from last ~
+                c. relative to immediately  xy(id):=c(3,4)
+                d. relative to from last    XY(id)~c(3,4)
+              relative only makes sense for spatial (postion, rotation, ...)
+                rotate(id) would be relative (could we even make a Rotate(id))
+              
+        ii) set.attr0(doc[id], attr, value) for initialization
+        iii) set.auto.id(doc[[id]]), so all children will get id's
+        iv) get.child.id(doc[[id]], condition) 
+            where condition is something like "@color=red" or taf is "rect"",...
+    C: Easy call back scripts? (for plugins to talk to shiny)
+    D: Canned scripts for user interacvity (move box, ...)?
+    E: 
+
+story( ), chapter, act, page
+
 
 For custom controls:
 

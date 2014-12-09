@@ -29,6 +29,7 @@ library(data.table)
 #fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
 fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
 fread("dataTables/presentationAttr.tsv")->PA.DT
+fread("dataTables/comboParams.tsv")->CO.DT
 #------------------------ATTENTION!!!!-----------------------------------------
 # tmp kludge to remove the presentation attrs
 #------------------------BEGIN KLUDGE!!!!-----------------------------------------
@@ -46,6 +47,14 @@ capitalizeIt<-function(name){
   gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", name, perl=TRUE)
 }
 
+#1.attr is an uncombined attr
+#2. loc is loc for attr
+#3. variable is combined attr
+co.loc<-function(attr,loc, variable){
+  pattern<-paste0(attr[1],"Attribute$")
+  variable<-paste0(toupper(variable[1]),'Attribute')
+  sub(pattern, variable, loc, ignore.case=T)
+}
 
 
 # ------------------NOT USING BELOW ANYMORE!!!
@@ -123,9 +132,10 @@ generate.ele.cat.Index<-function(){
 }
 
 
-# This takes a vector of  element members and split it 
-# into a list by category 
-#  (used by elements.by.category.listing)
+# Splits vector of elements into list of categories with both 
+# list names (category) and members( elements for each cat) sorted
+# 
+#  used by: elements.by.category.listing)
 extract.CatMember.List<-function(members, other="Unclassifed"){
   #expand??
   #other<-"Other"
@@ -147,6 +157,9 @@ extract.CatMember.List<-function(members, other="Unclassifed"){
   tmp.list
 }
 
+
+# uses: extract.CatMember.List
+# is used by: generate.element.pages::addElementEntry, generate.Pres.Attr.Pages 
 elements.by.category.listing<-function( elemArgs ){
   elemCats<-extract.CatMember.List(elemArgs, other="Unclassfied:") 
   elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
@@ -220,18 +233,40 @@ generate.element.pages<-function(){
 
   #returns attr-link-items of all reg attrs, given an elements name
   makeAttrLinkItems2<-function(elName){
-      #regular attributes
+      #------regular attributes
       AL.DT<- AVEL.DT[element==elName, list(loc), key=attr]
       #setkey(AL.DT, attr)
-      setkey(eaCS.DT, value) #do just once please
+      setkey(eaCS.DT, value) #do just once please!!!
       CAL.DT<-eaCS.DT[AL.DT]
+      
       setnames(CAL.DT, c("category", "attr", "loc"))
       if(nrow(CAL.DT)>0){
         CAL.DT[is.na(category), category:='unclassified']
         CAL.DT[, attr:=gsub("[-:]", ".", attr)]
-      }     
-     
-      #presentation attributes
+      } 
+      
+      co.loc2<-function(attr,loc, variable){
+        sapply(1:length(attr), function(i){
+          pattern<-paste0(attr[i],"Attribute$")
+          variable<-paste0(toupper(variable[i]),'Attribute')
+          sub(pattern, variable, loc[i], ignore.case=T)    
+        }
+        )   
+      }
+      
+      #-----combo attributes
+      # 1. get the combined attrs from CO.DT
+      CO.DT[element==elName, .SD[1,], by=variable]->tmp1.DT      
+      # 2. extract from AL.DT, the locations and form CAL.CO.DT for combined
+      if(nrow(tmp1.DT)>0){
+        setkey(tmp1.DT,value)
+        #In one step :)
+        CAL.CO.DT<-AL.DT[tmp1.DT,list(category='combining attributes', attr=variable, loc=co.loc2(attr, loc, variable))]
+        setkey(CAL.CO.DT, attr) #make sure that it's sorted
+        CAL.DT<-rbind(CAL.DT,CAL.CO.DT)        
+      }
+      
+      #------presentation attributes
       presAttrs<-PA.DT[variable=="Applies to" & value==elName]$attr
       if(length(presAttrs)>0){
         gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
@@ -318,116 +353,9 @@ generate.element.pages<-function(){
 } 
 #----------- END: generate.element.pages
 
-#needs 1. loc (becomes @Name)
-#      2. AttrName = @title
-#      3. Attr Values
-#      4. Attr Values Des
-#      5. Elements which attr applies to
-#      6. Animatable??
-#      7. related attrs??
-#     
-generate.Reg.Attr.Pages<-function(){
-  #requries AVD.DT, AVE.DT
-  addAttributeEntry<-function(alink){
-    #showMe(alink)
-    tmp1.DT<-AVEL.DT[loc==alink]
-    elements<-tmp1.DT$element
-    anim<-unique(tmp.DT$anim) #works since there is at most 1
-    tmp2.DT<-AVD.DT[loc==alink]
-    values<-AVD.DT[loc==alink]$value
-    valDes<-AVD.DT[loc==alink]$value.def
-    #showMe(valDes)
-    #valDes<-gsub( "(@[-\\w:]+)" ,"\\1 attribute", valDes, perl=T)
-    valDes<-gsub('[-:]',".",valDes)
-    valDes<-gsub('@','',valDes)
-    
-    title<-unique(AVEL.DT[loc==alink]$attr )
-    elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
-    txt<-c(
-      paste("@name", alink),
-      paste("@title",title), 
-      paste("@section Available Attribute Values:"),     
-      paste("\\describe{"),
-      paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
-      "}",
-      paste("@section Used by the Elements:"),           
-      paste("\\itemize{"),
-      paste("\\item{ ",   elements, "}", sep=""),
-      "}",
-      "@keywords internal"
-    )
-    tmp<-paste("#' ", txt, sep="", collapse="\n")  
-  }
-  links<-unique(AVEL.DT$loc)
-  attrDefsPages.List<-lapply( links, addAttributeEntry)
- 
-  rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
-  rtv 
-}
-
-generate.Pres.Attr.Pages<-function(){
-  #requries PA.DT
-  addAttributeEntry<-function(attribute){ #
-    #showMe(alink)
-    
-    tmp1.DT<-PA.DT[attr==attribute]
-    AppliesTo.elements<-tmp1.DT[variable=="Applies to"]$value
-   
-    #expand the categegories
-    #AppliesTo.elements<-expand.arg.names(AppliesTo.elements)
-    
-    
-    #process elemArgs
-    #showMe(elName)
-        
-    elemArgsItems<- elements.by.category.listing(AppliesTo.elements)
-    
-    Animatable<-tmp1.DT[variable=="Animatable"]$value 
-    Initial<-tmp1.DT[variable=="Initial"]$value
-    Inherited<-tmp1.DT[variable=="Inherited"]$value
-    values<-tmp1.DT[variable=="Value"]$value
-    Percentages<-tmp1.DT[variable=="Percentages"]$value
-    #showMe(valDes)
-    #valDes<-gsub( "(@[-\\w:]+)" ,"\\1 attribute", valDes, perl=T)
-#     valDes<-gsub('[-:]',".",valDes)
-#     valDes<-gsub('@','',valDes)
-    valDes<-" "
-    title<-gsub("[-:]", ".", attribute) 
-    presAttrLoc<-getPresAttrsLoc(title)
-    # AppliesTo.elements<-paste("\\code{\\link{", AppliesTo.elements, "}}", sep="", collapse=", ")
-    txt<-c(
-      paste("@name", presAttrLoc),
-      paste("@title",title), 
-      paste("@section Available Attribute Values:"),     
-      paste("\\itemize{"), #paste("\\describe{"),
-      paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
-      "}",
-      paste("@section Used by the Elements:"), 
-      "\\describe{",
-      elemArgsItems,
-      "}",
-#        paste("\\itemize{"),
-#        paste("\\item{ ",   AppliesTo.elements, "}", sep=""),
-#        "}",
-      "@keywords internal"
-    )
-    tmp<-paste("#' ", txt, sep="", collapse="\n")  
-  }
-
-  attrs<-unique(PA.DT[variable=="Applies to"]$attr)
-  #attrs[-grep("@",attrs)]->links #kludge to accomadate some bad data
-  #links<-paste0("presAttrs.", attrs) 
-
-
-  attrDefsPages.List<-lapply( attrs, addAttributeEntry)
-  
-  rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
-  rtv 
-}
-
-
 # requires es.DT, AVEL.DT, AVD.DT,
 do.documentation<-function(es.DT, composerFiles="composerFiles"){ 
+  source("genAttrDocPages.R")
 #listing of all elements
 #   eleAlphabeticalIndexDoc<-gen.all.Elem.Index(es.DT) 
 #   cat(eleAlphabeticalIndexDoc, file=paste(composerFiles, "eleAlphabeticalIndexDoc.R", sep="/"))
@@ -444,13 +372,16 @@ do.documentation<-function(es.DT, composerFiles="composerFiles"){
   ele.pages<-generate.element.pages()
   cat(ele.pages, file=paste(composerFiles, "ele.pages.doc.R", sep="/") )
 
-  regAttrPagesDoc<-generate.Reg.Attr.Pages()
-  cat(regAttrPagesDoc, file=paste(composerFiles, "regAttr.pages.doc.R", sep="/") )
+  regAttrDocPages<-generate.Reg.Attr.Pages()
+  cat(regAttrDocPages, file=paste(composerFiles, "regAttr.pages.doc.R", sep="/") )
 
-  presAttrPagesDoc<-generate.Pres.Attr.Pages()
-  cat(presAttrPagesDoc, file=paste(composerFiles, "presAttr.pages.doc.R", sep="/") )
+  presAttrDocPages<-generate.Pres.Attr.Pages()
+  cat(presAttrDocPages, file=paste(composerFiles, "presAttr.pages.doc.R", sep="/") )
 
-  #attr doc
+
+  combAttrDocPages<-generate.CO.Attr.Pages()
+  cat(combAttrDocPages, file=paste(composerFiles, "combAttr.pages.doc.R", sep="/") )
+#attr doc
   #attrDefDoc<-get.Attr.defs(es.DT)
   #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
 }
