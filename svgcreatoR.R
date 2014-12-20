@@ -158,7 +158,7 @@ build.svgFnQ<-function(){
               offsets<-seq(0,100,length.out=length(colors))
             }
             for(i in 1:length(colors)){
-              attrs.si<-list(offset=sprintf("%d%%", offsets[i]), "stop-color"= colors[i])
+              attrs.si<-list(offset=sprintf("%d%%", as.integer(offsets[i])), "stop-color"= colors[i])
               stopi<-newXMLNode("stop", attrs=attrs.si)
               args<-c(args,stopi)
             }

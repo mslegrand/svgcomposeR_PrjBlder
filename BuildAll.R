@@ -1,12 +1,12 @@
 
 library(data.table)
+fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
+fread("dataTables/AVELTable.tsv")->AVEL.DT
+fread("dataTables/AVDTable.tsv")->AVD.DT
 
 buildAll<-function(composerFiles="composerFiles"){  
-  source("docBldr.R")
-  fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
-  fread("dataTables/AVELTable.tsv")->AVEL.DT
   #fread("./dataTables/AVDTable.tsv")->AVD.DT
-  fread("dataTables/AVDTable.tsv")->AVD.DT
+  source("docBldr.R")
   do.documentation(es.DT, composerFiles=composerFiles) 
   source("./svgcreatoR.R")
   source("./eleDefBldr.R")
