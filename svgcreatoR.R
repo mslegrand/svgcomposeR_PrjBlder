@@ -49,8 +49,33 @@ library(XML)
 # (maybe they will fix it some day)
 .datatable.aware=TRUE
 
-fread("./dataTables/AVETable.csv")->ave.DT
+#fread("./dataTables/AVETable.csv")->ave.DT
+fread("./dataTables/AVETable.tsv")->ave.DT
 fread("dataTables/comboParams.tsv")->comboParams.DT
+
+preproc.treat.val.as<-function(v){
+  tmp<-c(
+    "cmm-list {4}"="cmm-list",
+    "default"="ignore",
+    "filterprimitiveinattribute"="ignore",
+    "integer"="ignore",
+    "pointsbnf"="cmm-wsp-list",
+    "transformlist"="transform-list",
+    "lengths"="wsp-list",
+    "numbers"="wsp-list",
+    "coordinates"="wsp-list",
+    "special-string"="wsp-list",
+    "funciri"="ignore")
+  
+  for( n in names(tmp)){
+    v<-gsub(n, tmp[n], v)
+  }
+  v  
+}
+
+#preprocess ave.DT
+ave.DT[,treatValueAs:=preproc.treat.val.as(treatValueAs)]
+
 
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
