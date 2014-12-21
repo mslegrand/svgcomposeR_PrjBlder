@@ -50,6 +50,19 @@ asDot<-function(aName){
   gsub('[-:]','.', aName)
 }
 
+
+nameWithLink<-function(aName, aLink=NULL){
+  if(is.null(aLink)){
+    aLink<-aName
+  }
+  aName<-asDot(aName)
+  #paste0("\\link[=", aLink,"]{",aName,"}")
+  paste0("\\code{\\link[=", aLink,"]{",aName,"}}")
+}
+
+
+
+
 #we need 
 # 1. element name link: 
 #   a. In genElemDoc

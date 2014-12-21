@@ -14,12 +14,14 @@ cleanAttrValue<-function(vd){
 }
 
 elementsRD<-function(elements){
-  elements<-gsub("-",".",elements) #!!! file names with an issue???
+  #elements<-gsub("-",".",elements) #!!! file names with an issue???
+  sort(elements)->elements
   if(any(grepl('Empty', elements))|
      any(grepl('Any element',elements))){
     paste("\\code{", elements, "}", sep="", collapse=", ")
   } else {
-    paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
+    paste( nameWithLink(elements), sep="", collapse=", ")
+  #    "\\code{\\link{", elements, "}}", sep="", collapse=", ")
   }  
 }
 
@@ -37,7 +39,7 @@ generate.Reg.Attr.Pages<-function(){
     #showMe(alink)
     tmp1.DT<-AVEL.DT[loc==alink]
     elements<-tmp1.DT$element
-    elements<-gsub("-",".",elements)
+    #elements<-gsub("-",".",elements)
     anim<-unique(tmp1.DT$anim) #works since there is at most 1
     tmp2.DT<-AVD.DT[loc==alink]
     values<-AVD.DT[loc==alink]$value
@@ -50,11 +52,11 @@ generate.Reg.Attr.Pages<-function(){
     valDes<-cleanAttrValue(valDes)
     title<-unique(AVEL.DT[loc==alink]$attr )
     #elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
-    title<-gsub("[-:]",".",title)
+    #title<-gsub("[-:]",".",title)
     elements<-elementsRD(elements)
     txt<-c(
       paste("@name", alink),
-      paste("@title",title), 
+      paste("@title",asDot(title)), 
       paste("@section Available Attribute Values:"),     
       paste("\\describe{"),
       paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
@@ -177,20 +179,20 @@ generate.CO.Attr.Pages<-function(){
 #       "}", collapse="\\cr" )
 #       )
       
-    title<-gsub("-","",title)
-    equivI<-gsub("-","",equivI) 
-    equivII<-gsub("-","",equivII)
+#     title<-gsub("-","",title)
+#     equivI<-gsub("-","",equivI) 
+#     equivII<-gsub("-","",equivII)
 
 
     txt<-c(
       paste("@name", alink),
-      paste("@title",title), 
+      paste("@title",asDot(title)), 
       paste("@section Combines:"),
       componentComma,
       "@section Equivalence:",
         "\\describe{",
-          paste0("\\item{}{",   equivI, "}"),
-          paste0("\\item{and}{",equivII,"}"),
+          paste0("\\item{}{",   asDot(equivI), "}"),
+          paste0("\\item{and}{",asDot(equivII),"}"),
         "}",  
 #       paste("@section Available Attribute Values:"),     
 #       paste("\\describe{"),
@@ -213,6 +215,12 @@ generate.CO.Attr.Pages<-function(){
 # 
 }
 
+
+#' Uses:
+#' elements.by.category.listing
+#' expand.pres.Cat
+#' elements.by.category.listing
+#' 
 generate.Pres.Attr.Pages<-function(){
   #requries PA.DT
   addAttributeEntry<-function(attribute){ #
@@ -243,12 +251,12 @@ generate.Pres.Attr.Pages<-function(){
     Percentages<-tmp1.DT[variable=="Percentages"]$value
     
     valDes<-"**to do** "
-    title<-gsub("[-:]", ".", attribute) 
-    presAttrLoc<-getPresAttrsLoc(title)
+    #title<-gsub("[-:]", ".", attribute) 
+    presAttrLoc<-getPresAttrsLoc(attribute)
     # AppliesTo.elements<-paste("\\code{\\link{", AppliesTo.elements, "}}", sep="", collapse=", ")
     txt<-c(
       paste("@name", presAttrLoc),
-      paste("@title",title), 
+      paste("@title", asDot(attribute)), 
       paste("@section Available Attribute Values:"),     
       paste("\\itemize{"), #paste("\\describe{"),
       paste("\\item{ ",   values, "}{", valDes,"}", sep=""),

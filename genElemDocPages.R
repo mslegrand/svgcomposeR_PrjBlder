@@ -5,11 +5,12 @@ generate.ele.cat.Index<-function(){
   oneCatListing<-function(category){
     #category name
     es.DT[variable=="category" & value==category]$element->ele    
-    sort(gsub("-",".", ele))->ele # convert - to . in element names
+    #sort(gsub("-",".", ele))->ele # convert - to . in element names
+    sort(ele)->ele
     res<-c(
       paste0("@section ",category,"s:"),
       "\\describe{",
-      paste0("\\item{ \\code{\\link[svgcomposeR]{",ele,"}}}{}"),
+      paste0("\\item{", nameWithLink(ele), "}{}"),
       #"}",
       "}"
     )
@@ -35,7 +36,7 @@ generate.ele.cat.Index<-function(){
 # Splits vector of elements into list of categories with both 
 # list names (category) and members( elements for each cat) sorted
 # 
-#  used by: elements.by.category.listing)
+#  USED ONLY BY: elements.by.category.listing
 extract.CatMember.List<-function(members, other="Unclassifed"){
   #expand??
   #other<-"Other"
@@ -48,7 +49,7 @@ extract.CatMember.List<-function(members, other="Unclassifed"){
     cats<-sort(unique(tmp.DT$name))
     if(length(missing)>0){
       cats<-c(cats,other)
-      tmp.DT<-rbind(tmp.DT, data.table(name=other, value=missing))
+      tmp.DT<-data.table(rbind(tmp.DT, data.table(name=other, value=missing)))
     } 
     tmp.list<-structure(lapply(cats, function(kit)tmp.DT[name==kit]$value) ,
                         names=cats)
@@ -59,26 +60,28 @@ extract.CatMember.List<-function(members, other="Unclassifed"){
 
 
 # uses: extract.CatMember.List
-# is used by: generate.element.pages::addElementEntry, generate.Pres.Attr.Pages 
+# is used by: 
+# generate.element.pages::addElementEntry, 
+# generate.Pres.Attr.Pages 
 elements.by.category.listing<-function( elemArgs ){
-  elemCats<-extract.CatMember.List(elemArgs, other="Unclassfied:") 
-  elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))
-  
-  elementsRD<-function(elements){
-    if(any(grepl('Empty', elements))|
-         any(grepl('Any element',elements))){
-      paste("\\code{", elements, "}", sep="", collapse=", ")
-    } else {
-      paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
-    }  
-  }
-  
-  
+  elemCats<-extract.CatMember.List(elemArgs, other="Unclassfied:")   
+  #elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))  
+#   elementsRD<-function(elements){
+#     if(any(grepl('Empty', elements))|
+#          any(grepl('Any element',elements))){
+#       paste("\\code{", elements, "}", sep="", collapse=", ")
+#     } else {
+#       nwl<-nameWithLink(elements)
+#       paste(nwl, sep="", collapse=", ")
+#     }  
+#   }
+    
   elemCats<-lapply(elemCats, function(x){
     if(any(grepl('Empty', x))| any(grepl('Any element',x))){
       paste0("\\code{",x,"}")
     } else {
-      paste0("\\code{\\link{",x,"}}")
+      #paste0("\\code{\\link{",x,"}}")
+      nameWithLink(x)
     }
   })
   
@@ -99,8 +102,8 @@ elements.by.category.listing<-function( elemArgs ){
 
 # convert presAttr name into a location reference
 getPresAttrsLoc<-function(presAttrs){
-  gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
-  presAttrsLoc<-paste0("presAttrs.", presAttrs)
+  #gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
+  presAttrsLoc<-paste0(presAttrs,"-presentationAttribute")
   presAttrsLoc
 }
 
@@ -191,24 +194,26 @@ generate.element.pages<-function(){
       #In one step :)
       CAL.CO.DT<-AL.DT[tmp1.DT,list(category='combining attributes', attr=variable, loc=co.loc2(attr, loc, variable))]
       setkey(CAL.CO.DT, attr) #make sure that it's sorted
-      CAL.DT<-rbind(CAL.DT,CAL.CO.DT)        
+      CAL.DT<-data.table(rbind(CAL.DT,CAL.CO.DT))        
     }
     
     #------presentation attributes
     presAttrs<-PA.DT[variable=="Applies to" & value==elName]$attr
     if(length(presAttrs)>0){
-      gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
+      #gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
       presAttrsLoc<-getPresAttrsLoc(presAttrs) #paste0("presAttrs.", presAttrs)      
-      CAL.DT<-rbind(
+      CAL.DT<-data.table(rbind(
         CAL.DT,
         data.table(category="presentation attributes", attr=presAttrs, loc=presAttrsLoc)
-      )
+      ))  
     }
     # tmp<-data.table(name=c("a","b"), x=1:6, y=7:12)
     # split(tmp[,paste("x=",x,"y=",y)], tmp$name)
     if(nrow(CAL.DT)>0){
       setkey(CAL.DT, category, attr)
-      CAL.LIST<-split(CAL.DT[,paste0("\\link[=", loc,"]{",attr,"}")] , CAL.DT$category)
+      CAL.LIST<-split(CAL.DT[, nameWithLink(attr, loc)
+                            #paste0("\\link[=", loc,"]{",attr,"}")
+                            ] , CAL.DT$category)
       
       fn<-function(cat.name){
         paste(
@@ -244,13 +249,13 @@ generate.element.pages<-function(){
     #---begin attribute  handeling---------------------------------------      
     attrArgsItems<-makeAttrLinkItems2(elName)   
     #---end content element handeling------------------------------------    
-    name<-gsub("[-:]",".",elName)
+    #name<-gsub("[-:]",".",elName)
     
     #pulling it together 
     description="Need to be written!!!"
     txt<-c(
-      paste("@name", name), #
-      paste("@title", name), #todo!!! add something meaningfull??
+      paste("@name", elName ), #
+      paste("@title", asDot(elName)), #
       "@description ",
       description,    
       "@section Available Attributes (Named Parameters):",
