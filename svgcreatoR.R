@@ -49,8 +49,8 @@ library(XML)
 # (maybe they will fix it some day)
 .datatable.aware=TRUE
 
-#fread("./dataTables/AVETable.csv")->ave.DT
-fread("./dataTables/AVETable.tsv")->ave.DT
+#fread("./dataTables/AVETable.csv")->AVEL.DT
+fread("./dataTables/AVETable.tsv")->AVEL.DT
 fread("dataTables/comboParams.tsv")->comboParams.DT
 
 preproc.treat.val.as<-function(v){
@@ -73,19 +73,19 @@ preproc.treat.val.as<-function(v){
   v  
 }
 
-#preprocess ave.DT
-ave.DT[,treatValueAs:=preproc.treat.val.as(treatValueAs)]
+#preprocess AVEL.DT
+AVEL.DT[,treatValueAs:=preproc.treat.val.as(treatValueAs)]
 
 
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
-  ele.tags<-unique(ave.DT$element)
+  ele.tags<-unique(AVEL.DT$element)
   
-  ele.tags.attributeName<-ave.DT[attr=="attributeName"]$element
+  ele.tags.attributeName<-AVEL.DT[attr=="attributeName"]$element
   
-  centerable<-function(ele.tag, ave.DT){
+  centerable<-function(ele.tag, AVEL.DT){
     ifelse(
-      nrow(ave.DT[  element==ele.tag & 
+      nrow(AVEL.DT[  element==ele.tag & 
                       (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,]
       )==4,
       "attrs<-mapCenteredXY(attrs)",
@@ -94,8 +94,8 @@ build.svgFnQ<-function(){
   }
     
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
-  createEleFnQ<-function(ele.tag, ave.DT){
-    ave.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
+  createEleFnQ<-function(ele.tag, AVEL.DT){
+    AVEL.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
     ele.treatments<-unique(ele.dt$treatValueAs)
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
     #This is the extras 
@@ -119,7 +119,7 @@ build.svgFnQ<-function(){
     ppXtraCL<-list( qcomboParamsFn(ele.tag) )
     
     
-    if(nrow(ave.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
+    if(nrow(AVEL.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapCenteredXY(attrs) ) ) # append a call
     }
 
@@ -197,7 +197,7 @@ build.svgFnQ<-function(){
     
   }
   
-  svgFnQ<-lapply(ele.tags, createEleFnQ, ave.DT=ave.DT )
+  svgFnQ<-lapply(ele.tags, createEleFnQ, AVEL.DT=AVEL.DT )
   names(svgFnQ)<-ele.tags
   
   #here we handle names with -

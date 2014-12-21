@@ -34,7 +34,7 @@ elementsRD<-function(elements){
 #      7. related attrs??
 #     
 generate.Reg.Attr.Pages<-function(){
-  #requries AVD.DT, AVE.DT
+  #requries AVD.DT, AVEL.DT
   addAttributeEntry<-function(alink){
     #showMe(alink)
     tmp1.DT<-AVEL.DT[loc==alink]
