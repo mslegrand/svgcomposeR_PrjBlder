@@ -186,15 +186,15 @@ generate.element.pages<-function(){
     }
     
     #-----combo attributes
-    # 1. get the combined attrs from CO.DT
-    CO.DT[element==elName, .SD[1,], by=variable]->tmp1.DT      
-    # 2. extract from AL.DT, the locations and form CAL.CO.DT for combined
+    # 1. get the combined attrs from COP.DT
+    COP.DT[element==elName, .SD[1,], by=variable]->tmp1.DT      
+    # 2. extract from AL.DT, the locations and form CAL.COP.DT for combined
     if(nrow(tmp1.DT)>0){
       setkey(tmp1.DT,value)
       #In one step :)
-      CAL.CO.DT<-AL.DT[tmp1.DT,list(category='combining attributes', attr=variable, loc=co.loc2(attr, loc, variable))]
-      setkey(CAL.CO.DT, attr) #make sure that it's sorted
-      CAL.DT<-data.table(rbind(CAL.DT,CAL.CO.DT))        
+      CAL.COP.DT<-AL.DT[tmp1.DT,list(category='combining attributes', attr=variable, loc=co.loc2(attr, loc, variable))]
+      setkey(CAL.COP.DT, attr) #make sure that it's sorted
+      CAL.DT<-data.table(rbind(CAL.DT,CAL.COP.DT))        
     }
     
     #------presentation attributes

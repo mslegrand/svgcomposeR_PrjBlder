@@ -78,21 +78,21 @@ generate.Reg.Attr.Pages<-function(){
 
 
 generate.CO.Attr.Pages<-function(){
-  # 1. get the combined attrs from CO.DT
-#   CO.DT[element==elName, .SD[1,], by=variable]->tmp1.DT      
-#   # 2. extract from AL.DT, the locations and form CAL.CO.DT for combined
+  # 1. get the combined attrs from COP.DT
+#   COP.DT[element==elName, .SD[1,], by=variable]->tmp1.DT      
+#   # 2. extract from AL.DT, the locations and form CAL.COP.DT for combined
 #   setkey(tmp1.DT,value)
 #   #In one step :)
-#   CAL.CO.DT<-AL.DT[tmp1.DT,list(category='combined attributes', attr=variable, loc=co.loc(attr, loc, variable))]
-#   setkey(CAL.CO.DT, attr) #make sure that it's sorted
-#   CAL.DT<-rbind(CAL.DT,CAL.CO.DT)
+#   CAL.COP.DT<-AL.DT[tmp1.DT,list(category='combined attributes', attr=variable, loc=co.loc(attr, loc, variable))]
+#   setkey(CAL.COP.DT, attr) #make sure that it's sorted
+#   CAL.DT<-rbind(CAL.DT,CAL.COP.DT)
 #   
-#   elements<-unique(CO.DT$element)
-  #setkey(CO.DT,element,value)
+#   elements<-unique(COP.DT$element)
+  #setkey(COP.DT,element,value)
   #setkey(AL.DT,element,attr)
-  #AL.DT[CO.DT, list(element=element, attr=variable, component=value, component.loc=loc)]->COCL.DT
+  #AL.DT[COP.DT, list(element=element, attr=variable, component=value, component.loc=loc)]->COCL.DT
   
-  #CO.DT[,.SD[1,],by=list(element,variable)]->tmp1.DT
+  #COP.DT[,.SD[1,],by=list(element,variable)]->tmp1.DT
   #setkey(tmp1.DT,element,value)
  #AL.DT[tmp1.DT, list(element=element, attr=variable, loc=co.loc(attr, loc, variable))]->COL.DT
    
@@ -101,11 +101,11 @@ generate.CO.Attr.Pages<-function(){
   
 #   AL.DT<- AVEL.DT[, list(element, attr, loc)]
 #   
-#   setkey(CO.DT,element,value)
+#   setkey(COP.DT,element,value)
 #   setkey(AL.DT,element,attr)
-#   AL.DT[CO.DT, list(element=element, attr=variable, component=value, component.loc=loc)]->COCL.DT
+#   AL.DT[COP.DT, list(element=element, attr=variable, component=value, component.loc=loc)]->COCL.DT
 #   
-#   CO.DT[,.SD[1,],by=list(element,variable)]->tmp1.DT
+#   COP.DT[,.SD[1,],by=list(element,variable)]->tmp1.DT
 #   setkey(tmp1.DT,element,value)
 #   AL.DT[tmp1.DT, list(element=element, attr=variable, loc=co.loc2(attr, loc, variable))]->COL.DT
 #   
@@ -128,11 +128,11 @@ generate.CO.Attr.Pages<-function(){
   #1. get the COLCL.DT data
   AL.DT<- AVEL.DT[, list(element, attr, loc)]
   
-  setkey(CO.DT,element,value)
+  setkey(COP.DT,element,value)
   setkey(AL.DT,element,attr)
-  AL.DT[CO.DT, list(element=element, attr=variable, component=value, component.loc=loc)]->COCL.DT
+  AL.DT[COP.DT, list(element=element, attr=variable, component=value, component.loc=loc)]->COCL.DT
   
-  CO.DT[,.SD[1,],by=list(element,variable)]->tmp1.DT
+  COP.DT[,.SD[1,],by=list(element,variable)]->tmp1.DT
   setkey(tmp1.DT,element,value)
   #1.attr is an uncombined attr
   #2. loc is loc for attr

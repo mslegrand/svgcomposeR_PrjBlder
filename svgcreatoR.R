@@ -49,9 +49,12 @@ library(XML)
 # (maybe they will fix it some day)
 .datatable.aware=TRUE
 
-#fread("./dataTables/AVETable.csv")->AVEL.DT
-fread("./dataTables/AVETable.tsv")->AVEL.DT
-fread("dataTables/comboParams.tsv")->comboParams.DT
+if(!exists("AVEL.DT")){
+  fread("./dataTables/AVETable.tsv")->AVEL.DT  
+}
+if(!exists("COP.DT")){
+  fread("dataTables/comboParams.tsv")->COP.DT
+}
 
 preproc.treat.val.as<-function(v){
   tmp<-c(
@@ -106,7 +109,7 @@ build.svgFnQ<-function(){
     )
     
     qcomboParamsFn<-function(etag){
-      tmp<-comboParams.DT[element==etag]
+      tmp<-COP.DT[element==etag]
       if(nrow(tmp)>0){
         cp.list<-split(tmp$value, tmp$variable)
         # for each element of tmp.list, add the appropriate quote

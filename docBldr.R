@@ -30,7 +30,7 @@ library(data.table)
 fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
 fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
 fread("dataTables/presentationAttr.tsv")->PA.DT
-fread("dataTables/comboParams.tsv")->CO.DT
+fread("dataTables/comboParams.tsv")->COP.DT
 #------------------------ATTENTION!!!!-----------------------------------------
 # tmp kludge to remove the presentation attrs
 #------------------------BEGIN KLUDGE!!!!-----------------------------------------
