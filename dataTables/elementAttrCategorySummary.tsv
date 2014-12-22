@@ -1,0 +1,168 @@
+name	value
+animation elements	animate
+animation elements	animateColor
+animation elements	animateMotion
+animation elements	animateTransform
+animation elements	set
+descriptive elements	desc
+descriptive elements	metadata
+descriptive elements	title
+shape elements	circle
+shape elements	ellipse
+shape elements	line
+shape elements	path
+shape elements	polygon
+shape elements	polyline
+shape elements	rect
+structural elements	defs
+structural elements	g
+structural elements	svg
+structural elements	symbol
+structural elements	use
+gradient elements	linearGradient
+gradient elements	radialGradient
+conditional processing attributes	requiredFeatures
+conditional processing attributes	requiredExtensions
+conditional processing attributes	systemLanguage
+core attributes	id
+core attributes	xml:base
+core attributes	xml:lang
+core attributes	xml:space
+graphical event attributes	onfocusin
+graphical event attributes	onfocusout
+graphical event attributes	onactivate
+graphical event attributes	onclick
+graphical event attributes	onmousedown
+graphical event attributes	onmouseup
+graphical event attributes	onmouseover
+graphical event attributes	onmousemove
+graphical event attributes	onmouseout
+graphical event attributes	onload
+presentation attributes	alignment-baseline
+presentation attributes	baseline-shift
+presentation attributes	clip
+presentation attributes	clip-path
+presentation attributes	clip-rule
+presentation attributes	color
+presentation attributes	color-interpolation
+presentation attributes	color-interpolation-filters
+presentation attributes	color-profile
+presentation attributes	color-rendering
+presentation attributes	cursor
+presentation attributes	direction
+presentation attributes	display
+presentation attributes	dominant-baseline
+presentation attributes	enable-background
+presentation attributes	fill
+presentation attributes	fill-opacity
+presentation attributes	fill-rule
+presentation attributes	filter
+presentation attributes	flood-color
+presentation attributes	flood-opacity
+presentation attributes	font-family
+presentation attributes	font-size
+presentation attributes	font-size-adjust
+presentation attributes	font-stretch
+presentation attributes	font-style
+presentation attributes	font-variant
+presentation attributes	font-weight
+presentation attributes	glyph-orientation-horizontal
+presentation attributes	glyph-orientation-vertical
+presentation attributes	image-rendering
+presentation attributes	kerning
+presentation attributes	letter-spacing
+presentation attributes	lighting-color
+presentation attributes	marker-end
+presentation attributes	marker-mid
+presentation attributes	marker-start
+presentation attributes	mask
+presentation attributes	opacity
+presentation attributes	overflow
+presentation attributes	pointer-events
+presentation attributes	shape-rendering
+presentation attributes	stop-color
+presentation attributes	stop-opacity
+presentation attributes	stroke
+presentation attributes	stroke-dasharray
+presentation attributes	stroke-dashoffset
+presentation attributes	stroke-linecap
+presentation attributes	stroke-linejoin
+presentation attributes	stroke-miterlimit
+presentation attributes	stroke-opacity
+presentation attributes	stroke-width
+presentation attributes	text-anchor
+presentation attributes	text-decoration
+presentation attributes	text-rendering
+presentation attributes	unicode-bidi
+presentation attributes	visibility
+presentation attributes	word-spacing
+presentation attributes	writing-mode
+xlink attributes	xlink:href
+xlink attributes	xlink:show
+xlink attributes	xlink:actuate
+xlink attributes	xlink:type
+xlink attributes	xlink:role
+xlink attributes	xlink:arcrole
+xlink attributes	xlink:title
+text content child elements	altGlyph
+text content child elements	textPath
+text content child elements	tref
+text content child elements	tspan
+animation event attributes	onbegin
+animation event attributes	onend
+animation event attributes	onrepeat
+animation event attributes	onload
+animation attribute target attributes	attributeType
+animation attribute target attributes	attributeName
+animation timing attributes	begin
+animation timing attributes	dur
+animation timing attributes	end
+animation timing attributes	min
+animation timing attributes	max
+animation timing attributes	restart
+animation timing attributes	repeatCount
+animation timing attributes	repeatDur
+animation timing attributes	fill
+animation value attributes	calcMode
+animation value attributes	values
+animation value attributes	keyTimes
+animation value attributes	keySplines
+animation value attributes	from
+animation value attributes	to
+animation value attributes	by
+animation addition attributes	additive
+animation addition attributes	accumulate
+document event attributes	onunload
+document event attributes	onabort
+document event attributes	onerror
+document event attributes	onresize
+document event attributes	onscroll
+document event attributes	onzoom
+filter primitive elements	feBlend
+filter primitive elements	feColorMatrix
+filter primitive elements	feComponentTransfer
+filter primitive elements	feComposite
+filter primitive elements	feConvolveMatrix
+filter primitive elements	feDiffuseLighting
+filter primitive elements	feDisplacementMap
+filter primitive elements	feFlood
+filter primitive elements	feGaussianBlur
+filter primitive elements	feImage
+filter primitive elements	feMerge
+filter primitive elements	feMorphology
+filter primitive elements	feOffset
+filter primitive elements	feSpecularLighting
+filter primitive elements	feTile
+filter primitive elements	feTurbulence
+filter primitive attributes	x
+filter primitive attributes	y
+filter primitive attributes	width
+filter primitive attributes	height
+filter primitive attributes	result
+transfer function element attributes	type
+transfer function element attributes	tableValues
+transfer function element attributes	slope
+transfer function element attributes	intercept
+transfer function element attributes	amplitude
+transfer function element attributes	exponent
+transfer function element attributes	offset

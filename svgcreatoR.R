@@ -12,14 +12,11 @@ library(XML)
 #   c. .children will be unamed args that are either character or numeric or xmlNode
 
 #todo:
-# ?  change project name from svgCreator to svgComposer
-# ?2. make a default for c(x,y) to be space seperated (check to see if this is already the case)
-# ?4. What happens to a non-list (vector) that should be ws seperated (or sc or cl ...)?
 # 5. Add function completions HOW???
 # 6. Add documentation HOW???
 # 7. Add sample programs 
 # 8. Add unit testing (regression testing?) and other methods
-# 9.Animation:
+# 9.  Animation:
 #    doc['initialize']
 #    doc["set"]( color(id)="red", ...)
 #    doc["animate"]( XY(id)=c(1,2), xy(id)=(1,2), ...)
@@ -40,7 +37,6 @@ library(XML)
 # for filter should we always append % to the x,y width, heigth values???
 # k for k1,k2,k3,k4 in feComposite ?
 
-
 #1. how to add function completion:
 # i) utils:::.addFunctionInfo(fn=c("cat","dog")) #note 3 colons
 # ii)alternatively: 
@@ -48,257 +44,61 @@ library(XML)
 #    attach(pkgEnv)
 #2. How to add function documentation???
 
-# promoteUnamedLists<-function(args){
-#   if ( is.null(names(args))) {
-#     return(args)
-#   }
-#   indx1<-which(names(args)=="")
-#   indx2<-which(sapply(args, class)=="list")
-#   indx<-intersect(indx1, indx2)
-#   if(length(indx)>0){
-#     to.promote<-args[indx]
-#     do.call(c,to.promote)->promoted
-#     args<-c(args[-indx], promoted)
-#   }
-#   args
-# }
-# 
-# allGoodChildern<-function(args){
-#   if (is.null(names(args))) {
-#     unnamed<-args
-#   } else{
-#     unnamed<-args[names(args)==""]
-#   } 
-#   if(length(unnamed)>0){
-#     indx<-sapply(unnamed, function(x)inherits(x, c("numeric", "character", "XMLAbstractNode" )))
-#     kids<-unnamed[indx]
-#   } else {
-#     kids<-unnamed
-#   }
-#   kids  
-# }
 
-
-# done, not tested!
-# 1. x,y => xy for all of
-# "horiz-origin-x"   "vert-origin-x"    "dx"               "x"                "xChannelSelector"
-#  "cx"               "rx"               "x1"               "x2"               "fx"              
-# generate list by:
-# unique(ave.DT[attr %like% "y",]$attr)->tmp2
-# sub("y","x",tmp2)->tmp3
-# unique(ave.DT$attr[sapply(ave.DT$attr, function(attr)attr %in% tmp3)] )
-
-# 1,2 =>12 for all of "g2"  "u2"  "in2" "k2"  "x2"  "y2" 
-
-# inn for in, in2 (or just inn for in???) or should we use .in???
-# or should we use in1 in2 and in12 ??
-#
-# u12 for u1, u2 (or should we use u)
-# g12 for g1, g2 
-# fxy for fx, fy in radial gradient
-# xlink:href as xlink..href???
-# what about the following
-# "xlink:href"    "xml:base"      "xml:lang"      "xml:space"     "xlink:actuate" "xlink:arcrole" "xlink:role"    "xlink:show"    "xlink:title"   "xlink:type" 
-# generate list by:
-# unique(ave.DT[attr %like% ":",]$attr)
-#
-
-#the following line is required because of a bug in devtools (maybe they will fix it some day)
+# The following line is required because of a bug in devtools 
+# (maybe they will fix it some day)
 .datatable.aware=TRUE
 
-fread("./dataTables/AVETable.csv")->ave.DT
+if(!exists("AVEL.DT")){
+  fread("./dataTables/AVELTable.tsv")->AVEL.DT  
+}
+if(!exists("COP.DT")){
+  fread("dataTables/comboParams.tsv")->COP.DT
+}
 
-# preSubList<-list(
-#   list(sfrom = "in1", sto = "in"),
-#   list(sfrom = "xlink\\.href", sto = "xlink:href"),
-#   list(sfrom = "xml\\.base", sto = "xml:base"),
-#   list(sfrom = "xml\\.lang", sto = "xml:lang"),
-#   list(sfrom = "xml\\.space", sto = "xml:space"),
-#   list(sfrom = "xlink\\.actuate", sto = "xlink:actuate"),
-#   list(sfrom = "xlink\\.arcrole", sto = "xlink:arcrole"),
-#   list(sfrom = "xlink\\.role", sto = "xlink:role"),
-#   list(sfrom = "xlink\\.show", sto = "xlink:show"),
-#   list(sfrom ="\\.", sto="-")
-# )
+preproc.treat.val.as<-function(v){
+  tmp<-c(
+    "cmm-list {4}"="cmm-list",
+    "default"="ignore",
+    "filterprimitiveinattribute"="ignore",
+    "integer"="ignore",
+    "pointsbnf"="cmm-wsp-list",
+    "transformlist"="transform-list",
+    "lengths"="wsp-list",
+    "numbers"="wsp-list",
+    "coordinates"="wsp-list",
+    "special-string"="wsp-list",
+    "funciri"="ignore")
+  
+  for( n in names(tmp)){
+    v<-gsub(n, tmp[n], v)
+  }
+  v  
+}
 
-# #Helper functions
-# named <- function(x) {
-#   if (is.null(names(x))) return(NULL)
-#   #x<-x[names(x) != ""]
-#   x<-x[names(x) != "" & names(x)!="list"]
-#   # this is where we do all the pre substitution
-#   for(sl in preSubList){
-#     names(x)<-gsub(sl$sfrom, sl$sto, names(x) )
-#   }    
-#   #names(x)<-gsub("\\.","-", names(x)) # dot to dashes 
-#   x
-# }
+#preprocess AVEL.DT
+AVEL.DT[,treatValueAs:=preproc.treat.val.as(treatValueAs)]
 
-# unnamed <- function(x) {
-#   if (is.null(names(x))) {
-#     rtv<-x
-#   } else{
-#     rtv<-c(x[names(x) == ""], unlist(x[names(x)=="list"]))
-#   }
-#   sapply(rtv, function(x)print(class(x)))
-#   rtv  
-# }
-
-# pasteA<-function(x, sep){
-#   if(length(x)>0){
-#     if(inherits(x,"list")){
-#       x<- paste(x,collapse(sep))
-#     } else {
-#       x<-paste(x, sep=sep)
-#     }
-#   }
-#   x
-# }
 
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
-  ele.tags<-unique(ave.DT$element)
-#   svgPreproc<-list(
-#     "cmm-list"       = function(x){paste(x, collapse=",")} ,
-#     "wsp-list"       = function(x){paste(x, collapse=" ")} ,
-#     "scln-list"      = function(x){paste(x, collapse=";")} ,
-#     "number-optional-number" = function(x){paste(x, collapse=",")} ,
-#     "path-data-list" = function(x){ #at this point we do no length checking                       
-#       names<-names(x)
-#       if("z" %in% names){ x[["z"]]<-""}
-#       if("Z" %in% names){ x[["Z"]]<-""}
-#       if(inherits(x,"list")){
-#         tmp<-lapply(1:length(names), function(i){
-#           paste( names[i], paste(x[[i]], collapse=","), sep=" " )
-#         })
-#         tmp<-paste(tmp, collapse=" ") 
-#       } else {
-#         tmp<-paste(x, collapse=" ")
-#       }
-#       tmp
-#     } ,  
-#     "cmm-scln-list"  = function(x){ 
-#       if(inherits(x,"list")){ #list
-#         paste(  sapply(x, function(y){paste(y, collapse=",")}), collapse=";"  )   
-#       } else if(inherits(x,"matrix")){ #matrix
-#         paste(apply(x, 2, function(y)paste(y,collapse=",")), collapse=";")     
-#       } else {
-#         paste(x, collapse=";")
-#       }                               
-#     } ,
-#     "cln-scln-list"  = function(x){ 
-#       if(inherits(x,"list")){ #list
-#         paste(  sapply(x, function(y){paste(y, collapse=":")}), collapse=";"  )   
-#       } else if(inherits(x,"matrix")){ #matrix
-#         paste(apply(x, 2, function(y)paste(y,collapse=":")), collapse=";")     
-#       } else {
-#         paste(x, collapse=";")
-#       } 
-#     } ,
-#     "cmm-wsp-list" = function(x){ 
-#       if(inherits(x,"list")){ #list
-#         paste(  sapply(x, function(y){paste(y, collapse=",")}), collapse=" "  )   
-#       } else if(inherits(x,"matrix")){ #matrix
-#         paste(apply(x, 2, function(y)paste(y,collapse=",")), collapse=" ")     
-#       } else {
-#         paste(x, collapse=" ")
-#       }
-#     } ,
-#     "transform-list" = function(x){ #at this point we do no length check
-#       names<-names(x)
-#       if(inherits(x,"list")){ #list
-#         tmp<-lapply(1:length(names), function(i){
-#           paste( names[i], "(", paste(x[[i]], collapse=","), ")", sep="" )
-#         })
-#         tmp<-paste(tmp, collapse=" ")
-#       } else {
-#         tmp<-paste(x, collapse=" ")
-#       }
-#       tmp
-#     } 
-#   )
-#   
-#   
-#   
-#   mapArg<-function(attrs, seqArg, toArgs){
-#     if(!is.null(attrs[[seqArg]])){
-#       for(i in 1:length(toArgs)){
-#         attrs[[toArgs[i]]]<-attrs[[seqArg]][i]
-#       }
-#       attrs[[seqArg]]<-NULL
-#     }
-#     attrs    
-#   }
-#   
-#   
-#   mapCenteredXY<-function(attrs){
-#     if( !is.null(attrs[["cxy"]]) & !is.null(attrs[["width"]]) & !is.null(attrs[["height"]]) ){
-#       wh<-c(as.numeric(attrs[["width"]]), as.numeric(attrs[["height"]]))
-#       attrs[["xy"]]<- as.numeric(attrs[["cxy"]]) - wh/2
-#       attrs[["cxy"]]<-NULL
-#       attrs<-attrSplitX(attrs,"x","y","xy")
-#     }
-#     attrs 
-#   }
-#   
-#   # preprocXtras
-#   # xy, cxy, rxy, xy1, xy2, wh
-#   attrSplitX<-function(attrs,  a1, a2, a12){
-#     if(a12 %in% names(attrs)){
-#       attrs[c(a1,a2)]<-attrs[[a12]]
-#       attrs[[a12]]<-NULL
-#     }
-#     attrs
-#   }
+  ele.tags<-unique(AVEL.DT$element)
   
-  splitAtt<-function(etag, x){
-    ifelse(
-      nrow(ave.DT[element==etag & (attr==x['a1'] | attr==x['a2']) ,])==2,
-      paste("attrs<-attrSplitX(attrs, '" ,x['a1'], "','" ,x['a2'], "','" ,x['a12'], "')", sep=""),
-      ""
-    )
-  }
+  ele.tags.attributeName<-AVEL.DT[attr=="attributeName"]$element
   
-  centerable<-function(ele.tag, ave.DT){
+  centerable<-function(ele.tag, AVEL.DT){
     ifelse(
-      nrow(ave.DT[  element==ele.tag & 
+      nrow(AVEL.DT[  element==ele.tag & 
                       (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,]
       )==4,
       "attrs<-mapCenteredXY(attrs)",
       ""
     )  
   }
-  
-  
-  makePreProcSplitList<-function(){
-    a1<- c("horiz-origin-x","vert-origin-x", "dx", "x",  "xChannelSelector", "cx", "rx" ,  "x1" , "x2" , "fx")            
-    a2<-gsub("x","y",a1)
-    a12<-gsub("x","xy",a1)
-    b2<-c("g2",  "u2", "k2",  "x2",  "y2")
-    b1<-gsub("2","1",b2)
-    b12<-gsub("2","12",b2)  
-    as.list(data.frame(
-      cbind(
-        rbind("width","height","wh"),
-        rbind("in","in2","in12"),
-        rbind(a1,a2,a12),
-        rbind(b1,b2,b12)
-      ), stringsAsFactors=F , row.names=c("a1","a2","a12")
-    ))
-    tmp<-cbind(
-      rbind("width","height","wh"),
-      rbind("in","in2","in12"),
-      rbind(a1,a2,a12),
-      rbind(b1,b2,b12)
-    )
-    apply(tmp, 2, function(x)list(a1=x[1],a2=x[2], a12=x[3]))->tmplist
-  }
-  
-  preprocSplitList<-makePreProcSplitList()
-  
+    
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
-  createEleFnQ<-function(ele.tag, ave.DT){
-    ave.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
+  createEleFnQ<-function(ele.tag, AVEL.DT){
+    AVEL.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
     ele.treatments<-unique(ele.dt$treatValueAs)
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
     #This is the extras 
@@ -307,35 +107,48 @@ build.svgFnQ<-function(){
       quote( args <- promoteUnamedLists(args) ),
       quote( attrs <- named(args) )
     )
-    qPreproXtrasFn<-function(x, etag){
-      if(nrow(ave.DT[element==etag & (attr==x$a1 | attr==x$a2) ,])==2){
-        substitute(attrs<-attrSplitX(attrs, a1, a2, a12), x)
+    
+    qcomboParamsFn<-function(etag){
+      tmp<-COP.DT[element==etag]
+      if(nrow(tmp)>0){
+        cp.list<-split(tmp$value, tmp$variable)
+        # for each element of tmp.list, add the appropriate quote
+        substitute(attrs<-comboParamHandler(attrs, cp ), list(cp=cp.list))
       } else {
         quote(NULL)
       }
     }
+        
+    ppXtraCL<-list( qcomboParamsFn(ele.tag) )
     
     
-    lapply(preprocSplitList, qPreproXtrasFn, etag=ele.tag )->ppXtraCL #a list of calls
-    
-    if(nrow(ave.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
+    if(nrow(AVEL.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapCenteredXY(attrs) ) ) # append a call
     }
-    
+
+    if(ele.tag %in% ele.tags.attributeName){
+      ppXtraCL<-c(ppXtraCL, quote(attrs<-mapAttributeName(attrs)))
+    }
+      
     ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls
     body1<-ppXtraCL
     
+    # add code to treat special lists, ie. comma list, space list, semicolon list ...
     split(treat_attrs.dt, rownames(treat_attrs.dt))->tmp # (convert rows of treat_attrs.dt table to list)  
     preprocAttrValueFn<-function(tvaAttr){
       c(
         substitute( indx<-sapply(names(attrs),function(x)grepl(paste('(^| )',x,'($| )',sep=''), V1 )),tvaAttr),      
-        substitute( attrs[indx]<-lapply(attrs[indx], function(x){ svgPreproc[[treatValueAs]](x) }), tvaAttr)
+        substitute( if(length(indx)>0){ attrs[indx]<-lapply(attrs[indx], function(x){ svgPreproc[[treatValueAs]](x) })}, tvaAttr)
       )
     } 
     body2<-lapply(tmp, function(tvaAttr){preprocAttrValueFn(tvaAttr)}) 
     unlist(body2, use.names=F)->body2
     as.list(body2)->body2
+
+    #add code to add to node children
     body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args)), list(ele.tag=ele.tag))
+    
+    #special cases for text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
       body3<-c(
         quote(if(!is.null(names(attrs))){
@@ -359,9 +172,7 @@ build.svgFnQ<-function(){
         body3
       )    
     }
-    #   if(ele.tag=="radialGradient"){
-    #     body3<-c(quote(attrs<-mapArg(attrs,"fxy", c("fx","fy")) ), body3)
-    #   }
+    #special code for gradients
     if(ele.tag %in% c("linearGradient",  "radialGradient")){
       body3<-c(
         quote(
@@ -375,7 +186,7 @@ build.svgFnQ<-function(){
               offsets<-seq(0,100,length.out=length(colors))
             }
             for(i in 1:length(colors)){
-              attrs.si<-list(offset=sprintf("%d%%", offsets[i]), "stop-color"= colors[i])
+              attrs.si<-list(offset=sprintf("%d%%", as.integer(offsets[i])), "stop-color"= colors[i])
               stopi<-newXMLNode("stop", attrs=attrs.si)
               args<-c(args,stopi)
             }
@@ -389,7 +200,7 @@ build.svgFnQ<-function(){
     
   }
   
-  svgFnQ<-lapply(ele.tags, createEleFnQ, ave.DT=ave.DT )
+  svgFnQ<-lapply(ele.tags, createEleFnQ, AVEL.DT=AVEL.DT )
   names(svgFnQ)<-ele.tags
   
   #here we handle names with -

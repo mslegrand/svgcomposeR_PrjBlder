@@ -27,144 +27,163 @@
 #buildDocumentation
 library(data.table)
 #fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
+if(!exists("es.DT")){
+  fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
+  fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
+  fread("dataTables/presentationAttr.tsv")->PA.DT
+  fread("dataTables/comboParams.tsv")->COP.DT
+}
 
-addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
+#------------------------ATTENTION!!!!-----------------------------------------
+# tmp kludge to remove the presentation attrs
+#------------------------BEGIN KLUDGE!!!!-----------------------------------------
+eaCS.DT[name!="presentation attributes"]->eaCS.DT
+#rbind(eaCS.DT, data.table(name="presentation attributes", value="alignment-baseline"))
+#------------------------END KLUDGE!!!!-----------------------------------------
+
+# eCS.DT<-eaCS.DT[grep("elements$", eaCS.DT$name)]
+# aCS.DT<-eaCS.DT[grep("attributes$", eaCS.DT$name)]
+
+capitalizeIt<-function(name){
+  gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", name, perl=TRUE)
+}
+
+
+asDot<-function(aName){
+  gsub('[-:]','.', aName)
+}
+
+
+nameWithLink<-function(aName, aLink=NULL){
+  if(is.null(aLink)){
+    aLink<-aName
+  }
+  aName<-asDot(aName)
+  #paste0("\\link[=", aLink,"]{",aName,"}")
+  paste0("\\code{\\link[=", aLink,"]{",aName,"}}")
+}
+
+
+
+
+#we need 
+# 1. element name link: 
+#   a. In genElemDoc
+#       currently done in "elements.by.category.listing"
+#       and appears to use the dot name 
+#   b. reg attrs use dot name for elements via elementsRD
+#   c. CO atttrs use dot name via elementsRD
+#   d. pres attrs use dot name for elements via "elements.by.category.listing"
+
+# 2. reg attr name link
+#   are derived from the location in given in  AVEL.DT
+#   
+# 3. pres attr name link
+#   derived by prepending presAttrs. and replacing - with dot
+#   done in getPresAttrsLoc
+# 4. comb attr name link
+#    links are generated from AVEL.DT loc and co.loc2 and are dot
+#  
+# 4. attr value name link ??
+# asRDLink<-function(aName){
+#   title<-asDot
+#   paste0("\\link[=", component.loc,"]{",component,"}")
+#   dashName<-aName[indx]
+#   if(length(dashName))
+# }
+
+#element listings occur in 
+# gen.all.Elem.Index (alphabetical index)
+# generate.ele.cat.Index (index by cat) # done by oneCatListing
+# content elements in elepages # elements.by.category.listing
+# used by reg attrs, combo attrs via elementsRD
+# pres attrs #done by elements.by.category.listing
+
+
+#1.attr is an uncombined attr
+#2. loc is loc for attr
+#3. variable is combined attr
+co.loc<-function(attr,loc, variable){
+  pattern<-paste0(attr[1],"Attribute$")
+  variable<-paste0(toupper(variable[1]),'Attribute')
+  sub(pattern, variable, loc, ignore.case=T)
+}
+
+
+# ------------------NOT USING BELOW ANYMORE!!!
+# generates an alphebetical Index of All Elements 
+gen.all.Elem.Index<-function(es.DT){
+  unique(es.DT$element)->ele
+  sort(gsub("-",".", ele))->ele
+  ele<-paste(" \\item \\code{\\link[svgcomposeR]{", ele, "}}", sep="")
+  txt<-c(
+    paste("\\itemize{"),
+    ele,
+    "}",
+    paste("@name",  "All Elements Index- Alhabetically"),
+    paste("@title", "An Alphabetical Index of All Elements")
+  )
+  tmp<-paste("#' ", txt, sep="", collapse="\n")  
+  tmp<-paste(tmp,"\nNULL\n") 
+}
+
+#returns doc listing elements for each category
+get.Elem.categories<-function(es.DT){
+  addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
     txt<-c(
-        paste("@name", name), #blue
-        paste("@title", name), #!!!todo add something
-        paste("@description ", description),
-        paste("\\itemize{"),
-        paste(" \\item{}{ \\code{\\link[svgcomposeR]{", elemArgs, "}}}", sep=""),
-        "}",
-        "@keywords internal"
+      paste0("@name ", gsub(' ','',name),"s"), #blue
+      paste0("@title ", name,"s"), #!!!todo add something
+      paste("@description ", description),
+      paste("\\itemize{"),
+      paste(" \\item \\code{\\link{", elemArgs, "}}", sep=""),
+      "}",
+      "@keywords internal"
     )
     tmp<-paste("#' ", txt, sep="", collapse="\n")
-}
-
-addElementEntry<-function(name, elemArgs, attrArgs, description=""){
-  elemArgsF<-paste("\\code{\\link{", elemArgs, "}}", sep="", collapse=", ")
-  attrArgsF<-paste("\\code{\\link{", attrArgs, "}}", sep="", collapse=", ")  
-  txt<-c(
-    paste("@name", name),
-    paste("@title", name), #todo!!! add something
-    paste("@description ", description),
-    paste("\\itemize{"),
-    paste(" \\item{Available Content Elements}{ ",   elemArgsF, "}", sep=""),
-    paste(" \\item{Available Attributes}{ ", attrArgsF, "}", sep=""),
-    "}",
-    "@keywords internal"
-  )
-  tmp<-paste("#' ", txt, sep="", collapse="\n")
-}
-
-addAttributeEntry<-function(name, elemArgs, description=""){
-  if(length(name)>1){
-    namea<-paste(name, collapse=" ")
-    name<-paste(name, collapse=".")
-    alias<-paste("@alias", namea) 
-  } else
-    alias<-NULL
-  elemArgsF<-paste("\\code{\\link{", elemArgs, "}}", sep="", collapse=", ")
-  txt<-c(
-    paste("@name", name),
-    paste("@title",name), #todo!!! replace with something meaninful
-    alias,
-    paste("@description ", description),
-    paste("\\itemize{"),
-    paste(" \\item{Used by the Elements:}{ ",   elemArgsF, "}", sep=""),
-    "}",
-    "@keywords internal"
-  )
-  tmp<-paste("#' ", txt, sep="", collapse="\n")  
-}
-
-#
-get.categories<-function(es.DT){
-  cats<-unique(es.DT[type=="category"]$value)
-  cats<-sort(cats)
-  #paste("\\item{",cats,"}", sep="")
-  #cats2<-paste(" \\item{",cats,"}{ \\code{\\link[svgcomposeR]{", cats, "}}}", sep="") 
-  cats2<-paste(" \\item \\code{\\link[svgcomposeR]{", cats, "}}", sep="")
-  txt<-c(
-    paste("\\itemize{"),
-    cats2,
-    "}",
-    paste("@name",  "Elements by Category"),
-    paste("@title", "Elements Index by Category")
-  )
-  tmp<-paste("#' ", txt, sep="", collapse="\n")  
-  tmp<-paste(tmp,"\nNULL\n")
-}
-
-#returns listing of all elements
-get.Elem.all<-function(es.DT){
-  el<-sort(unique(es.DT$element))
-  el<-paste(" \\item \\code{\\link[svgcomposeR]{", el, "}}", sep="")
-  txt<-c(
-    paste("\\itemize{"),
-    el,
-    "}",
-    paste("@name",  "Elements"),
-    paste("@title", "Alphabetical Index of All Elements")
-  )
-  tmp<-paste("#' ", txt, sep="", collapse="\n")  
-  tmp<-paste(tmp,"\nNULL\n")
-  
-}
-
-#returns doc listing elements for eac category
-get.Elem.categories<-function(es.DT){
-  es.DT[type=="category", list(list(I(.I))), by=value]->tmp
+  }  
+  es.DT[variable=="category", list(list(I(.I))), by=value]->tmp
   tmp<-tmp[order(value)]
   catsL<-sapply(1:nrow(tmp), 
-    function(i){ addEleCategoryEntry(name=tmp$value[i], elemArgs= es.DT$element[ tmp$V1[[i]] ] )}
+                function(i){ addEleCategoryEntry(name=tmp$value[i], elemArgs= es.DT$element[ tmp$V1[[i]] ] )}
   )
   rtv<-paste(catsL, "\nNULL\n", collapse="\n")
 }
 
-get.Element.defs<-function(es.DT){
-  unique(es.DT$element)->all.elements
-  es.DT[type=="content.model", list(content=list(I(.I))), by=element]->content.DT
-  es.DT[type=="attr",  list(attr=list(I(.I))), by=element]->attributes.DT
-  eleL<-lapply( all.elements,
-                function(elName){
-                  content<-es.DT$value[ content.DT[element==elName]$content[[1]] ]
-                  attr<-es.DT$value[attributes.DT[element==elName]$attr[[1]] ]
-                  addElementEntry(name=elName, elemArgs=content, attrArgs=attr, description="")
-                }
-    )
-  rtv<-paste(eleL, "\nNULL\n", collapse="\n")
-}
+# ------------------NOT USING ABOVE ANYMORE!!! 
 
-get.Attr.defs<-function(es.DT){
-  es.DT[type=="attr",]->attributes.DT
-  attributes.DT[, list(elements=list(I(.I))), by=value]->tmp.DT
-  all.attrs<-tmp.DT$value
-  eleL<-lapply( all.attrs,
-                function(attName){
-                  eleIndices<-tmp.DT[value==attName,]$elements[[1]]
-                  elemArgs<-attributes.DT$element[eleIndices] 
-                  addAttributeEntry(name=attName, elemArgs=elemArgs, description="")
-                }
-  )
-  rtv<-paste(eleL, "\nNULL\n", collapse="\n")
-}
+source('genElemDocPages.R')
 
-
-do.documentation<-function(es.DT, composerFiles="composerFiles"){
-  #listing of all elements
-  eleAllListingDoc<-get.Elem.all(es.DT)
-  cat(eleAllListingDoc, file=paste(composerFiles, "eleAllListingDoc.R", sep="/"))
-  #listing of Element Categories
-  eCatListingDoc<-get.categories(es.DT)
-  cat(eCatListingDoc, file=paste(composerFiles, "eCatListingDoc.R", sep="/") )
+# requires es.DT, AVEL.DT, AVD.DT,
+do.documentation<-function(es.DT, composerFiles="composerFiles"){ 
+  source("genAttrDocPages.R")
+#listing of all elements
+#   eleAlphabeticalIndexDoc<-gen.all.Elem.Index(es.DT) 
+#   cat(eleAlphabeticalIndexDoc, file=paste(composerFiles, "eleAlphabeticalIndexDoc.R", sep="/"))
+  
+  #listing of Element by Categories
+  ele.cat.indx<-generate.ele.cat.Index()
+  cat( ele.cat.indx, file=paste(composerFiles, " ele.cat.indx.page.R", sep="/") )
+  
   #elecat doc
-  elemCatDoc<-get.Elem.categories(es.DT)
-  cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
-  #ele def doc
-  elemDefDoc<-get.Element.defs(es.DT)
-  cat(elemDefDoc, file=paste(composerFiles, "elemDefDoc.R", sep="/") )
-  #attr doc
-  attrDefDoc<-get.Attr.defs(es.DT)
-  cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
+#   elemCatDoc<-get.Elem.categories(es.DT)
+#   cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
+  
+  #individual element documentation
+  ele.pages<-generate.element.pages()
+  cat(ele.pages, file=paste(composerFiles, "ele.pages.doc.R", sep="/") )
+
+  regAttrDocPages<-generate.Reg.Attr.Pages()
+  cat(regAttrDocPages, file=paste(composerFiles, "regAttr.pages.doc.R", sep="/") )
+
+  presAttrDocPages<-generate.Pres.Attr.Pages()
+  cat(presAttrDocPages, file=paste(composerFiles, "presAttr.pages.doc.R", sep="/") )
+
+
+  combAttrDocPages<-generate.CO.Attr.Pages()
+  cat(combAttrDocPages, file=paste(composerFiles, "combAttr.pages.doc.R", sep="/") )
+#attr doc
+  #attrDefDoc<-get.Attr.defs(es.DT)
+  #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
 }
+
+#do.documentation(es.DT)
