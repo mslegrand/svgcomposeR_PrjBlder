@@ -41,3 +41,23 @@ http://www.w3.org/TR/SVG/intro.html#Terminology
 
 created by getUnicodeTables.R
 
+# Element categories
+[1] "Animation elements"     vs Animation element  
+ [2] "Basic shapes"          vs Basic shape element  
+ [3] "Container elements"    vs Container element    
+ [4] "Descriptive elements"  vs Descriptive element    
+ [5] "Filter primitive elements"  vs Filter primitive element
+ [6] "Font elements"    vs ??          
+ [7] "Gradient elements"  vs Gradient element        
+ [8] "Graphics elements"  vs Graphics element   
+ [9] "Light source elements"  vs Light source element       
+[10] "Shape elements"         vs??    
+[11] "Structural elements"    vs??
+[12] "Text content child elements" vs ??
+[13] "Text content elements"   vs Text content element   
+[14] "Uncategorized elements" vs None
+
+[12] "Text content child elements"
+[13] "Text content elements"      
+[14] "Uncategorized elements"     
+> 
