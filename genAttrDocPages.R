@@ -1,6 +1,5 @@
 
 
-
 # elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
 # elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
 cleanAttrValue<-function(vd){
@@ -53,7 +52,9 @@ generate.Reg.Attr.Pages<-function(){
     title<-unique(AVEL.DT[loc==alink]$attr )
     #elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
     #title<-gsub("[-:]",".",title)
-    elements<-elementsRD(elements)
+    #elements<-elementsRD(elements)
+    elemArgsItems<- elements.by.category.listing(elements)
+
     txt<-c(
       paste("@name", alink),
       paste("@title",asDot(title)), 
@@ -61,12 +62,18 @@ generate.Reg.Attr.Pages<-function(){
       paste("\\describe{"),
       paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
       "}",
-      paste("@section Used by the Elements:"),           
-      paste("\\itemize{"),
-      paste("\\item{ ",   elements, "}", sep=""),
+      paste("@section Used by the Elements:"), 
+      "\\describe{",
+      elemArgsItems,
       "}",
       "@keywords internal"
-    )
+      )
+#       paste("@section Used by the Elements:"),           
+#       paste("\\itemize{"),
+#       paste("\\item{ ",   elements, "}", sep=""),
+#       "}",
+#      "@keywords internal"
+#    )
     tmp<-paste("#' ", txt, sep="", collapse="\n")  
   }
   links<-unique(AVEL.DT$loc)
@@ -158,7 +165,9 @@ generate.CO.Attr.Pages<-function(){
     
     #title<-unique(AVEL.DT[loc==alink]$attr )
     #elements<-paste("\\code{\\link{", elements, "}}", sep="", collapse=", ")
-    elements<-elementsRD(elements)
+    #elements<-elementsRD(elements)
+    elemArgsItems<- elements.by.category.listing(elements)
+
     componentWLink<-paste0("\\link[=", component.loc,"]{",component,"}")
     componentComma<-paste(componentWLink, sep="", collapse=", ")
     
@@ -198,12 +207,18 @@ generate.CO.Attr.Pages<-function(){
 #       paste("\\describe{"),
 #       paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
 #       "}",
-      paste("@section Used by the Elements:"),           
-      paste("\\itemize{"),
-      paste("\\item{ ",   elements, "}", sep=""),
-      "}",
-      "@keywords internal"
-    )
+        paste("@section Used by the Elements:"), 
+        "\\describe{",
+        elemArgsItems,
+        "}",
+        "@keywords internal"
+            )
+#       paste("@section Used by the Elements:"),           
+#       paste("\\itemize{"),
+#       paste("\\item{ ",   elements, "}", sep=""),
+#       "}",
+#       "@keywords internal"
+#     )
     tmp<-paste("#' ", txt, sep="", collapse="\n")  
   } #end addAttributeEntry
   

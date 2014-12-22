@@ -27,10 +27,13 @@
 #buildDocumentation
 library(data.table)
 #fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
-fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
-fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
-fread("dataTables/presentationAttr.tsv")->PA.DT
-fread("dataTables/comboParams.tsv")->COP.DT
+if(!exists("es.DT")){
+  fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
+  fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
+  fread("dataTables/presentationAttr.tsv")->PA.DT
+  fread("dataTables/comboParams.tsv")->COP.DT
+}
+
 #------------------------ATTENTION!!!!-----------------------------------------
 # tmp kludge to remove the presentation attrs
 #------------------------BEGIN KLUDGE!!!!-----------------------------------------
@@ -88,6 +91,14 @@ nameWithLink<-function(aName, aLink=NULL){
 #   dashName<-aName[indx]
 #   if(length(dashName))
 # }
+
+#element listings occur in 
+# gen.all.Elem.Index (alphabetical index)
+# generate.ele.cat.Index (index by cat) # done by oneCatListing
+# content elements in elepages # elements.by.category.listing
+# used by reg attrs, combo attrs via elementsRD
+# pres attrs #done by elements.by.category.listing
+
 
 #1.attr is an uncombined attr
 #2. loc is loc for attr

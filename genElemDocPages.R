@@ -162,7 +162,7 @@ generate.element.pages<-function(){
   
   #--------
   
-  #returns attr-link-items of all reg attrs, given an elements name
+  #returns attr-link-items of all  attrs, given an elements name
   makeAttrLinkItems2<-function(elName){
     #------regular attributes
     AL.DT<- AVEL.DT[element==elName, list(loc), key=attr]
