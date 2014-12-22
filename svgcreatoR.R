@@ -50,7 +50,7 @@ library(XML)
 .datatable.aware=TRUE
 
 if(!exists("AVEL.DT")){
-  fread("./dataTables/AVETable.tsv")->AVEL.DT  
+  fread("./dataTables/AVELTable.tsv")->AVEL.DT  
 }
 if(!exists("COP.DT")){
   fread("dataTables/comboParams.tsv")->COP.DT
