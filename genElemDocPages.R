@@ -1,5 +1,5 @@
 
-# Generates an Listing of Element Categories (Index of Ele Cats)
+#' Generates a Listing of all elements by category  (Index of Ele Cats)
 generate.ele.cat.Index<-function(){
   # -------------BEGIN HELPERS
   oneCatListing<-function(category){
@@ -51,9 +51,7 @@ extract.CatMember.List<-function(members, other="Unclassifed"){
       cats<-c(cats,other)
       tmp.DT<-data.table(rbind(tmp.DT, data.table(name=other, value=missing)))
     } 
-    tmp.list<-structure(lapply(cats, function(kit)tmp.DT[name==kit]$value) ,
-                        names=cats)
-    #tmp.list<-sort(gsub("[-:]",".", tmp.list)) # convert - to . in values
+    tmp.list<-structure(lapply(cats, function(kit)tmp.DT[name==kit]$value) ,names=cats)
   } 
   tmp.list
 }
@@ -66,22 +64,11 @@ extract.CatMember.List<-function(members, other="Unclassifed"){
 elements.by.category.listing<-function( elemArgs ){
   elemArgs<-sort(unique(elemArgs))
   elemCats<-extract.CatMember.List(elemArgs, other="Unclassfied:")   
-  #elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))  
-#   elementsRD<-function(elements){
-#     if(any(grepl('Empty', elements))|
-#          any(grepl('Any element',elements))){
-#       paste("\\code{", elements, "}", sep="", collapse=", ")
-#     } else {
-#       nwl<-nameWithLink(elements)
-#       paste(nwl, sep="", collapse=", ")
-#     }  
-#   }
     
   elemCats<-lapply(elemCats, function(x){
     if(any(grepl('Empty', x))| any(grepl('Any element',x))){
       paste0("\\code{",x,"}")
     } else {
-      #paste0("\\code{\\link{",x,"}}")
       nameWithLink(x)
     }
   })
@@ -100,8 +87,8 @@ elements.by.category.listing<-function( elemArgs ){
   unlist(elemArgsItems)->elemArgsItems   
 }
 
-
-# convert presAttr name into a location reference
+#' creates a location reference for a presentation attribute 
+#' given the presentation attribute name 
 getPresAttrsLoc<-function(presAttrs){
   #gsub("[-:]",".",presAttrs)->presAttrs #remove the uglies
   presAttrsLoc<-paste0(presAttrs,"-presentationAttribute")
@@ -109,9 +96,8 @@ getPresAttrsLoc<-function(presAttrs){
 }
 
 
-#generates element documentation  for each element found in es.DT
-# resulting for each element
-# element name, content.model, attributes
+#' generates element documentation  for each element found in es.DT
+#' That is creates all individual element pages
 generate.element.pages<-function(){
   
   # ---------BEGIN HELPERS:generate.element.pages
@@ -143,24 +129,22 @@ generate.element.pages<-function(){
     arg.ele.cat<-lapply(arg.ele.cat, function(x)sort(eaCS.DT[name==x]$value) )
     c(unlist(arg.ele.cat),arg.ele.no.cat)
   }
-  
-  
-  # convert a vector of elements into a list index by category
-  # todo!!! rewrite ele.by.cat.list to replace extract.CatMember.List
-  ele.by.cat.list<-function(elements, other="Unclassified"){
-    setkey(eaCS.DT,name) #should do only once!
-    if(length(elements)==0){
-      tmp.list<-list()
-    } else {
-      rowNum<-match(elements, eaCS.DT$value, nomatch=0L)
-      cats<-rep("ZZZ",length(elements))
-      cats[rowNum>0]<-eaCS.DT$name[rowNum>0]
-      tmp.list<-split(elements,cats)
-    } 
-    tmp.list
-  }
-  
-  
+   
+#   # convert a vector of elements into a list index by category
+#   # todo!!! rewrite ele.by.cat.list to replace extract.CatMember.List
+#   ele.by.cat.list<-function(elements, other="Unclassified"){
+#     setkey(eaCS.DT,name) #should do only once!
+#     if(length(elements)==0){
+#       tmp.list<-list()
+#     } else {
+#       rowNum<-match(elements, eaCS.DT$value, nomatch=0L)
+#       cats<-rep("ZZZ",length(elements))
+#       cats[rowNum>0]<-eaCS.DT$name[rowNum>0]
+#       tmp.list<-split(elements,cats)
+#     } 
+#     tmp.list
+#   }
+#   
   #--------
   
   #returns attr-link-items of all  attrs, given an elements name
@@ -208,8 +192,7 @@ generate.element.pages<-function(){
         data.table(category="presentation attributes", attr=presAttrs, loc=presAttrsLoc)
       ))  
     }
-    # tmp<-data.table(name=c("a","b"), x=1:6, y=7:12)
-    # split(tmp[,paste("x=",x,"y=",y)], tmp$name)
+    # now put it all together
     if(nrow(CAL.DT)>0){
       setkey(CAL.DT, category, attr)
       CAL.LIST<-split(CAL.DT[, nameWithLink(attr, loc)
@@ -232,7 +215,7 @@ generate.element.pages<-function(){
       attributesListing<-"{No Attributes Available}{!}"
     }
     attributesListing
-  }
+  } #end of makeAttrLinkItems2
   
   #helper fn to write doc for single element
   addElementEntry<-function(elName){
