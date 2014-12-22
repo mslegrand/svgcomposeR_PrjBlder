@@ -1,8 +1,12 @@
+Currently using the following dataTables:
+  AVELTable.tsv
+  comboParams.tsv
+  elementSummary.tsv
+  elementAttrCategorySummary.tsv
+  presentationAttr.tsv
+  AVDTable.tsv
+
 DOC TODOS
-# 1. Add doc for custom attributes, 
-#  Some possible names are combined attributes, combination attributes, ...
-#  Deal with in1 How??? and document!
-# 2. Add see also cxy, xy, ... for attrs x, y, ... (when appropriate??)
 # 3. Add descriptions and better doc
 # 4. Add notes (for handling some special requirement or restriction on element params)
 # 5. Add 
@@ -57,8 +61,6 @@ http://floopily.com/blog/2012/10/25/svg-shinies-1
 
 
 __________
-
-Presentation attributes need to be added to elements in svgcreator.R
 
 -----------
 https://github.com/donbright/font_to_svg
