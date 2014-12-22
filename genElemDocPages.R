@@ -64,6 +64,7 @@ extract.CatMember.List<-function(members, other="Unclassifed"){
 # generate.element.pages::addElementEntry, 
 # generate.Pres.Attr.Pages 
 elements.by.category.listing<-function( elemArgs ){
+  elemArgs<-sort(unique(elemArgs))
   elemCats<-extract.CatMember.List(elemArgs, other="Unclassfied:")   
   #elemCats<-lapply(elemCats, function(x) gsub("[-:]",".", x))  
 #   elementsRD<-function(elements){
