@@ -9,7 +9,9 @@ Currently using the following dataTables:
 DOC TODOS
 # 3. Add descriptions and better doc
 # 4. Add notes (for handling some special requirement or restriction on element params)
-# 5. Add 
+# 5. 
+Check memory management
+http://www.omegahat.org/RSXML/MemoryManagement.html
 
 #DESIGN QUESTIONS
 1. SHOULD I IMPLEMENT A SYNTAX SOMETHING LIKE
