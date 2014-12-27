@@ -8,9 +8,9 @@ fread("dataTables/presentationAttr.tsv")->PA.DT
 fread("dataTables/comboParams.tsv")->COP.DT
 
 buildAll<-function(composerFiles="composerFiles"){  
+  source("./svgcreatoR.R") #this MUST come first, because later COP is reorder!
   source("docBldr.R")
   do.documentation(es.DT, composerFiles=composerFiles) 
-  source("./svgcreatoR.R")
   source("./eleDefBldr.R")
   eleDefBldr(svgFnQ, composerFiles=composerFiles)
   source("./TeXUnicodeBldr.R")
