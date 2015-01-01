@@ -58,7 +58,7 @@ if(!exists("COP.DT")){
 
 preproc.treat.val.as<-function(v){
   tmp<-c(
-    "cmm-list {4}"="cmm-list",
+    "cmm-list\\s+\\{4\\}"="cmm-list",
     "default"="ignore",
     "filterprimitiveinattribute"="ignore",
     "integer"="ignore",

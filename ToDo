@@ -9,9 +9,22 @@ Currently using the following dataTables:
 DOC TODOS
 # 3. Add descriptions and better doc
 # 4. Add notes (for handling some special requirement or restriction on element params)
-# 5. 
+# 5. Get rid of namespace warnings
+# 6.
 Check memory management
 http://www.omegahat.org/RSXML/MemoryManagement.html
+
+
+Samples:
+0. on waves on click???
+1. animated color to simulate moving arrows and circles 
+2. animated directed graphs (lines and arrows)
+3. tree graph
+4. bar plot
+5. sin(a+b)
+6. cos triangle
+7. neural net story
+8. Marque
 
 #DESIGN QUESTIONS
 1. SHOULD I IMPLEMENT A SYNTAX SOMETHING LIKE
@@ -24,14 +37,19 @@ http://www.omegahat.org/RSXML/MemoryManagement.html
               or doc[[id]]@color='red' )?
               or tstep(doc, { color(id):='red', xy(id2) , xy(id3):=5})?
     
-              need to design symbolics for (:=, =, ~
+              need to design symbolics for (:=, =, ~, @
                 a. changes immediately :=
                 b. changes to from last ~
                 c. relative to immediately  xy(id):=c(3,4)
                 d. relative to from last    XY(id)~c(3,4)
               relative only makes sense for spatial (postion, rotation, ...)
                 rotate(id) would be relative (could we even make a Rotate(id))
-              
+
+		what is the syntax for rotate?, i.e. we need theta from to about
+		rotate(id):=30~60 @ c(10,20)
+              	scale(id):=2~3 @ c(20,30)
+		displayText(id):=‘this is text’ @ c(2,3)
+		
         ii) set.attr0(doc[id], attr, value) for initialization
         iii) set.auto.id(doc[[id]]), so all children will get id's
         iv) get.child.id(doc[[id]], condition) 
