@@ -7,13 +7,15 @@ fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
 fread("dataTables/presentationAttr.tsv")->PA.DT
 fread("dataTables/comboParams.tsv")->COP.DT
 
-buildAll<-function(composerFiles="composerFiles"){  
+buildAll<-function(targetDir="svgR"){  
   source("./svgcreatoR.R") #this MUST come first, because later COP is reorder!
-  source("docBldr.R")
-  do.documentation(es.DT, composerFiles=composerFiles) 
   source("./eleDefBldr.R")
-  eleDefBldr(svgFnQ, composerFiles=composerFiles)
+  eleDefBldr(svgFnQ, targetDir)
+  
+  source("docBldr.R")
+  do.documentation(es.DT, targetDir) 
+  
   source("./TeXUnicodeBldr.R")
-  TeXUnicodeBldr(composerFiles=composerFiles)
+  TeXUnicodeBldr(targetDir)
 }
 buildAll()
