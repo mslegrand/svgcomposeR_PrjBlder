@@ -162,7 +162,7 @@ do.documentation<-function(es.DT, composerFiles="composerFiles"){
   
   #listing of Element by Categories
   ele.cat.indx<-generate.ele.cat.Index()
-  cat( ele.cat.indx, file=paste(composerFiles, " ele.cat.indx.page.R", sep="/") )
+  cat( ele.cat.indx, file=paste(composerFiles, "doc_EleCatIndxPage.R", sep="/") )
   
   #elecat doc
 #   elemCatDoc<-get.Elem.categories(es.DT)
@@ -170,17 +170,17 @@ do.documentation<-function(es.DT, composerFiles="composerFiles"){
   
   #individual element documentation
   ele.pages<-generate.element.pages()
-  cat(ele.pages, file=paste(composerFiles, "ele.pages.doc.R", sep="/") )
+  cat(ele.pages, file=paste(composerFiles, "doc_ElePages.R", sep="/") )
 
   regAttrDocPages<-generate.Reg.Attr.Pages()
-  cat(regAttrDocPages, file=paste(composerFiles, "regAttr.pages.doc.R", sep="/") )
+  cat(regAttrDocPages, file=paste(composerFiles, "doc_RegAttrPages.R", sep="/") )
 
   presAttrDocPages<-generate.Pres.Attr.Pages()
-  cat(presAttrDocPages, file=paste(composerFiles, "presAttr.pages.doc.R", sep="/") )
+  cat(presAttrDocPages, file=paste(composerFiles, "doc_PresAttrPages.R", sep="/") )
 
 
   combAttrDocPages<-generate.CO.Attr.Pages()
-  cat(combAttrDocPages, file=paste(composerFiles, "combAttr.pages.doc.R", sep="/") )
+  cat(combAttrDocPages, file=paste(composerFiles, "doc_CombAttrPages.R", sep="/") )
 #attr doc
   #attrDefDoc<-get.Attr.defs(es.DT)
   #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
