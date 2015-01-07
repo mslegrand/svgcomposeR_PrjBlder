@@ -146,7 +146,9 @@ build.svgFnQ<-function(){
     as.list(body2)->body2
 
     #add code to add to node children
-    body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args)), list(ele.tag=ele.tag))
+    body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args),
+                      suppressNamespaceWarning=getOption("suppressXMLNamespaceWarning", TRUE)), 
+                      list(ele.tag=ele.tag))
     
     #special cases for text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
@@ -207,66 +209,65 @@ build.svgFnQ<-function(){
   indx<-grep("-", names(svgFnQ))
   tmpFn<-svgFnQ[indx]
   names(tmpFn)<-gsub("-",".",names(tmpFn))
-    
   svgFnQ<-c(svgFnQ, tmpFn,
             list(
-              svgDoc=function(width=1150, height=860,  ... ){
-                args<-unlist(c(list( width=width, height=height), list(...)))
-                #              namespaceDefinitions<- list(
-                #                "http://www.w3.org/2000/svg",
-                #                xlink="http://www.w3.org/1999/xlink"
-                #              )
-                namespaceDefinitions<-list(
-                  xmlns="http://www.w3.org/2000/svg",
-                  xmlns="http://www.w3.org/1999/xlink")
-                #'xmlns:xlink'="http://www.w3.org/1999/xlink")
-                root<-newXMLNode("svg", attrs=named(args), namespaceDefinitions = namespaceDefinitions, .children=unnamed(args))
-                ensureNamespace(root, c(xlink="http://www.w3.org/1999/xlink"))
-                root
-              },
-              svgMarkup.new=function(width=1150, height=860, 
-                                      namespaceDefinitons=NULL,  ... ){
-                args<-c(list( width=width, height=height), list(...))
-                if( is.null(args[["namespaceDefinitons"]]) ){
-                  namespaceDefinitions<- c(
-                    "http://www.w3.org/2000/svg",
-                    xlink="http://www.w3.org/1999/xlink",
-                    ev="http://www.w3.org/2001/xml-events"
-                  )
-                } else {
-                  namespaceDefinitions<-args[["namespaceDefiniton"]]
-                  args[["namespaceDefiniton"]]<-NULL
-                } 
-                args[["id"]]<-"rootNode"
-                args <- promoteUnamedLists(args)
-                attrs <- named(args)
-                attrs <- attrSplitX(attrs, "width", "height", "wh")
-                attrs <- attrSplitX(attrs, "x", "y", "xy")
-                attrs <- mapCenteredXY(attrs)
-                indx <- sapply(names(attrs), function(x) grepl(paste("(^| )", 
-                                                                     x, "($| )", sep = ""), "requiredExtensions requiredFeatures class preserveAspectRatio"))
-                attrs[indx] <- lapply(attrs[indx], function(x) {
-                  svgPreproc[["wsp-list"]](x)
-                })
-                indx <- sapply(names(attrs), function(x) grepl(paste("(^| )", 
-                                                                     x, "($| )", sep = ""), "systemLanguage viewBox"))
-                attrs[indx] <- lapply(attrs[indx], function(x) {
-                  svgPreproc[["cmm-list"]](x)
-                })
-                indx <- sapply(names(attrs), function(x) grepl(paste("(^| )", 
-                                                                     x, "($| )", sep = ""), "style"))
-                attrs[indx] <- lapply(attrs[indx], function(x) {
-                  svgPreproc[["cln-scln-list"]](x)
-                })
-                rootNode<-newXMLNode("svg", attrs=attrs, 
-                                     namespaceDefinitions = namespaceDefinitions, 
-                                     .children=unnamed(args)) 
-                
-                #todo: add options? (such as duration)
-                doc<-structure(list(rootNode=rootNode, time=0), class="svgDoc", 
-                               wh=c(width,height), delta=1)
-                doc
-              },
+#               svgDoc=function(width=1150, height=860,  ... ){
+#                 args<-unlist(c(list( width=width, height=height), list(...)))
+#                 #              namespaceDefinitions<- list(
+#                 #                "http://www.w3.org/2000/svg",
+#                 #                xlink="http://www.w3.org/1999/xlink"
+#                 #              )
+#                 namespaceDefinitions<-list(
+#                   xmlns="http://www.w3.org/2000/svg",
+#                   xmlns="http://www.w3.org/1999/xlink")
+#                 #'xmlns:xlink'="http://www.w3.org/1999/xlink")
+#                 root<-newXMLNode("svg", attrs=named(args), namespaceDefinitions = namespaceDefinitions, .children=unnamed(args))
+#                 ensureNamespace(root, c(xlink="http://www.w3.org/1999/xlink"))
+#                 root
+#               },
+#               svgMarkup.new=function(width=1150, height=860, 
+#                                       namespaceDefinitons=NULL,  ... ){
+#                 args<-c(list( width=width, height=height), list(...))
+#                 if( is.null(args[["namespaceDefinitons"]]) ){
+#                   namespaceDefinitions<- c(
+#                     "http://www.w3.org/2000/svg",
+#                     xlink="http://www.w3.org/1999/xlink",
+#                     ev="http://www.w3.org/2001/xml-events"
+#                   )
+#                 } else {
+#                   namespaceDefinitions<-args[["namespaceDefiniton"]]
+#                   args[["namespaceDefiniton"]]<-NULL
+#                 } 
+#                 args[["id"]]<-"rootNode"
+#                 args <- promoteUnamedLists(args)
+#                 attrs <- named(args)
+#                 attrs <- attrSplitX(attrs, "width", "height", "wh")
+#                 attrs <- attrSplitX(attrs, "x", "y", "xy")
+#                 attrs <- mapCenteredXY(attrs)
+#                 indx <- sapply(names(attrs), function(x) grepl(paste("(^| )", 
+#                                                                      x, "($| )", sep = ""), "requiredExtensions requiredFeatures class preserveAspectRatio"))
+#                 attrs[indx] <- lapply(attrs[indx], function(x) {
+#                   svgPreproc[["wsp-list"]](x)
+#                 })
+#                 indx <- sapply(names(attrs), function(x) grepl(paste("(^| )", 
+#                                                                      x, "($| )", sep = ""), "systemLanguage viewBox"))
+#                 attrs[indx] <- lapply(attrs[indx], function(x) {
+#                   svgPreproc[["cmm-list"]](x)
+#                 })
+#                 indx <- sapply(names(attrs), function(x) grepl(paste("(^| )", 
+#                                                                      x, "($| )", sep = ""), "style"))
+#                 attrs[indx] <- lapply(attrs[indx], function(x) {
+#                   svgPreproc[["cln-scln-list"]](x)
+#                 })
+#                 rootNode<-newXMLNode("svg", attrs=attrs, 
+#                                      namespaceDefinitions = namespaceDefinitions, 
+#                                      .children=unnamed(args)) 
+#                 
+#                 #todo: add options? (such as duration)
+#                 doc<-structure(list(rootNode=rootNode, time=0), class="svgDoc", 
+#                                wh=c(width,height), delta=1)
+#                 doc
+#               },
               getNode=function(rootNode,id){
                 if(id!='root'){
                   kidV <- getNodeSet(rootNode, paste("//*[@id=\"", id, "\"]", sep=""))
