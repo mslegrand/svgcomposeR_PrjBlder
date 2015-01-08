@@ -64,8 +64,6 @@ nameWithLink<-function(aName, aLink=NULL){
 }
 
 
-
-
 #we need 
 # 1. element name link: 
 #   a. In genElemDoc
@@ -154,19 +152,12 @@ get.Elem.categories<-function(es.DT){
 source('genElemDocPages.R')
 
 # requires es.DT, AVEL.DT, AVD.DT,
-do.documentation<-function(es.DT, composerFiles="composerFiles"){ 
+do.documentation<-function(es.DT, composerFiles="svgR"){ 
   source("genAttrDocPages.R")
-#listing of all elements
-#   eleAlphabeticalIndexDoc<-gen.all.Elem.Index(es.DT) 
-#   cat(eleAlphabeticalIndexDoc, file=paste(composerFiles, "eleAlphabeticalIndexDoc.R", sep="/"))
   
-  #listing of Element by Categories
+  #listing of Elements by Categories
   ele.cat.indx<-generate.ele.cat.Index()
   cat( ele.cat.indx, file=paste(composerFiles, "doc_EleCatIndxPage.R", sep="/") )
-  
-  #elecat doc
-#   elemCatDoc<-get.Elem.categories(es.DT)
-#   cat(elemCatDoc, file=paste(composerFiles, "elemCatDoc.R", sep="/") )
   
   #individual element documentation
   ele.pages<-generate.element.pages()
@@ -181,6 +172,7 @@ do.documentation<-function(es.DT, composerFiles="composerFiles"){
 
   combAttrDocPages<-generate.CO.Attr.Pages()
   cat(combAttrDocPages, file=paste(composerFiles, "doc_CombAttrPages.R", sep="/") )
+  
 #attr doc
   #attrDefDoc<-get.Attr.defs(es.DT)
   #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
