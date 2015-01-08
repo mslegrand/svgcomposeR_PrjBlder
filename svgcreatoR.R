@@ -46,48 +46,56 @@ library(XML)
 
 # The following line is required because of a bug in devtools 
 # (maybe they will fix it some day)
-.datatable.aware=TRUE
+#.datatable.aware=TRUE
 
-if(!exists("AVEL.DT")){
-  fread("./dataTables/AVELTable.tsv")->AVEL.DT  
-}
-if(!exists("COP.DT")){
-  fread("dataTables/comboParams.tsv")->COP.DT
-}
+# if(!exists("AET.DT")){
+#   fread("./dataTables/AETTable.tsv")->AET.DT  
+# }
+# if(!exists("COP.DT")){
+#   fread("dataTables/comboParams.tsv")->COP.DT
+# }
 
-preproc.treat.val.as<-function(v){
-  tmp<-c(
-    "cmm-list\\s+\\{4\\}"="cmm-list",
-    "default"="ignore",
-    "filterprimitiveinattribute"="ignore",
-    "integer"="ignore",
-    "pointsbnf"="cmm-wsp-list",
-    "transformlist"="transform-list",
-    "lengths"="wsp-list",
-    "numbers"="wsp-list",
-    "coordinates"="wsp-list",
-    "special-string"="wsp-list",
-    "funciri"="ignore")
-  
-  for( n in names(tmp)){
-    v<-gsub(n, tmp[n], v)
-  }
-  v  
-}
+# preproc.treat.val.as<-function(v){
+#   tmp<-c(
+#     "cmm-list\\s+\\{4\\}"="cmm-list",
+#     "default"="ignore",
+#     "filterprimitiveinattribute"="ignore",
+#     "integer"="ignore",
+#     "pointsbnf"="cmm-wsp-list",
+#     "transformlist"="transform-list",
+#     "lengths"="wsp-list",
+#     "numbers"="wsp-list",
+#     "coordinates"="wsp-list",
+#     "special-string"="wsp-list",
+#     "funciri"="ignore")
+#   
+#   for( n in names(tmp)){
+#     v<-gsub(n, tmp[n], v)
+#   }
+#   v  
+# }
 
 #preprocess AVEL.DT
-AVEL.DT[,treatValueAs:=preproc.treat.val.as(treatValueAs)]
+# AVEL.DT[,treatValueAs:=preproc.treat.val.as(treatValueAs)]
+# AVEL.DT[,list(attr,element,anim,treatValueAs)]->AET.DT
 
 
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
-  ele.tags<-unique(AVEL.DT$element)
+  if(!exists("AET.DT")){
+    fread("./dataTables/AETTable.tsv")->AET.DT  
+  }
+  if(!exists("COP.DT")){
+    fread("dataTables/comboParams.tsv")->COP.DT
+  }
   
-  ele.tags.attributeName<-AVEL.DT[attr=="attributeName"]$element
+  ele.tags<-unique(AET.DT$element)
   
-  centerable<-function(ele.tag, AVEL.DT){
+  ele.tags.attributeName<-AET.DT[attr=="attributeName"]$element
+  
+  centerable<-function(ele.tag, AET.DT){
     ifelse(
-      nrow(AVEL.DT[  element==ele.tag & 
+      nrow(AET.DT[  element==ele.tag & 
                       (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,]
       )==4,
       "attrs<-mapCenteredXY(attrs)",
@@ -96,8 +104,8 @@ build.svgFnQ<-function(){
   }
     
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
-  createEleFnQ<-function(ele.tag, AVEL.DT){
-    AVEL.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
+  createEleFnQ<-function(ele.tag, AET.DT){
+    AET.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
     #ele.treatments<-unique(ele.dt$treatValueAs)
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
     #This is the extras 
@@ -119,9 +127,8 @@ build.svgFnQ<-function(){
     }
         
     ppXtraCL<-list( qcomboParamsFn(ele.tag) )
-    
-    
-    if(nrow(AVEL.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
+       
+    if(nrow(AET.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapCenteredXY(attrs) ) ) # append a call
     }
 
@@ -201,7 +208,7 @@ build.svgFnQ<-function(){
     
   }
   
-  svgFnQ<-lapply(ele.tags, createEleFnQ, AVEL.DT=AVEL.DT )
+  svgFnQ<-lapply(ele.tags, createEleFnQ, AET.DT=AET.DT )
   names(svgFnQ)<-ele.tags
   
   #here we handle names with -
