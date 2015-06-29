@@ -80,6 +80,7 @@ library(XML)
 # AVEL.DT[,list(attr,element,anim,treatValueAs)]->AET.DT
 
 
+
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
   if(!exists("AET.DT")){
@@ -115,6 +116,27 @@ build.svgFnQ<-function(){
       quote( attrs <- named(args) )
     )
     
+# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+    #preproces 'filter=filter' here
+    # special case for filter assignment
+#     if( "filter" %in%  names(args) ){
+#       # grab all occurances, and proc each
+#       indx<-which(names(args) =="filter") 
+#       for( n in indx){
+#         filterNode<-arg[[n]]
+#         if(inherits(filterNode, "XMLAbstractNode")){
+#           if(xmlName(filterNode)!="filter"){ # check tag name
+#             stop("Not a filter node")
+#           }
+#           defsNode<-getDefsNode(doc) #or parent, will need to work this usage out!!!!
+#           fid<-getsafeNodeAttr("id",filterNode)
+#           addFilter2Defs(defsNode, filterNode)
+#           args[[i]]=paste0("url(#",fid,")")
+#         }  
+#       }  
+#     }
+
+    
     qcomboParamsFn<-function(etag){
       tmp<-COP.DT[element==etag]
       if(nrow(tmp)>0){
@@ -139,6 +161,13 @@ build.svgFnQ<-function(){
     ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls
     body1<-ppXtraCL
     
+    
+    #Insert special handling for animate here
+    if(ele.tag == "animate"){
+      cat("hello\n")
+      body1<-c(body1, quote(attrs<-preProcAnimate(attrs) ) )
+    }
+         
     # add code to treat special lists, ie. comma list, space list, semicolon list ...
     split(treat_attrs.dt, rownames(treat_attrs.dt))->tmp # (convert rows of treat_attrs.dt table to list)  
     preprocAttrValueFn<-function(tvaAttr){
@@ -202,6 +231,70 @@ build.svgFnQ<-function(){
         body3
       )    
     } 
+    #handle filter=fnode, this requires doc, parentNode, fnode
+    
+    
+#     if(ele.tag %in% c("animate")){
+#       #special handling of by, from to depending on attributeName/type
+#       
+#     }
+#     if(ele.tag %in% c("use")){
+#       #allow for anything
+#     }  
+
+# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+
+
+  # special cases for fe (filter elements)
+  filterElementTags<-c(
+    "feBlend", 
+    "feColorMatrix",
+    "feComponentTransfer",
+    "feComposite",
+    "feConvolveMatrix",
+    "feDiffuseLighting",
+    "feDisplacementMap",
+    "feFlood",
+    "feGaussianBlur",
+    "feImage",
+    "feMerge",
+    "feMorphology",
+    "feOffset",
+    "feSpecularLighting",
+    "feTile",
+    "feTurbulence"
+  )
+
+feElementsIn<-c(
+  'feConvolveMatrix','feDiffuseLighting','feOffset',
+  'feBlend','feColorMatrix','feComponentTransfer',
+  'feComposite','feDisplacementMap','feGaussianBlur',
+  'feMorphology','feSpecularLighting','feTile')
+
+  if(ele.tag %in% filterElementTags){
+      body3<-c(
+        quote({
+          indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
+          rtv<-list()
+          for(n in indx.in){
+            an<-attrs[[n]]
+            if (inherits(an, 'list') && length(an)>=1){ 
+              len<-length(an)
+              rtv<-c(rtv, an[1:(len-1)])
+              feNode=an[[len]]
+              if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe??
+                resultStr<-getsafeNodeAttr("result", feNode)
+                rtv<-c( rtv, feNode )
+                attrs[[n]]<-resultStr            }
+            }
+          }          
+        }
+        ),
+        body3,
+        quote(node<-c(rtv,node))
+      )   
+    }
+
     fn<-function(...){}
     body(fn)<-as.call(c(as.name("{"), body0, body1, body2, body3))
     fn  

@@ -7,6 +7,7 @@ cleanAttrValue<-function(vd){
   vd<-gsub('…','...', vd)
   #valDes<-gsub("[@‘’ é…−™]","",valDes)
   vd<-gsub("[@‘’é…−™]","",vd)
+  iconv(vd, "latin1", "ASCII", sub="")
   vd
 }
 
