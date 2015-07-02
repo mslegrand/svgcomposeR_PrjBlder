@@ -116,25 +116,7 @@ build.svgFnQ<-function(){
       quote( attrs <- named(args) )
     )
     
-# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
-    #preproces 'filter=filter' here
-    # special case for filter assignment
-#     if( "filter" %in%  names(args) ){
-#       # grab all occurances, and proc each
-#       indx<-which(names(args) =="filter") 
-#       for( n in indx){
-#         filterNode<-arg[[n]]
-#         if(inherits(filterNode, "XMLAbstractNode")){
-#           if(xmlName(filterNode)!="filter"){ # check tag name
-#             stop("Not a filter node")
-#           }
-#           defsNode<-getDefsNode(doc) #or parent, will need to work this usage out!!!!
-#           fid<-getsafeNodeAttr("id",filterNode)
-#           addFilter2Defs(defsNode, filterNode)
-#           args[[i]]=paste0("url(#",fid,")")
-#         }  
-#       }  
-#     }
+
 
     
     qcomboParamsFn<-function(etag){
@@ -180,11 +162,58 @@ build.svgFnQ<-function(){
     unlist(body2, use.names=F)->body2
     as.list(body2)->body2
 
+    
+# **  add this for filter, feElements, etc.
+    body2<-c(body2, quote(rtv<-list()))
+
     #add code to add to node children
     body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args),
                       suppressNamespaceWarning=getOption("suppressXMLNamespaceWarning", TRUE)), 
-                      list(ele.tag=ele.tag))
-    
+                      list(ele.tag=ele.tag)
+    )
+# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+
+# **  add this for filter, feElements, etc.
+    body3<-c(body3,
+             quote({
+               if(length(rtv)>0){
+                 node<-c(rtv,node)
+               }
+               node
+             })
+    )
+
+# ** prior to adding .children and attrs, we must process for filter assignment
+    #special case for elements which can have a filter attribute,
+    #however for the time being we will apply this to all elements
+    #todo change this to consider only elements which can have a filter attribute 
+  if(!(ele.tag %in% c('svg', 'defs'))){
+    body3<-c(
+        quote(if( "filter" %in%  names(attrs) ){
+          # grab all occurances, and proccess each
+          indx<-which(names(attrs) =="filter") 
+          #cat("indx=",indx,"\n")
+          for( n in indx){
+            filterNode<-attrs[[n]]
+            if(inherits(filterNode, "XMLAbstractNode")){
+              if(xmlName(filterNode)!="filter"){ # check tag name
+                stop("Not a filter node")
+              }
+              #print(filterNode)
+              fid<-getsafeNodeAttr("id",filterNode)
+              #cat("fid=",fid,"\n")
+              #may want to change later, but for now just promote
+              rtv<-c(rtv,filterNode)
+              #add filter to the return set
+              attrs[[n]]=paste0("url(#",fid,")")
+            }  
+          }  
+        }
+        ),
+        body3
+      )
+  }
+     
     #special cases for text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
       body3<-c(
@@ -231,7 +260,6 @@ build.svgFnQ<-function(){
         body3
       )    
     } 
-    #handle filter=fnode, this requires doc, parentNode, fnode
     
     
 #     if(ele.tag %in% c("animate")){
@@ -243,6 +271,7 @@ build.svgFnQ<-function(){
 #     }  
 
 # in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+
 
 
   # special cases for fe (filter elements)
@@ -275,7 +304,7 @@ feElementsIn<-c(
       body3<-c(
         quote({
           indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
-          rtv<-list()
+          #rtv<-list()
           for(n in indx.in){
             an<-attrs[[n]]
             if (inherits(an, 'list') && length(an)>=1){ 
