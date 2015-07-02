@@ -172,7 +172,7 @@ build.svgFnQ<-function(){
                       list(ele.tag=ele.tag)
     )
 # in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
-
+# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
 # **  add this for filter, feElements, etc.
     body3<-c(body3,
              quote({

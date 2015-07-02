@@ -359,6 +359,17 @@ clip	Applies to	svg
 clip	Applies to	symbol
 clip	Applies to	image
 clip	Applies to	foreignObject
+clip-path	Applies to	a
+clip-path	Applies to	defs
+clip-path	Applies to	glyph
+clip-path	Applies to	g
+clip-path	Applies to	marker
+clip-path	Applies to	mask
+clip-path	Applies to	missing-glyph
+clip-path	Applies to	pattern
+clip-path	Applies to	svg
+clip-path	Applies to	switch
+clip-path	Applies to	symbol
 clip-path	Applies to	circle
 clip-path	Applies to	ellipse
 clip-path	Applies to	image
@@ -369,7 +380,6 @@ clip-path	Applies to	polyline
 clip-path	Applies to	rect
 clip-path	Applies to	text
 clip-path	Applies to	use
-clip-path	Applies to	container elemenst
 clip-path	Applies to	clipPath
 clip-rule	Applies to	circle
 clip-rule	Applies to	ellipse
@@ -422,72 +432,138 @@ opacity	Applies to	glyph
 opacity	Applies to	missing-glyph
 opacity	Applies to	pattern
 opacity	Applies to	marker
+fill	Applies to	path
+fill	Applies to	rect
+fill	Applies to	circle
+fill	Applies to	ellipse
+fill	Applies to	line
+fill	Applies to	polyline
+fill	Applies to	polygon
 fill	Applies to	altGlyph
 fill	Applies to	textPath
 fill	Applies to	text
 fill	Applies to	tref
 fill	Applies to	tspan
-fill	Applies to	shape elements
+fill-rule	Applies to	path
+fill-rule	Applies to	rect
+fill-rule	Applies to	circle
+fill-rule	Applies to	ellipse
+fill-rule	Applies to	line
+fill-rule	Applies to	polyline
+fill-rule	Applies to	polygon
 fill-rule	Applies to	altGlyph
 fill-rule	Applies to	textPath
 fill-rule	Applies to	text
 fill-rule	Applies to	tref
 fill-rule	Applies to	tspan
-fill-rule	Applies to	shape elements
+fill-opacity	Applies to	path
+fill-opacity	Applies to	rect
+fill-opacity	Applies to	circle
+fill-opacity	Applies to	ellipse
+fill-opacity	Applies to	line
+fill-opacity	Applies to	polyline
+fill-opacity	Applies to	polygon
 fill-opacity	Applies to	altGlyph
 fill-opacity	Applies to	textPath
 fill-opacity	Applies to	text
 fill-opacity	Applies to	tref
 fill-opacity	Applies to	tspan
-fill-opacity	Applies to	shape elements
+stroke	Applies to	path
+stroke	Applies to	rect
+stroke	Applies to	circle
+stroke	Applies to	ellipse
+stroke	Applies to	line
+stroke	Applies to	polyline
+stroke	Applies to	polygon
 stroke	Applies to	altGlyph
 stroke	Applies to	textPath
 stroke	Applies to	text
 stroke	Applies to	tref
 stroke	Applies to	tspan
-stroke	Applies to	shape elements
+stroke-width	Applies to	path
+stroke-width	Applies to	rect
+stroke-width	Applies to	circle
+stroke-width	Applies to	ellipse
+stroke-width	Applies to	line
+stroke-width	Applies to	polyline
+stroke-width	Applies to	polygon
 stroke-width	Applies to	altGlyph
 stroke-width	Applies to	textPath
 stroke-width	Applies to	text
 stroke-width	Applies to	tref
 stroke-width	Applies to	tspan
-stroke-width	Applies to	shape elements
+stroke-linecap	Applies to	path
+stroke-linecap	Applies to	rect
+stroke-linecap	Applies to	circle
+stroke-linecap	Applies to	ellipse
+stroke-linecap	Applies to	line
+stroke-linecap	Applies to	polyline
+stroke-linecap	Applies to	polygon
 stroke-linecap	Applies to	altGlyph
 stroke-linecap	Applies to	textPath
 stroke-linecap	Applies to	text
 stroke-linecap	Applies to	tref
 stroke-linecap	Applies to	tspan
-stroke-linecap	Applies to	shape elements
+stroke-linejoin	Applies to	path
+stroke-linejoin	Applies to	rect
+stroke-linejoin	Applies to	circle
+stroke-linejoin	Applies to	ellipse
+stroke-linejoin	Applies to	line
+stroke-linejoin	Applies to	polyline
+stroke-linejoin	Applies to	polygon
 stroke-linejoin	Applies to	altGlyph
 stroke-linejoin	Applies to	textPath
 stroke-linejoin	Applies to	text
 stroke-linejoin	Applies to	tref
 stroke-linejoin	Applies to	tspan
-stroke-linejoin	Applies to	shape elements
+stroke-miterlimit	Applies to	path
+stroke-miterlimit	Applies to	rect
+stroke-miterlimit	Applies to	circle
+stroke-miterlimit	Applies to	ellipse
+stroke-miterlimit	Applies to	line
+stroke-miterlimit	Applies to	polyline
+stroke-miterlimit	Applies to	polygon
 stroke-miterlimit	Applies to	altGlyph
 stroke-miterlimit	Applies to	textPath
 stroke-miterlimit	Applies to	text
 stroke-miterlimit	Applies to	tref
 stroke-miterlimit	Applies to	tspan
-stroke-miterlimit	Applies to	shape elements
+stroke-dasharray	Applies to	path
+stroke-dasharray	Applies to	rect
+stroke-dasharray	Applies to	circle
+stroke-dasharray	Applies to	ellipse
+stroke-dasharray	Applies to	line
+stroke-dasharray	Applies to	polyline
+stroke-dasharray	Applies to	polygon
 stroke-dasharray	Applies to	altGlyph
 stroke-dasharray	Applies to	textPath
 stroke-dasharray	Applies to	text
 stroke-dasharray	Applies to	tref
 stroke-dasharray	Applies to	tspan
-stroke-dasharray	Applies to	shape elements
+stroke-dashoffset	Applies to	path
+stroke-dashoffset	Applies to	rect
+stroke-dashoffset	Applies to	circle
+stroke-dashoffset	Applies to	ellipse
+stroke-dashoffset	Applies to	line
+stroke-dashoffset	Applies to	polyline
+stroke-dashoffset	Applies to	polygon
 stroke-dashoffset	Applies to	altGlyph
 stroke-dashoffset	Applies to	textPath
 stroke-dashoffset	Applies to	text
 stroke-dashoffset	Applies to	tref
 stroke-dashoffset	Applies to	tspan
-stroke-dashoffset	Applies to	shape elements
+stroke-opacity	Applies to	path
+stroke-opacity	Applies to	rect
+stroke-opacity	Applies to	circle
+stroke-opacity	Applies to	ellipse
+stroke-opacity	Applies to	line
+stroke-opacity	Applies to	polyline
+stroke-opacity	Applies to	polygon
 stroke-opacity	Applies to	altGlyph
 stroke-opacity	Applies to	textPath
 stroke-opacity	Applies to	text
 stroke-opacity	Applies to	tref
 stroke-opacity	Applies to	tspan
-stroke-opacity	Applies to	shape elements
 display	Applies to	circle
 display	Applies to	ellipse
 display	Applies to	image
@@ -594,14 +670,26 @@ color-rendering	Applies to	text
 color-rendering	Applies to	use
 color-rendering	Applies to	animate
 color-rendering	Applies to	animateColor
-shape-rendering	Applies to	shape elements
+shape-rendering	Applies to	path
+shape-rendering	Applies to	rect
+shape-rendering	Applies to	circle
+shape-rendering	Applies to	ellipse
+shape-rendering	Applies to	line
+shape-rendering	Applies to	polyline
+shape-rendering	Applies to	polygon
 text-rendering	Applies to	text
 image-rendering	Applies to	image
+color	Applies to	path
+color	Applies to	rect
+color	Applies to	circle
+color	Applies to	ellipse
+color	Applies to	line
+color	Applies to	polyline
+color	Applies to	polygon
 color	Applies to	stop
 color	Applies to	feFlood
 color	Applies to	feDiffuseLighting
 color	Applies to	feSpecularLighting
-color	Applies to	shape elements
 color	Applies to	text content element
 color-profile	Applies to	image elements
 pointer-events	Applies to	circle
