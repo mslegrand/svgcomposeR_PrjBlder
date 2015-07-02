@@ -78,3 +78,19 @@ gradientColorQuote<-quote(
       args<-c(args,stopi)
     }
   })
+
+#TODO
+
+# - clipPath: clip-path="url(#MyClip)"
+
+# - marker :  marker-end="url(#Triangle)" 
+# - mask:  mask = mask
+
+# - pattern: fill="url(#TrianglePattern)"  
+# - radialGradient fill=linearGradient
+# - linearGradient:  fill="url(#MyGradient)"
+
+
+
+# Done
+# - filter: filter = filter
