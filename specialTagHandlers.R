@@ -2,6 +2,36 @@
 
 #special tag handling
 
+# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+
+
+
+# special cases for fe (filter elements)
+filterElementTags<-c(
+  "feBlend", 
+  "feColorMatrix",
+  "feComponentTransfer",
+  "feComposite",
+  "feConvolveMatrix",
+  "feDiffuseLighting",
+  "feDisplacementMap",
+  "feFlood",
+  "feGaussianBlur",
+  "feImage",
+  "feMerge",
+  "feMorphology",
+  "feOffset",
+  "feSpecularLighting",
+  "feTile",
+  "feTurbulence"
+)
+
+feElementsIn<-c(
+  'feConvolveMatrix','feDiffuseLighting','feOffset',
+  'feBlend','feColorMatrix','feComponentTransfer',
+  'feComposite','feDisplacementMap','feGaussianBlur',
+  'feMorphology','feSpecularLighting','feTile')
+
 # fe
 feQuote<-quote({
   indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
@@ -82,15 +112,78 @@ gradientColorQuote<-quote(
 #TODO
 
 # - clipPath: clip-path="url(#MyClip)"
-
-# - marker :  marker-end="url(#Triangle)" 
 # - mask:  mask = mask
 
-# - pattern: fill="url(#TrianglePattern)"  
-# - radialGradient fill=linearGradient
-# - linearGradient:  fill="url(#MyGradient)"
 
 
+fillQuote<-quote(if( "fill" %in%  names(attrs) ){
+  # grab all occurances, and proccess each
+  indx<-which(names(attrs) =="fill") 
+  for( n in indx){
+    aNode<-attrs[[n]]
+    if(inherits(aNode, "XMLAbstractNode")){
+      if(!(xmlName(aNode) %in% c("pattern", "linearGradient", "radialGradient")))
+        { # check tag name
+        stop("Bad fill parameter")
+      }
+      fid<-getsafeNodeAttr("id",aNode)
+      rtv<-c(rtv,aNode)
+      attrs[[n]]=paste0("url(#",fid,")")
+    }  
+  }  
+}
+)
+
+#marker-end, marker-middle, marker-start
+# markerEndQuote<-quote(if( "marker-end" %in%  names(attrs) ){
+#   # grab all occurances, and proccess each
+#   indx<-which(names(attrs) =="marker-end") 
+#   for( n in indx){
+#     aNode<-attrs[[n]]
+#     if(inherits(aNode, "XMLAbstractNode")){
+#       if(!(xmlName(aNode) %in% c("marker")))
+#       { # check tag name
+#         stop("Bad marker parameter")
+#       }
+#       fid<-getsafeNodeAttr("id",aNode)
+#       rtv<-c(rtv,aNode)
+#       attrs[[n]]=paste0("url(#",fid,")")
+#     }  
+#   }  
+# }
+# )
+
+makeSpecTr<-function(aName, aElements, aMssg){
+  ptree<-substitute(  
+  if( aName %in%  names(attrs) ){
+    # grab all occurances, and proccess each
+    indx<-which(names(attrs) ==aName)
+    for( n in indx){
+      aNode<-attrs[[n]]
+      if(inherits(aNode, "XMLAbstractNode")){
+        if(!(xmlName(aNode) %in% aElements)){ 
+          stop(aMssg)
+        }
+        fid<-getsafeNodeAttr("id",aNode)
+        rtv<-c(rtv,aNode)
+        attrs[[n]]=paste0("url(#",fid,")")
+      }  
+    }  
+  }, list(aName=aName, aElements=aElements, aMssg=aMssg))
+  ptree
+}
+
+markerEndQuote<-makeSpecTr(aName="marker-end", aElements = "marker", aMssg="Bad marker parameter")
+markerMidQuote<-makeSpecTr(aName="marker-mid", aElements = "marker", aMssg="Bad marker parameter")
+markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="Bad marker parameter")
+maskQuote<-makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask")
+clipPathQuote<-makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter")
 
 # Done
 # - filter: filter = filter
+# - pattern: fill="url(#TrianglePattern)"  
+# - radialGradient fill=linearGradient
+# - linearGradient:  fill="url(#MyGradient)"
+# - marker :  marker-end="url(#Triangle)" 
+# - marker :  marker-start="url(#Triangle)" 
+# - marker :  marker-mid="url(#Triangle)" 
