@@ -19,6 +19,7 @@ filterElementTags<-c(
   "feGaussianBlur",
   "feImage",
   "feMerge",
+  "feMergeNode", #added manually, need to investigate why this wasn't included!
   "feMorphology",
   "feOffset",
   "feSpecularLighting",
@@ -36,19 +37,47 @@ feElementsIn<-c(
 feQuote<-quote({
   indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
   #rtv<-list()
+  which(names(attrs)=='XfeNode')->indx
+  tmp<-attrs[indx]
+  if(length(indx)>0){
+    attrs<-attrs[-indx]
+  }
+  rtv<-c(rtv,tmp)
+  
   for(n in indx.in){
     an<-attrs[[n]]
     if (inherits(an, 'list') && length(an)>=1){ 
       len<-length(an)
       rtv<-c(rtv, an[1:(len-1)])
       feNode=an[[len]]
-      if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe??
-        resultStr<-getsafeNodeAttr("result", feNode)
-        rtv<-c( rtv, feNode )
-        attrs[[n]]<-resultStr            }
+      if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
+        resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
+        #rtv<-c( rtv, feNode ) 
+        rtv<-c( rtv, XfeNode=feNode)
+        attrs[[n]]<-resultStr            
+      }
     }
   }          
 })
+
+filterTagQuote<-quote({
+      tmp<-names(args) 
+      indx<-which(tmp=="XfeNode")
+      tmp[indx]<-""
+      names(args)<-tmp}
+      )
+
+defsTagQuote<-quote({
+  tmp<-names(args) 
+  indx<-which(tmp=="XdefsNode")
+  tmp[indx]<-""
+  names(args)<-tmp}
+)
+
+svgTagQuote<-quote({
+  # add unnamed defs if defs not an unnamed arg
+})
+
 
 filterQuote<-quote(if( "filter" %in%  names(attrs) ){
   # grab all occurances, and proccess each
@@ -115,35 +144,15 @@ gradientColorQuote<-quote(
 # - mask:  mask = mask
 
 
-
-fillQuote<-quote(if( "fill" %in%  names(attrs) ){
-  # grab all occurances, and proccess each
-  indx<-which(names(attrs) =="fill") 
-  for( n in indx){
-    aNode<-attrs[[n]]
-    if(inherits(aNode, "XMLAbstractNode")){
-      if(!(xmlName(aNode) %in% c("pattern", "linearGradient", "radialGradient")))
-        { # check tag name
-        stop("Bad fill parameter")
-      }
-      fid<-getsafeNodeAttr("id",aNode)
-      rtv<-c(rtv,aNode)
-      attrs[[n]]=paste0("url(#",fid,")")
-    }  
-  }  
-}
-)
-
-#marker-end, marker-middle, marker-start
-# markerEndQuote<-quote(if( "marker-end" %in%  names(attrs) ){
+# fillQuote<-quote(if( "fill" %in%  names(attrs) ){
 #   # grab all occurances, and proccess each
-#   indx<-which(names(attrs) =="marker-end") 
+#   indx<-which(names(attrs) =="fill") 
 #   for( n in indx){
 #     aNode<-attrs[[n]]
 #     if(inherits(aNode, "XMLAbstractNode")){
-#       if(!(xmlName(aNode) %in% c("marker")))
-#       { # check tag name
-#         stop("Bad marker parameter")
+#       if(!(xmlName(aNode) %in% c("pattern", "linearGradient", "radialGradient")))
+#         { # check tag name
+#         stop("Bad fill parameter")
 #       }
 #       fid<-getsafeNodeAttr("id",aNode)
 #       rtv<-c(rtv,aNode)
@@ -165,7 +174,8 @@ makeSpecTr<-function(aName, aElements, aMssg){
           stop(aMssg)
         }
         fid<-getsafeNodeAttr("id",aNode)
-        rtv<-c(rtv,aNode)
+        #rtv<-c(rtv,XdefsNode=aNode)
+        rtv<-c(rtv, aNode)
         attrs[[n]]=paste0("url(#",fid,")")
       }  
     }  
@@ -173,6 +183,8 @@ makeSpecTr<-function(aName, aElements, aMssg){
   ptree
 }
 
+
+fillQuote<-makeSpecTr(aName="fill", aElements = c("pattern", "linearGradient", "radialGradient"), aMssg="Bad fill parameter")
 markerEndQuote<-makeSpecTr(aName="marker-end", aElements = "marker", aMssg="Bad marker parameter")
 markerMidQuote<-makeSpecTr(aName="marker-mid", aElements = "marker", aMssg="Bad marker parameter")
 markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="Bad marker parameter")
