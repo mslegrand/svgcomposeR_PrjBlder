@@ -1,4 +1,4 @@
-
+cat
 
 #special tag handling
 
@@ -35,37 +35,43 @@ feElementsIn<-c(
 
 # fe
 feQuote<-quote({
-  indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
-  #rtv<-list()
+  # Move the XfeNode elements to the rtv
   which(names(attrs)=='XfeNode')->indx
-  tmp<-attrs[indx]
   if(length(indx)>0){
+    tmp<-attrs[indx]
     attrs<-attrs[-indx]
+    rtv<-c(rtv,tmp)
+    #rtv<-c(tmp,rtv)
   }
-  rtv<-c(rtv,tmp)
+  
+  indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
   
   for(n in indx.in){
     an<-attrs[[n]]
     if (inherits(an, 'list') && length(an)>=1){ 
       len<-length(an)
       rtv<-c(rtv, an[1:(len-1)])
-      feNode=an[[len]]
-      if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
-        resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
-        #rtv<-c( rtv, feNode ) 
-        rtv<-c( rtv, XfeNode=feNode)
-        attrs[[n]]<-resultStr            
-      }
+      feNode=an[[len]]}
+    else{
+      feNode=an
+    }
+    if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
+      resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
+      #rtv<-c( rtv, feNode ) 
+      rtv<-c( rtv, XfeNode=feNode)
+      attrs[[n]]<-resultStr            
     }
   }          
 })
 
-filterTagQuote<-quote({
-      tmp<-names(args) 
-      indx<-which(tmp=="XfeNode")
-      tmp[indx]<-""
-      names(args)<-tmp}
-      )
+filterTagQuote<-quote(
+  if("XfeNode" %in% names(args)){
+    tmp<-names(args)
+    indx<-which(tmp=="XfeNode")
+    tmp[indx]<-""
+    names(args)<-tmp
+  }
+)
 
 defsTagQuote<-quote({
   tmp<-names(args) 
@@ -190,6 +196,7 @@ markerMidQuote<-makeSpecTr(aName="marker-mid", aElements = "marker", aMssg="Bad 
 markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="Bad marker parameter")
 maskQuote<-makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask")
 clipPathQuote<-makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter")
+
 
 # Done
 # - filter: filter = filter

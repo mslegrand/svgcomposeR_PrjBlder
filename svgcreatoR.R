@@ -89,6 +89,9 @@ build.svgFnQ<-function(){
   if(!exists("COP.DT")){
     fread("dataTables/comboParams.tsv")->COP.DT
   }
+  if(!exists("PA.DT")){
+    fread("dataTables/presentationAttr.tsv")->PA.DT
+  }
   
   ele.tags<-unique(AET.DT$element)
   
@@ -189,15 +192,47 @@ build.svgFnQ<-function(){
 # ** prior to adding .children and attrs, we process for our custom
     # attribute=element assignments
     
+    # here we get the special cases for our quotes
+    attrsEle2Quote<-list(
+      filter=c("g",PA.DT[attr=='filter' & variable=='Applies to']$value),
+      fill=c("g",PA.DT[attr=='fill' & variable=='Applies to']$value),
+      clip.path=c("g",PA.DT[attr=='clip-path' & variable=='Applies to']$value),
+      mask=c("g",PA.DT[attr=='mask' & variable=='Applies to']$value),
+      marker=c("g",PA.DT[attr=="marker properties" & variable=='Applies to']$value)
+    )
+    
     #todo change this to consider only elements which can have a filter attribute 
-    if(!(ele.tag %in% c('svg', 'defs'))){
-      body3<-c(filterQuote,body3)
+    # filter is a presentation attribute, so wc3 seems to say that
+    # filter can work on svg, defs and 40 or more other stuff
+    # Using PA.DT we see 20 elements
+    # PA.DT[attr=='filter' & variable=='Applies to']$value
+    # not sure what filter in animate does
+    #if(!(ele.tag %in% c('svg', 'defs'))){
+    if(ele.tag %in% attrsEle2Quote$filter){
+        body3<-c(filterQuote,body3)
     }
-    if(TRUE){ #shapes, and what else?
-      body3<-c(fillQuote, clipPathQuote, maskQuote, body3)
-    } 
-    if(ele.tag %in% c('line', 'polyline', 'path')){ # and what else?
-      body3<-c(markerEndQuote, markerMidQuote, markerStartQuote, body3)
+    # PA.DT[attr=='fill' & variable=='Applies to']$value (12 ele)
+    # PA.DT[attr=='clip-path' & variable=='Applies to'] (22 ele)
+    # PA.DT[attr=='mask' & variable=='Applies to'] (21 ele)
+    #if(TRUE){ #shapes, and what else? all are presentation attrs
+#       body3<-c(fillQuote, clipPathQuote, maskQuote, body3)
+#     } 
+    if(ele.tag %in% attrsEle2Quote$fill){
+      body3<-c(fillQuote,body3)
+    }
+    if(ele.tag %in% attrsEle2Quote$clip.path){
+      body3<-c(clipPathQuote,body3)
+    }
+    if(ele.tag %in% attrsEle2Quote$mask){
+      body3<-c(maskQuote,body3)
+    }
+    
+    # all presentation attrs
+    # should be four elements
+    #PA.DT[attr=="marker properties" & variable=='Applies to']
+    #if(ele.tag %in% c('line', 'polyline', 'path', 'polygon')){ # and what else?
+    if(ele.tag %in% attrsEle2Quote$marker){ # and what else?
+        body3<-c(markerEndQuote, markerMidQuote, markerStartQuote, body3)
     } 
     #special cases for text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
@@ -232,6 +267,9 @@ build.svgFnQ<-function(){
   
   svgFnQ<-lapply(ele.tags, createEleFnQ, AET.DT=AET.DT )
   names(svgFnQ)<-ele.tags
+
+  
+  
   
   #here we handle names with -
   indx<-grep("-", names(svgFnQ))
@@ -257,6 +295,16 @@ build.svgFnQ<-function(){
 
 svgFnQ<-build.svgFnQ()
 
+svgFnQ$script<-function(...){
+  args <- list(...)
+  stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
+  paste(args,collapse="\n")->js
+  newXMLNode('script', attrs= list(type="text/JavaScript"),
+             newXMLCDataNode(js), 
+             suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
+  )
+}
 
+#type="text/JavaScript"
 
 
