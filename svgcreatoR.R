@@ -119,7 +119,10 @@ build.svgFnQ<-function(){
     )
     if(ele.tag=="filter"){
       body0<-append(body0,filterTagQuote,2)
-    } 
+    }
+    if(ele.tag=="feConvolveMatrix"){
+      body0<-append(body0,feConvolveMatrixTagQuote,3)
+    }
 #     else {
 #       if( ele.tag=='defs'){
 #         body0<-append(body0,defsTagQuote,2)

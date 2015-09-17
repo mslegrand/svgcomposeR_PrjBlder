@@ -4,7 +4,11 @@ cat
 
 # in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
 
-
+feConvolveMatrixTagQuote<-quote(
+  if(inherits(attrs$kernelMatrix,"matrix")){
+    attrs$order<-paste(dim(attrs$kernelMatrix))
+  }
+)
 
 # special cases for fe (filter elements)
 filterElementTags<-c(
