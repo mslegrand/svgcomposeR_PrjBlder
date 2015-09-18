@@ -1,24 +1,93 @@
-
+cat
 
 #special tag handling
 
+# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+
+feConvolveMatrixTagQuote<-quote(
+  if(inherits(attrs$kernelMatrix,"matrix")){
+    attrs$order<-paste(dim(attrs$kernelMatrix))
+  }
+)
+
+# special cases for fe (filter elements)
+filterElementTags<-c(
+  "feBlend", 
+  "feColorMatrix",
+  "feComponentTransfer",
+  "feComposite",
+  "feConvolveMatrix",
+  "feDiffuseLighting",
+  "feDisplacementMap",
+  "feFlood",
+  "feGaussianBlur",
+  "feImage",
+  "feMerge",
+  "feMergeNode", #added manually, need to investigate why this wasn't included!
+  "feMorphology",
+  "feOffset",
+  "feSpecularLighting",
+  "feTile",
+  "feTurbulence"
+)
+
+feElementsIn<-c(
+  'feConvolveMatrix','feDiffuseLighting','feOffset',
+  'feBlend','feColorMatrix','feComponentTransfer',
+  'feComposite','feDisplacementMap','feGaussianBlur',
+  'feMorphology','feSpecularLighting','feTile')
+
 # fe
 feQuote<-quote({
+  # Move the XfeNode elements to the rtv
+  which(names(attrs)=='XfeNode')->indx
+  if(length(indx)>0){
+    tmp<-attrs[indx]
+    attrs<-attrs[-indx]
+    rtv<-c(rtv,tmp)
+    #rtv<-c(tmp,rtv)
+  }
+  
   indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
-  #rtv<-list()
+  
   for(n in indx.in){
     an<-attrs[[n]]
     if (inherits(an, 'list') && length(an)>=1){ 
       len<-length(an)
       rtv<-c(rtv, an[1:(len-1)])
-      feNode=an[[len]]
-      if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe??
-        resultStr<-getsafeNodeAttr("result", feNode)
-        rtv<-c( rtv, feNode )
-        attrs[[n]]<-resultStr            }
+      feNode=an[[len]]}
+    else{
+      feNode=an
+    }
+    if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
+      resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
+      #rtv<-c( rtv, feNode ) 
+      rtv<-c( rtv, XfeNode=feNode)
+      attrs[[n]]<-resultStr            
     }
   }          
 })
+
+filterTagQuote<-quote(
+  if("XfeNode" %in% names(args)){
+    tmp<-names(args)
+    indx<-which(tmp=="XfeNode")
+    tmp[indx]<-""
+    names(args)<-tmp
+  }
+)
+
+defsTagQuote<-quote({
+  tmp<-names(args) 
+  indx<-which(tmp=="XdefsNode")
+  tmp[indx]<-""
+  names(args)<-tmp}
+)
+
+svgTagQuote<-quote({
+  # add unnamed defs if defs not an unnamed arg
+})
+
 
 filterQuote<-quote(if( "filter" %in%  names(attrs) ){
   # grab all occurances, and proccess each
@@ -82,15 +151,62 @@ gradientColorQuote<-quote(
 #TODO
 
 # - clipPath: clip-path="url(#MyClip)"
-
-# - marker :  marker-end="url(#Triangle)" 
 # - mask:  mask = mask
 
-# - pattern: fill="url(#TrianglePattern)"  
-# - radialGradient fill=linearGradient
-# - linearGradient:  fill="url(#MyGradient)"
 
+# fillQuote<-quote(if( "fill" %in%  names(attrs) ){
+#   # grab all occurances, and proccess each
+#   indx<-which(names(attrs) =="fill") 
+#   for( n in indx){
+#     aNode<-attrs[[n]]
+#     if(inherits(aNode, "XMLAbstractNode")){
+#       if(!(xmlName(aNode) %in% c("pattern", "linearGradient", "radialGradient")))
+#         { # check tag name
+#         stop("Bad fill parameter")
+#       }
+#       fid<-getsafeNodeAttr("id",aNode)
+#       rtv<-c(rtv,aNode)
+#       attrs[[n]]=paste0("url(#",fid,")")
+#     }  
+#   }  
+# }
+# )
+
+makeSpecTr<-function(aName, aElements, aMssg){
+  ptree<-substitute(  
+  if( aName %in%  names(attrs) ){
+    # grab all occurances, and proccess each
+    indx<-which(names(attrs) ==aName)
+    for( n in indx){
+      aNode<-attrs[[n]]
+      if(inherits(aNode, "XMLAbstractNode")){
+        if(!(xmlName(aNode) %in% aElements)){ 
+          stop(aMssg)
+        }
+        fid<-getsafeNodeAttr("id",aNode)
+        #rtv<-c(rtv,XdefsNode=aNode)
+        rtv<-c(rtv, aNode)
+        attrs[[n]]=paste0("url(#",fid,")")
+      }  
+    }  
+  }, list(aName=aName, aElements=aElements, aMssg=aMssg))
+  ptree
+}
+
+
+fillQuote<-makeSpecTr(aName="fill", aElements = c("pattern", "linearGradient", "radialGradient"), aMssg="Bad fill parameter")
+markerEndQuote<-makeSpecTr(aName="marker-end", aElements = "marker", aMssg="Bad marker parameter")
+markerMidQuote<-makeSpecTr(aName="marker-mid", aElements = "marker", aMssg="Bad marker parameter")
+markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="Bad marker parameter")
+maskQuote<-makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask")
+clipPathQuote<-makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter")
 
 
 # Done
 # - filter: filter = filter
+# - pattern: fill="url(#TrianglePattern)"  
+# - radialGradient fill=linearGradient
+# - linearGradient:  fill="url(#MyGradient)"
+# - marker :  marker-end="url(#Triangle)" 
+# - marker :  marker-start="url(#Triangle)" 
+# - marker :  marker-mid="url(#Triangle)" 

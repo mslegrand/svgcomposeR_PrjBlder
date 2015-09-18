@@ -37,7 +37,7 @@ Samples:
               need to design symbolics for (:=, =, ~, @
                 a. changes immediately :=
                 b. changes to from last ~
-                c. relative to immediately  xy(id):=c(3,4)
+                c.http://adv-r.had.co.nz/Functions.html relative to immediately  xy(id):=c(3,4)
                 d. relative to from last    XY(id)~c(3,4)
               relative only makes sense for spatial (postion, rotation, ...)
                 rotate(id) would be relative (could we even make a Rotate(id))
@@ -190,3 +190,37 @@ for each attribute, same values?
 #todo!!! 
 
 # write examples!!!
+
+1. in feQuote: 
+rtv<-c(rtv, feNodeInsert=feNode) 
+2: in filter: collect all feNodeInsert's
+3: in named attrs, do not add feNodeInsert as the are not attributes
+4: pass all feNodeInsert up to the next node, ie. return value needs to 
+include and feNodes
+
+#feNodeInsert
+so 
+1. When tag is "filter" reset the names of args
+to names(args) but with all feNodeInsert replaced with "" 
+2. At the end of each ele defn that is not a "filter" (tag!="filter")
+add:
+  remove feNodeInsert from attrs and preprend rtv with that list
+  which(names(attrs)=='feNodeInsert')->indx
+  tmp<-attrs[indx]
+  if(length(indx)>0){
+    attrs<-attrs[-indx]
+  }
+  rtv<-c(rtv,tmp)
+  
+# defsNodeInsert
+1. for gradient, ... add defs attribute instead of a simple promote
+2. if ele.tag==svg, 
+  a. create defs node and add to svg, 
+  b. get defs child and place all defs attribs nodes into the defs child
+  c. a
+  b. remove defs tags from  child
+3. if ele.tag==defs, add all defsNodeInsert to defs as children
+
+problem: what if we are adding to an indexed node?, then we must walk up the tree to
+get to the root, if the root fails to have a defs, add an defs.
+

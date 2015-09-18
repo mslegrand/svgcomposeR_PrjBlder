@@ -3,7 +3,7 @@
 
 library(data.table)
 library(XML)
-
+source("specialTagHandlers.R")
 #todo:
 # add param processing to doc[['id']]: will need to consider tag that id belongs to or allow anything
 # add param processing for use: same problem as #1, restricted to params for svg, symbol, g, graphics elements
@@ -89,6 +89,9 @@ build.svgFnQ<-function(){
   if(!exists("COP.DT")){
     fread("dataTables/comboParams.tsv")->COP.DT
   }
+  if(!exists("PA.DT")){
+    fread("dataTables/presentationAttr.tsv")->PA.DT
+  }
   
   ele.tags<-unique(AET.DT$element)
   
@@ -107,7 +110,6 @@ build.svgFnQ<-function(){
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
   createEleFnQ<-function(ele.tag, AET.DT){
     AET.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
-    #ele.treatments<-unique(ele.dt$treatValueAs)
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
     #This is the extras 
     body0<-c(
@@ -115,9 +117,17 @@ build.svgFnQ<-function(){
       quote( args <- promoteUnamedLists(args) ),
       quote( attrs <- named(args) )
     )
-    
-
-
+    if(ele.tag=="filter"){
+      body0<-append(body0,filterTagQuote,2)
+    }
+    if(ele.tag=="feConvolveMatrix"){
+      body0<-append(body0,feConvolveMatrixTagQuote,3)
+    }
+#     else {
+#       if( ele.tag=='defs'){
+#         body0<-append(body0,defsTagQuote,2)
+#       }
+#     }
     
     qcomboParamsFn<-function(etag){
       tmp<-COP.DT[element==etag]
@@ -142,7 +152,6 @@ build.svgFnQ<-function(){
       
     ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls
     body1<-ppXtraCL
-    
     
     #Insert special handling for animate here
     if(ele.tag == "animate"){
@@ -183,84 +192,59 @@ build.svgFnQ<-function(){
              })
     )
 
-# ** prior to adding .children and attrs, we must process for filter assignment
-    #special case for elements which can have a filter attribute,
-    #however for the time being we will apply this to all elements
+# ** prior to adding .children and attrs, we process for our custom
+    # attribute=element assignments
+    
+    # here we get the special cases for our quotes
+    attrsEle2Quote<-list(
+      filter=c("g",PA.DT[attr=='filter' & variable=='Applies to']$value),
+      fill=c("g",PA.DT[attr=='fill' & variable=='Applies to']$value),
+      clip.path=c("g",PA.DT[attr=='clip-path' & variable=='Applies to']$value),
+      mask=c("g",PA.DT[attr=='mask' & variable=='Applies to']$value),
+      marker=c("g",PA.DT[attr=="marker properties" & variable=='Applies to']$value)
+    )
+    
     #todo change this to consider only elements which can have a filter attribute 
-  if(!(ele.tag %in% c('svg', 'defs'))){
-    body3<-c(
-        quote(if( "filter" %in%  names(attrs) ){
-          # grab all occurances, and proccess each
-          indx<-which(names(attrs) =="filter") 
-          #cat("indx=",indx,"\n")
-          for( n in indx){
-            filterNode<-attrs[[n]]
-            if(inherits(filterNode, "XMLAbstractNode")){
-              if(xmlName(filterNode)!="filter"){ # check tag name
-                stop("Not a filter node")
-              }
-              #print(filterNode)
-              fid<-getsafeNodeAttr("id",filterNode)
-              #cat("fid=",fid,"\n")
-              #may want to change later, but for now just promote
-              rtv<-c(rtv,filterNode)
-              #add filter to the return set
-              attrs[[n]]=paste0("url(#",fid,")")
-            }  
-          }  
-        }
-        ),
-        body3
-      )
-  }
-     
+    # filter is a presentation attribute, so wc3 seems to say that
+    # filter can work on svg, defs and 40 or more other stuff
+    # Using PA.DT we see 20 elements
+    # PA.DT[attr=='filter' & variable=='Applies to']$value
+    # not sure what filter in animate does
+    #if(!(ele.tag %in% c('svg', 'defs'))){
+    if(ele.tag %in% attrsEle2Quote$filter){
+        body3<-c(filterQuote,body3)
+    }
+    # PA.DT[attr=='fill' & variable=='Applies to']$value (12 ele)
+    # PA.DT[attr=='clip-path' & variable=='Applies to'] (22 ele)
+    # PA.DT[attr=='mask' & variable=='Applies to'] (21 ele)
+    #if(TRUE){ #shapes, and what else? all are presentation attrs
+#       body3<-c(fillQuote, clipPathQuote, maskQuote, body3)
+#     } 
+    if(ele.tag %in% attrsEle2Quote$fill){
+      body3<-c(fillQuote,body3)
+    }
+    if(ele.tag %in% attrsEle2Quote$clip.path){
+      body3<-c(clipPathQuote,body3)
+    }
+    if(ele.tag %in% attrsEle2Quote$mask){
+      body3<-c(maskQuote,body3)
+    }
+    
+    # all presentation attrs
+    # should be four elements
+    #PA.DT[attr=="marker properties" & variable=='Applies to']
+    #if(ele.tag %in% c('line', 'polyline', 'path', 'polygon')){ # and what else?
+    if(ele.tag %in% attrsEle2Quote$marker){ # and what else?
+        body3<-c(markerEndQuote, markerMidQuote, markerStartQuote, body3)
+    } 
     #special cases for text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
-      body3<-c(
-        quote(if(!is.null(names(attrs))){
-          attr.names<-names(attrs)
-          attr.names<-gsub("^(((style))|((weight))|((variant))|((size))|((family)))$", "font-\\1",attr.names, fixed=F)
-          attr.names<-gsub("^anchor$","text-anchor",attr.names)
-          names(attrs)<-attr.names
-          if(!is.null(attrs[["cxy"]])){
-            attrs[["text-anchor"]]<-'middle'
-            attrs[["dominant-baseline"]]="central"
-            attrs[["xy"]]=attrs[["cxy"]]
-            attrs[["cxy"]]=NULL
-          }
-          attrs<-mapArg(attrs,"xy", c("x","y"))
-          text<-NULL
-          if("text" %in% attr.names){ ### use value instead of text???
-            text<-attrs["text"]
-            attrs["text"]<-NULL
-          }
-        }),
-        body3
-      )    
+      body3<-c(textQuote, body3)    
     }
     #special code for gradients
     if(ele.tag %in% c("linearGradient",  "radialGradient")){
-      body3<-c(
-        quote(
-          if("colors" %in% names(attrs)){
-            colors<-attrs[["colors"]]
-            attrs[["colors"]]<-NULL
-            if("offsets" %in% names(attrs)){
-              offsets<-attrs[["offsets"]]
-              attrs[["offsets"]]<-NULL
-            } else {
-              offsets<-seq(0,100,length.out=length(colors))
-            }
-            for(i in 1:length(colors)){
-              attrs.si<-list(offset=sprintf("%d%%", as.integer(offsets[i])), "stop-color"= colors[i])
-              stopi<-newXMLNode("stop", attrs=attrs.si)
-              args<-c(args,stopi)
-            }
-          }),
-        body3
-      )    
+      body3<-c(gradientColorQuote, body3 )    
     } 
-    
     
 #     if(ele.tag %in% c("animate")){
 #       #special handling of by, from to depending on attributeName/type
@@ -270,55 +254,9 @@ build.svgFnQ<-function(){
 #       #allow for anything
 #     }  
 
-# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
-
-
-
-  # special cases for fe (filter elements)
-  filterElementTags<-c(
-    "feBlend", 
-    "feColorMatrix",
-    "feComponentTransfer",
-    "feComposite",
-    "feConvolveMatrix",
-    "feDiffuseLighting",
-    "feDisplacementMap",
-    "feFlood",
-    "feGaussianBlur",
-    "feImage",
-    "feMerge",
-    "feMorphology",
-    "feOffset",
-    "feSpecularLighting",
-    "feTile",
-    "feTurbulence"
-  )
-
-feElementsIn<-c(
-  'feConvolveMatrix','feDiffuseLighting','feOffset',
-  'feBlend','feColorMatrix','feComponentTransfer',
-  'feComposite','feDisplacementMap','feGaussianBlur',
-  'feMorphology','feSpecularLighting','feTile')
-
   if(ele.tag %in% filterElementTags){
       body3<-c(
-        quote({
-          indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
-          #rtv<-list()
-          for(n in indx.in){
-            an<-attrs[[n]]
-            if (inherits(an, 'list') && length(an)>=1){ 
-              len<-length(an)
-              rtv<-c(rtv, an[1:(len-1)])
-              feNode=an[[len]]
-              if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe??
-                resultStr<-getsafeNodeAttr("result", feNode)
-                rtv<-c( rtv, feNode )
-                attrs[[n]]<-resultStr            }
-            }
-          }          
-        }
-        ),
+        feQuote,
         body3,
         quote(node<-c(rtv,node))
       )   
@@ -332,6 +270,9 @@ feElementsIn<-c(
   
   svgFnQ<-lapply(ele.tags, createEleFnQ, AET.DT=AET.DT )
   names(svgFnQ)<-ele.tags
+
+  
+  
   
   #here we handle names with -
   indx<-grep("-", names(svgFnQ))
@@ -357,6 +298,16 @@ feElementsIn<-c(
 
 svgFnQ<-build.svgFnQ()
 
+svgFnQ$script<-function(...){
+  args <- list(...)
+  stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
+  paste(args,collapse="\n")->js
+  newXMLNode('script', attrs= list(type="text/JavaScript"),
+             newXMLCDataNode(js), 
+             suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
+  )
+}
 
+#type="text/JavaScript"
 
 
