@@ -3,13 +3,13 @@ accent-height	font-face	FALSE	fonts.html#FontFaceElementAccentHeightAttribute	fo
 alphabetic	font-face	FALSE	fonts.html#FontFaceElementAlphabeticAttribute	fonts.html	FontFaceElementAlphabeticAttribute	<number>	types.html#DataTypeNumber	ignore
 arabic-form	glyph	FALSE	fonts.html#GlyphElementArabicFormAttribute	fonts.html	GlyphElementArabicFormAttribute	initial | medial | terminal | isolated	NA	ignore
 ascent	font-face	FALSE	fonts.html#FontFaceElementAscentAttribute	fonts.html	FontFaceElementAscentAttribute	<number>	types.html#DataTypeNumber	ignore
-bbox	font-face	FALSE	fonts.html#FontFaceElementBboxAttribute	fonts.html	FontFaceElementBboxAttribute	<string>	NA	cmm-list {4}
+bbox	font-face	FALSE	fonts.html#FontFaceElementBboxAttribute	fonts.html	FontFaceElementBboxAttribute	<string>	NA	cmm-list
 cap-height	font-face	FALSE	fonts.html#FontFaceElementCapHeightAttribute	fonts.html	FontFaceElementCapHeightAttribute	<number>	types.html#DataTypeNumber	ignore
 d	glyph	FALSE	fonts.html#GlyphElementDAttribute	fonts.html	GlyphElementDAttribute	path data	NA	path-data-list
 d	missing-glyph	FALSE	fonts.html#GlyphElementDAttribute	fonts.html	GlyphElementDAttribute	path data	NA	path-data-list
 descent	font-face	FALSE	fonts.html#FontFaceElementDescentAttribute	fonts.html	FontFaceElementDescentAttribute	<number>	types.html#DataTypeNumber	ignore
-font-family	font-face	FALSE	fonts.html#FontFaceElementFontFamilyAttribute	fonts.html	FontFaceElementFontFamilyAttribute	<string>	NA	cmm-list {4}
-font-size	font-face	FALSE	fonts.html#FontFaceElementFontSizeAttribute	fonts.html	FontFaceElementFontSizeAttribute	<string>	NA	cmm-list {4}
+font-family	font-face	FALSE	fonts.html#FontFaceElementFontFamilyAttribute	fonts.html	FontFaceElementFontFamilyAttribute	<string>	NA	cmm-list
+font-size	font-face	FALSE	fonts.html#FontFaceElementFontSizeAttribute	fonts.html	FontFaceElementFontSizeAttribute	<string>	NA	cmm-list
 font-stretch	font-face	FALSE	fonts.html#FontFaceElementFontStretchAttribute	fonts.html	FontFaceElementFontStretchAttribute	all | [ normal | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded] [, [ normal | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded] ]*	NA	ignore
 font-style	font-face	FALSE	fonts.html#FontFaceElementFontStyleAttribute	fonts.html	FontFaceElementFontStyleAttribute	all | [ normal | italic | oblique] [, [normal | italic | oblique]]*	NA	ignore
 font-variant	font-face	FALSE	fonts.html#FontFaceElementFontVariantAttribute	fonts.html	FontFaceElementFontVariantAttribute	[normal | small-caps] [,[normal | small-caps]]*	NA	ignore
@@ -47,7 +47,7 @@ u2	hkern	FALSE	fonts.html#HKernElementU2Attribute	fonts.html	HKernElementU2Attri
 u2	vkern	FALSE	fonts.html#HKernElementU2Attribute	fonts.html	HKernElementU2Attribute	[<character> | <urange>] [, [<character> | <urange>] ]*	NA	ignore
 underline-position	font-face	FALSE	fonts.html#FontFaceElementUnderlinePositionAttribute	fonts.html	FontFaceElementUnderlinePositionAttribute	<number>	types.html#DataTypeNumber	ignore
 underline-thickness	font-face	FALSE	fonts.html#FontFaceElementUnderlineThicknessAttribute	fonts.html	FontFaceElementUnderlineThicknessAttribute	<number>	types.html#DataTypeNumber	ignore
-unicode	glyph	FALSE	fonts.html#GlyphElementUnicodeAttribute	fonts.html	GlyphElementUnicodeAttribute	<string>	NA	cmm-list {4}
+unicode	glyph	FALSE	fonts.html#GlyphElementUnicodeAttribute	fonts.html	GlyphElementUnicodeAttribute	<string>	NA	cmm-list
 unicode-range	font-face	FALSE	fonts.html#FontFaceElementUnicodeRangeAttribute	fonts.html	FontFaceElementUnicodeRangeAttribute	<urange> [, <urange>]*	NA	cmm-list
 units-per-em	font-face	FALSE	fonts.html#FontFaceElementUnitsPerEmAttribute	fonts.html	FontFaceElementUnitsPerEmAttribute	<number>	types.html#DataTypeNumber	ignore
 v-alphabetic	font-face	FALSE	fonts.html#FontFaceElementVertAlphabeticAttribute	fonts.html	FontFaceElementVertAlphabeticAttribute	<number>	types.html#DataTypeNumber	ignore
@@ -63,7 +63,7 @@ vert-origin-x	missing-glyph	FALSE	fonts.html#GlyphElementVertOriginXAttribute	fo
 vert-origin-y	font	FALSE	fonts.html#FontElementVertOriginYAttribute	fonts.html	FontElementVertOriginYAttribute	<number>	NA	ignore
 vert-origin-y	glyph	FALSE	fonts.html#GlyphElementVertOriginYAttribute	fonts.html	GlyphElementVertOriginYAttribute	<number>	NA	ignore
 vert-origin-y	missing-glyph	FALSE	fonts.html#GlyphElementVertOriginYAttribute	fonts.html	GlyphElementVertOriginYAttribute	<number>	NA	ignore
-widths	font-face	FALSE	fonts.html#FontFaceElementWidthsAttribute	fonts.html	FontFaceElementWidthsAttribute	<string>	NA	cmm-list {4}
+widths	font-face	FALSE	fonts.html#FontFaceElementWidthsAttribute	fonts.html	FontFaceElementWidthsAttribute	<string>	NA	cmm-list
 x-height	font-face	FALSE	fonts.html#FontFaceElementXHeightAttribute	fonts.html	FontFaceElementXHeightAttribute	<number>	types.html#DataTypeNumber	ignore
 xlink:href	font-face-uri	FALSE	fonts.html#FontFaceUriElementHrefAttribute	fonts.html	FontFaceUriElementHrefAttribute	<IRI>	types.html#DataTypeIRI	ignore
 accumulate	animate	FALSE	animate.html#AccumulateAttribute	animate.html	AccumulateAttribute	"none | sum"	NA	ignore
@@ -115,14 +115,14 @@ from	animateColor	FALSE	animate.html#FromAttribute	animate.html	FromAttribute	"<
 from	animateMotion	FALSE	animate.html#FromAttribute	animate.html	FromAttribute	"<value>"	NA	cmm-list
 from	animateTransform	FALSE	animate.html#FromAttribute	animate.html	FromAttribute	"<value>"	NA	cmm-list
 keyPoints	animateMotion	FALSE	animate.html#KeyPointsAttribute	animate.html	KeyPointsAttribute	<list-of-numbers>	NA	scln-list
-keySplines	animate	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	cmm-scln-list
-keySplines	animateColor	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	cmm-scln-list
-keySplines	animateMotion	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	cmm-scln-list
-keySplines	animateTransform	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	cmm-scln-list
-keyTimes	animate	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	cmm-scln-list
-keyTimes	animateColor	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	cmm-scln-list
-keyTimes	animateMotion	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	cmm-scln-list
-keyTimes	animateTransform	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	cmm-scln-list
+keySplines	animate	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	wsp4scln-list
+keySplines	animateColor	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	wsp4scln-list
+keySplines	animateMotion	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	wsp4scln-list
+keySplines	animateTransform	FALSE	animate.html#KeySplinesAttribute	animate.html	KeySplinesAttribute	"<list>"	NA	wsp4scln-list
+keyTimes	animate	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	scln-list
+keyTimes	animateColor	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	scln-list
+keyTimes	animateMotion	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	scln-list
+keyTimes	animateTransform	FALSE	animate.html#KeyTimesAttribute	animate.html	KeyTimesAttribute	"<list>"	NA	scln-list
 max	animate	FALSE	animate.html#MaxAttribute	animate.html	MaxAttribute	Clock-value | "media"	NA	ignore
 max	animateColor	FALSE	animate.html#MaxAttribute	animate.html	MaxAttribute	Clock-value | "media"	NA	ignore
 max	animateMotion	FALSE	animate.html#MaxAttribute	animate.html	MaxAttribute	Clock-value | "media"	NA	ignore
@@ -133,7 +133,7 @@ min	animateColor	FALSE	animate.html#MinAttribute	animate.html	MinAttribute	Clock
 min	animateMotion	FALSE	animate.html#MinAttribute	animate.html	MinAttribute	Clock-value | "media"	NA	ignore
 min	animateTransform	FALSE	animate.html#MinAttribute	animate.html	MinAttribute	Clock-value | "media"	NA	ignore
 min	set	FALSE	animate.html#MinAttribute	animate.html	MinAttribute	Clock-value | "media"	NA	ignore
-origin	animateMotion	FALSE	animate.html#OriginAttribute	animate.html	OriginAttribute	default	NA	default
+origin	animateMotion	FALSE	animate.html#OriginAttribute	animate.html	OriginAttribute	default	NA	ignore
 path	animateMotion	FALSE	animate.html#PathAttribute	animate.html	PathAttribute	<path-data>	NA	path-data-list
 repeatCount	animate	FALSE	animate.html#RepeatCountAttribute	animate.html	RepeatCountAttribute	numeric value | "indefinite"	NA	ignore
 repeatCount	animateColor	FALSE	animate.html#RepeatCountAttribute	animate.html	RepeatCountAttribute	numeric value | "indefinite"	NA	ignore
@@ -157,10 +157,10 @@ to	animateColor	FALSE	animate.html#ToAttribute	animate.html	ToAttribute	"<value>
 to	animateMotion	FALSE	animate.html#ToAttribute	animate.html	ToAttribute	"<value>"	NA	cmm-list
 to	animateTransform	FALSE	animate.html#ToAttribute	animate.html	ToAttribute	"<value>"	NA	cmm-list
 type	animateTransform	FALSE	animate.html#AnimateTransformElementTypeAttribute	animate.html	AnimateTransformElementTypeAttribute	translate | scale | rotate | skewX | skewY	NA	ignore
-values	animate	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	cmm-scln-list
-values	animateColor	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	cmm-scln-list
-values	animateMotion	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	cmm-scln-list
-values	animateTransform	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	cmm-scln-list
+values	animate	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	wsp-scln-list
+values	animateColor	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	wsp-scln-list
+values	animateMotion	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	wsp-scln-list
+values	animateTransform	FALSE	animate.html#ValuesAttribute	animate.html	ValuesAttribute	"<list>"	NA	wsp-scln-list
 xlink:href	mpath	FALSE	animate.html#MPathElementHrefAttribute	animate.html	MPathElementHrefAttribute	<iri>	types.html#DataTypeIRI	ignore
 xlink:href	animate	FALSE	animate.html#HrefAttribute	animate.html	HrefAttribute	<iri>	types.html#DataTypeIRI	ignore
 xlink:href	animateColor	FALSE	animate.html#HrefAttribute	animate.html	HrefAttribute	<iri>	types.html#DataTypeIRI	ignore
@@ -215,9 +215,9 @@ in	feMorphology	TRUE	filters.html#FilterPrimitiveInAttribute	filters.html	Filter
 in	feOffset	TRUE	filters.html#FilterPrimitiveInAttribute	filters.html	FilterPrimitiveInAttribute	SourceGraphic	filters.html#SourceGraphic	ignore
 in	feSpecularLighting	TRUE	filters.html#FilterPrimitiveInAttribute	filters.html	FilterPrimitiveInAttribute	SourceGraphic	filters.html#SourceGraphic	ignore
 in	feTile	TRUE	filters.html#FilterPrimitiveInAttribute	filters.html	FilterPrimitiveInAttribute	SourceGraphic	filters.html#SourceGraphic	ignore
-in2	feBlend	TRUE	filters.html#feBlendIn2Attribute	filters.html	feBlendIn2Attribute	‘in’	filters.html#FilterPrimitiveInAttribute	filterprimitiveinattribute
-in2	feComposite	TRUE	filters.html#feCompositeIn2Attribute	filters.html	feCompositeIn2Attribute	‘in’	filters.html#FilterPrimitiveInAttribute	filterprimitiveinattribute
-in2	feDisplacementMap	TRUE	filters.html#feDisplacementMapIn2Attribute	filters.html	feDisplacementMapIn2Attribute	‘in’	filters.html#FilterPrimitiveInAttribute	filterprimitiveinattribute
+in2	feBlend	TRUE	filters.html#feBlendIn2Attribute	filters.html	feBlendIn2Attribute	‘in’	filters.html#FilterPrimitiveInAttribute	ignore
+in2	feComposite	TRUE	filters.html#feCompositeIn2Attribute	filters.html	feCompositeIn2Attribute	‘in’	filters.html#FilterPrimitiveInAttribute	ignore
+in2	feDisplacementMap	TRUE	filters.html#feDisplacementMapIn2Attribute	filters.html	feDisplacementMapIn2Attribute	‘in’	filters.html#FilterPrimitiveInAttribute	ignore
 intercept	feFuncA	TRUE	filters.html#feComponentTransferInterceptAttribute	filters.html	feComponentTransferInterceptAttribute	<number>	types.html#DataTypeNumber	ignore
 intercept	feFuncB	TRUE	filters.html#feComponentTransferInterceptAttribute	filters.html	feComponentTransferInterceptAttribute	<number>	types.html#DataTypeNumber	ignore
 intercept	feFuncG	TRUE	filters.html#feComponentTransferInterceptAttribute	filters.html	feComponentTransferInterceptAttribute	<number>	types.html#DataTypeNumber	ignore
@@ -232,7 +232,7 @@ kernelUnitLength	feDiffuseLighting	TRUE	filters.html#feDiffuseLightingKernelUnit
 kernelUnitLength	feSpecularLighting	TRUE	filters.html#feSpecularLightingKernelUnitLengthAttribute	filters.html	feSpecularLightingKernelUnitLengthAttribute	<number-optional-number>	types.html#DataTypeNumberOptionalNumber	number-optional-number
 limitingConeAngle	feSpotLight	TRUE	filters.html#feSpotLightLimitingConeAngleAttribute	filters.html	feSpotLightLimitingConeAngleAttribute	<number>	types.html#DataTypeNumber	ignore
 mode	feBlend	TRUE	filters.html#feBlendModeAttribute	filters.html	feBlendModeAttribute	 "normal | multiply | screen | darken | lighten"	NA	ignore
-numOctaves	feTurbulence	TRUE	filters.html#feTurbulenceNumOctavesAttribute	filters.html	feTurbulenceNumOctavesAttribute	<integer>	types.html#DataTypeInteger	integer
+numOctaves	feTurbulence	TRUE	filters.html#feTurbulenceNumOctavesAttribute	filters.html	feTurbulenceNumOctavesAttribute	<integer>	types.html#DataTypeInteger	ignore
 offset	feFuncA	TRUE	filters.html#feComponentTransferOffsetAttribute	filters.html	feComponentTransferOffsetAttribute	<number>	types.html#DataTypeNumber	ignore
 offset	feFuncB	TRUE	filters.html#feComponentTransferOffsetAttribute	filters.html	feComponentTransferOffsetAttribute	<number>	types.html#DataTypeNumber	ignore
 offset	feFuncG	TRUE	filters.html#feComponentTransferOffsetAttribute	filters.html	feComponentTransferOffsetAttribute	<number>	types.html#DataTypeNumber	ignore
@@ -279,8 +279,8 @@ tableValues	feFuncA	TRUE	filters.html#feComponentTransferTableValuesAttribute	fi
 tableValues	feFuncB	TRUE	filters.html#feComponentTransferTableValuesAttribute	filters.html	feComponentTransferTableValuesAttribute	<number>	types.html#DataTypeNumber	ignore
 tableValues	feFuncG	TRUE	filters.html#feComponentTransferTableValuesAttribute	filters.html	feComponentTransferTableValuesAttribute	<number>	types.html#DataTypeNumber	ignore
 tableValues	feFuncR	TRUE	filters.html#feComponentTransferTableValuesAttribute	filters.html	feComponentTransferTableValuesAttribute	<number>	types.html#DataTypeNumber	ignore
-targetX	feConvolveMatrix	TRUE	filters.html#feConvolveMatrixElementTargetXAttribute	filters.html	feConvolveMatrixElementTargetXAttribute	<integer>	types.html#DataTypeInteger	integer
-targetY	feConvolveMatrix	TRUE	filters.html#feConvolveMatrixElementTargetYAttribute	filters.html	feConvolveMatrixElementTargetYAttribute	<integer>	types.html#DataTypeInteger	integer
+targetX	feConvolveMatrix	TRUE	filters.html#feConvolveMatrixElementTargetXAttribute	filters.html	feConvolveMatrixElementTargetXAttribute	<integer>	types.html#DataTypeInteger	ignore
+targetY	feConvolveMatrix	TRUE	filters.html#feConvolveMatrixElementTargetYAttribute	filters.html	feConvolveMatrixElementTargetYAttribute	<integer>	types.html#DataTypeInteger	ignore
 type	feColorMatrix	TRUE	filters.html#feColorMatrixTypeAttribute	filters.html	feColorMatrixTypeAttribute	 "matrix | saturate | hueRotate | luminanceToAlpha"	NA	ignore
 type	feTurbulence	TRUE	filters.html#feTurbulenceTypeAttribute	filters.html	feTurbulenceTypeAttribute	 "fractalNoise | turbulence"	NA	ignore
 type	feFuncA	TRUE	filters.html#feComponentTransferTypeAttribute	filters.html	feComponentTransferTypeAttribute	 "identity | table | discrete | linear | gamma"	NA	ignore
@@ -1168,8 +1168,8 @@ cx	ellipse	TRUE	shapes.html#EllipseElementCXAttribute	shapes.html	EllipseElement
 cy	circle	TRUE	shapes.html#CircleElementCYAttribute	shapes.html	CircleElementCYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 cy	ellipse	TRUE	shapes.html#EllipseElementCYAttribute	shapes.html	EllipseElementCYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 height	rect	TRUE	shapes.html#RectElementHeightAttribute	shapes.html	RectElementHeightAttribute	<length>	types.html#DataTypeLength	ignore
-points	polygon	TRUE	shapes.html#PolygonElementPointsAttribute	shapes.html	PolygonElementPointsAttribute	<list-of-points>	shapes.html#PointsBNF	pointsbnf
-points	polyline	TRUE	shapes.html#PolylineElementPointsAttribute	shapes.html	PolylineElementPointsAttribute	<list-of-points>	shapes.html#PointsBNF	pointsbnf
+points	polygon	TRUE	shapes.html#PolygonElementPointsAttribute	shapes.html	PolygonElementPointsAttribute	<list-of-points>	shapes.html#PointsBNF	cmm-wsp-list
+points	polyline	TRUE	shapes.html#PolylineElementPointsAttribute	shapes.html	PolylineElementPointsAttribute	<list-of-points>	shapes.html#PointsBNF	cmm-wsp-list
 r	circle	TRUE	shapes.html#CircleElementRAttribute	shapes.html	CircleElementRAttribute	<length>	types.html#DataTypeLength	ignore
 rx	ellipse	TRUE	shapes.html#EllipseElementRXAttribute	shapes.html	EllipseElementRXAttribute	<length>	types.html#DataTypeLength	ignore
 rx	rect	TRUE	shapes.html#RectElementRXAttribute	shapes.html	RectElementRXAttribute	<length>	types.html#DataTypeLength	ignore
@@ -1186,14 +1186,14 @@ cx	radialGradient	TRUE	pservers.html#RadialGradientElementCXAttribute	pservers.h
 cy	radialGradient	TRUE	pservers.html#RadialGradientElementCYAttribute	pservers.html	RadialGradientElementCYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 fx	radialGradient	TRUE	pservers.html#RadialGradientElementFXAttribute	pservers.html	RadialGradientElementFXAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 fy	radialGradient	TRUE	pservers.html#RadialGradientElementFYAttribute	pservers.html	RadialGradientElementFYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
-gradientTransform	linearGradient	TRUE	pservers.html#LinearGradientElementGradientTransformAttribute	pservers.html	LinearGradientElementGradientTransformAttribute	<transform-list>	types.html#DataTypeTransformList	transformlist
-gradientTransform	radialGradient	TRUE	pservers.html#RadialGradientElementGradientTransformAttribute	pservers.html	RadialGradientElementGradientTransformAttribute	<transform-list>	types.html#DataTypeTransformList	transformlist
+gradientTransform	linearGradient	TRUE	pservers.html#LinearGradientElementGradientTransformAttribute	pservers.html	LinearGradientElementGradientTransformAttribute	<transform-list>	types.html#DataTypeTransformList	transform-list
+gradientTransform	radialGradient	TRUE	pservers.html#RadialGradientElementGradientTransformAttribute	pservers.html	RadialGradientElementGradientTransformAttribute	<transform-list>	types.html#DataTypeTransformList	transform-list
 gradientUnits	linearGradient	TRUE	pservers.html#LinearGradientElementGradientUnitsAttribute	pservers.html	LinearGradientElementGradientUnitsAttribute	 "userSpaceOnUse | objectBoundingBox"	NA	ignore
 gradientUnits	radialGradient	TRUE	pservers.html#RadialGradientElementGradientUnitsAttribute	pservers.html	RadialGradientElementGradientUnitsAttribute	 "userSpaceOnUse | objectBoundingBox"	NA	ignore
 height	pattern	TRUE	pservers.html#PatternElementHeightAttribute	pservers.html	PatternElementHeightAttribute	<length>	types.html#DataTypeLength	ignore
 offset	stop	TRUE	pservers.html#StopElementOffsetAttribute	pservers.html	StopElementOffsetAttribute	<number>	types.html#DataTypeNumber	ignore
 patternContentUnits	pattern	TRUE	pservers.html#PatternElementPatternContentUnitsAttribute	pservers.html	PatternElementPatternContentUnitsAttribute	 "userSpaceOnUse | objectBoundingBox"	NA	ignore
-patternTransform	pattern	TRUE	pservers.html#PatternElementPatternTransformAttribute	pservers.html	PatternElementPatternTransformAttribute	<transform-list>	types.html#DataTypeTransformList	transformlist
+patternTransform	pattern	TRUE	pservers.html#PatternElementPatternTransformAttribute	pservers.html	PatternElementPatternTransformAttribute	<transform-list>	types.html#DataTypeTransformList	transform-list
 patternUnits	pattern	TRUE	pservers.html#PatternElementPatternUnitsAttribute	pservers.html	PatternElementPatternUnitsAttribute	 "userSpaceOnUse | objectBoundingBox"	NA	ignore
 r	radialGradient	TRUE	pservers.html#RadialGradientElementRAttribute	pservers.html	RadialGradientElementRAttribute	<length>	types.html#DataTypeLength	ignore
 spreadMethod	linearGradient	TRUE	pservers.html#LinearGradientElementSpreadMethodAttribute	pservers.html	LinearGradientElementSpreadMethodAttribute	 "pad | reflect | repeat"	NA	ignore
@@ -1210,54 +1210,54 @@ y1	linearGradient	TRUE	pservers.html#LinearGradientElementY1Attribute	pservers.h
 y2	linearGradient	TRUE	pservers.html#LinearGradientElementY2Attribute	pservers.html	LinearGradientElementY2Attribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 d	path	TRUE	paths.html#DAttribute	paths.html	DAttribute	 "path data"	NA	path-data-list
 pathLength	path	TRUE	paths.html#PathLengthAttribute	paths.html	PathLengthAttribute	<number>	types.html#DataTypeNumber	ignore
-dx	altGlyph	TRUE	text.html#AltGlyphElementDXAttribute	text.html	AltGlyphElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
+dx	altGlyph	TRUE	text.html#AltGlyphElementDXAttribute	text.html	AltGlyphElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
 dx	glyphRef	FALSE	text.html#GlyphRefElementDXAttribute	text.html	GlyphRefElementDXAttribute	<number>	types.html#DataTypeNumber	ignore
-dx	text	TRUE	text.html#TextElementDXAttribute	text.html	TextElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
-dx	tref	TRUE	text.html#TSpanElementDXAttribute	text.html	TSpanElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
-dx	tspan	TRUE	text.html#TSpanElementDXAttribute	text.html	TSpanElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
-dy	altGlyph	TRUE	text.html#AltGlyphElementDYAttribute	text.html	AltGlyphElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
+dx	text	TRUE	text.html#TextElementDXAttribute	text.html	TextElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
+dx	tref	TRUE	text.html#TSpanElementDXAttribute	text.html	TSpanElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
+dx	tspan	TRUE	text.html#TSpanElementDXAttribute	text.html	TSpanElementDXAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
+dy	altGlyph	TRUE	text.html#AltGlyphElementDYAttribute	text.html	AltGlyphElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
 dy	glyphRef	FALSE	text.html#GlyphRefElementDYAttribute	text.html	GlyphRefElementDYAttribute	<number>	types.html#DataTypeNumber	ignore
-dy	text	TRUE	text.html#TextElementDYAttribute	text.html	TextElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
-dy	tref	TRUE	text.html#TSpanElementDYAttribute	text.html	TSpanElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
-dy	tspan	TRUE	text.html#TSpanElementDYAttribute	text.html	TSpanElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	lengths
-format	altGlyph	FALSE	text.html#AltGlyphElementFormatAttribute	text.html	AltGlyphElementFormatAttribute	<string>	NA	cmm-list {4}
-format	glyphRef	FALSE	text.html#GlyphRefElementFormatAttribute	text.html	GlyphRefElementFormatAttribute	<string>	NA	cmm-list {4}
-glyphRef	altGlyph	FALSE	text.html#AltGlyphElementGlyphRefAttribute	text.html	AltGlyphElementGlyphRefAttribute	<string>	NA	cmm-list {4}
-glyphRef	glyphRef	FALSE	text.html#GlyphRefElementGlyphRefAttribute	text.html	GlyphRefElementGlyphRefAttribute	<string>	NA	cmm-list {4}
+dy	text	TRUE	text.html#TextElementDYAttribute	text.html	TextElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
+dy	tref	TRUE	text.html#TSpanElementDYAttribute	text.html	TSpanElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
+dy	tspan	TRUE	text.html#TSpanElementDYAttribute	text.html	TSpanElementDYAttribute	<list-of-lengths>	types.html#DataTypeLengths	wsp-list
+format	altGlyph	FALSE	text.html#AltGlyphElementFormatAttribute	text.html	AltGlyphElementFormatAttribute	<string>	NA	cmm-list
+format	glyphRef	FALSE	text.html#GlyphRefElementFormatAttribute	text.html	GlyphRefElementFormatAttribute	<string>	NA	cmm-list
+glyphRef	altGlyph	FALSE	text.html#AltGlyphElementGlyphRefAttribute	text.html	AltGlyphElementGlyphRefAttribute	<string>	NA	cmm-list
+glyphRef	glyphRef	FALSE	text.html#GlyphRefElementGlyphRefAttribute	text.html	GlyphRefElementGlyphRefAttribute	<string>	NA	cmm-list
 lengthAdjust	text	TRUE	text.html#TextElementLengthAdjustAttribute	text.html	TextElementLengthAdjustAttribute	spacing|spacingAndGlyphs	NA	ignore
 lengthAdjust	textPath	TRUE	text.html#TextElementLengthAdjustAttribute	text.html	TextElementLengthAdjustAttribute	spacing|spacingAndGlyphs	NA	ignore
 lengthAdjust	tref	TRUE	text.html#TextElementLengthAdjustAttribute	text.html	TextElementLengthAdjustAttribute	spacing|spacingAndGlyphs	NA	ignore
 lengthAdjust	tspan	TRUE	text.html#TextElementLengthAdjustAttribute	text.html	TextElementLengthAdjustAttribute	spacing|spacingAndGlyphs	NA	ignore
 method	textPath	TRUE	text.html#TextPathElementMethodAttribute	text.html	TextPathElementMethodAttribute	 "align | stretch"	**	ignore
-rotate	altGlyph	TRUE	text.html#AltGlyphElementRotateAttribute	text.html	AltGlyphElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	numbers
-rotate	text	TRUE	text.html#TextElementRotateAttribute	text.html	TextElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	numbers
-rotate	tref	TRUE	text.html#TSpanElementRotateAttribute	text.html	TSpanElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	numbers
-rotate	tspan	TRUE	text.html#TSpanElementRotateAttribute	text.html	TSpanElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	numbers
+rotate	altGlyph	TRUE	text.html#AltGlyphElementRotateAttribute	text.html	AltGlyphElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	wsp-list
+rotate	text	TRUE	text.html#TextElementRotateAttribute	text.html	TextElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	wsp-list
+rotate	tref	TRUE	text.html#TSpanElementRotateAttribute	text.html	TSpanElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	wsp-list
+rotate	tspan	TRUE	text.html#TSpanElementRotateAttribute	text.html	TSpanElementRotateAttribute	<list-of-numbers>	types.html#DataTypeNumbers	wsp-list
 spacing	textPath	TRUE	text.html#TextPathElementSpacingAttribute	text.html	TextPathElementSpacingAttribute	 "auto | exact"	**	ignore
 startOffset	textPath	TRUE	text.html#TextPathElementStartOffsetAttribute	text.html	TextPathElementStartOffsetAttribute	<length>	types.html#DataTypeLength	ignore
 textLength	text	TRUE	text.html#TextElementTextLengthAttribute	text.html	TextElementTextLengthAttribute	<length>	types.html#DataTypeLength	ignore
 textLength	textPath	TRUE	text.html#TSpanElementTextLengthAttribute	text.html	TSpanElementTextLengthAttribute	<length>	types.html#DataTypeLength	ignore
 textLength	tref	TRUE	text.html#TSpanElementTextLengthAttribute	text.html	TSpanElementTextLengthAttribute	<length>	types.html#DataTypeLength	ignore
 textLength	tspan	TRUE	text.html#TSpanElementTextLengthAttribute	text.html	TSpanElementTextLengthAttribute	<length>	types.html#DataTypeLength	ignore
-x	altGlyph	TRUE	text.html#AltGlyphElementXAttribute	text.html	AltGlyphElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
+x	altGlyph	TRUE	text.html#AltGlyphElementXAttribute	text.html	AltGlyphElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
 x	glyphRef	FALSE	text.html#GlyphRefElementXAttribute	text.html	GlyphRefElementXAttribute	<number>	types.html#DataTypeNumber	ignore
-x	text	TRUE	text.html#TextElementXAttribute	text.html	TextElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
-x	tref	TRUE	text.html#TSpanElementXAttribute	text.html	TSpanElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
-x	tspan	TRUE	text.html#TSpanElementXAttribute	text.html	TSpanElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
+x	text	TRUE	text.html#TextElementXAttribute	text.html	TextElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
+x	tref	TRUE	text.html#TSpanElementXAttribute	text.html	TSpanElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
+x	tspan	TRUE	text.html#TSpanElementXAttribute	text.html	TSpanElementXAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
 xlink:href	altGlyph	FALSE	text.html#AltGlyphElementHrefAttribute	text.html	AltGlyphElementHrefAttribute	<iri>	types.html#DataTypeIRI	ignore
 xlink:href	glyphRef	FALSE	text.html#GlyphRefElementHrefAttribute	text.html	GlyphRefElementHrefAttribute	<iri>	types.html#DataTypeIRI	ignore
 xlink:href	textPath	TRUE	text.html#TextPathElementHrefAttribute	text.html	TextPathElementHrefAttribute	 "<iri>"	**	ignore
 xlink:href	tref	TRUE	text.html#TRefElementHrefAttribute	text.html	TRefElementHrefAttribute	<iri>	types.html#DataTypeIRI	ignore
-y	altGlyph	TRUE	text.html#AltGlyphElementYAttribute	text.html	AltGlyphElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
+y	altGlyph	TRUE	text.html#AltGlyphElementYAttribute	text.html	AltGlyphElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
 y	glyphRef	FALSE	text.html#GlyphRefElementYAttribute	text.html	GlyphRefElementYAttribute	<number>	types.html#DataTypeNumber	ignore
-y	text	TRUE	text.html#TextElementYAttribute	text.html	TextElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
-y	tref	TRUE	text.html#TSpanElementYAttribute	text.html	TSpanElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
-y	tspan	TRUE	text.html#TSpanElementYAttribute	text.html	TSpanElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	coordinates
+y	text	TRUE	text.html#TextElementYAttribute	text.html	TextElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
+y	tref	TRUE	text.html#TSpanElementYAttribute	text.html	TSpanElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
+y	tspan	TRUE	text.html#TSpanElementYAttribute	text.html	TSpanElementYAttribute	<list-of-coordinates>	types.html#DataTypeCoordinates	wsp-list
 height	foreignObject	TRUE	extend.html#ForeignObjectElementHeightAttribute	extend.html	ForeignObjectElementHeightAttribute	<length>	types.html#DataTypeLength	ignore
 width	foreignObject	TRUE	extend.html#ForeignObjectElementWidthAttribute	extend.html	ForeignObjectElementWidthAttribute	<length>	types.html#DataTypeLength	ignore
 x	foreignObject	TRUE	extend.html#ForeignObjectElementXAttribute	extend.html	ForeignObjectElementXAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 y	foreignObject	TRUE	extend.html#ForeignObjectElementYAttribute	extend.html	ForeignObjectElementYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
-local	color-profile	FALSE	color.html#ColorProfileElementLocalAttribute	color.html	ColorProfileElementLocalAttribute	<string>	NA	cmm-list {4}
+local	color-profile	FALSE	color.html#ColorProfileElementLocalAttribute	color.html	ColorProfileElementLocalAttribute	<string>	NA	cmm-list
 name	color-profile	FALSE	color.html#ColorProfileElementNameAttribute	color.html	ColorProfileElementNameAttribute	<name>	NA	ignore
 rendering-intent	color-profile	FALSE	color.html#ColorProfileElementRenderingIntentAttribute	color.html	ColorProfileElementRenderingIntentAttribute	auto | perceptual | relative-colorimetric | saturation | absolute-colorimetric	NA	ignore
 xlink:href	color-profile	FALSE	color.html#ColorProfileElementHrefAttribute	color.html	ColorProfileElementHrefAttribute	<iri>	types.html#DataTypeIRI	ignore
@@ -1267,13 +1267,13 @@ markerWidth	marker	TRUE	painting.html#MarkerWidthAttribute	painting.html	MarkerW
 orient	marker	TRUE	painting.html#OrientAttribute	painting.html	OrientAttribute	auto | <angle>	types.html#DataTypeAngle	ignore
 refX	marker	TRUE	painting.html#MarkerElementRefXAttribute	painting.html	MarkerElementRefXAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 refY	marker	TRUE	painting.html#MarkerElementRefYAttribute	painting.html	MarkerElementRefYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
-preserveAspectRatio	feImage	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
-preserveAspectRatio	image	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
-preserveAspectRatio	marker	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
-preserveAspectRatio	pattern	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
-preserveAspectRatio	svg	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
-preserveAspectRatio	symbol	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
-preserveAspectRatio	view	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	special-string
+preserveAspectRatio	feImage	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
+preserveAspectRatio	image	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
+preserveAspectRatio	marker	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
+preserveAspectRatio	pattern	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
+preserveAspectRatio	svg	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
+preserveAspectRatio	symbol	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
+preserveAspectRatio	view	TRUE	coords.html#PreserveAspectRatioAttribute	coords.html	PreserveAspectRatioAttribute	7.8 The ‘preserveAspectRatio’ attribute	NA	wsp-list
 transform	a	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribute	7.6 The ‘transform’ attribute	NA	transform-list
 transform	circle	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribute	7.6 The ‘transform’ attribute	NA	transform-list
 transform	clipPath	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribute	7.6 The ‘transform’ attribute	NA	transform-list
@@ -1290,11 +1290,11 @@ transform	rect	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribut
 transform	switch	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribute	7.6 The ‘transform’ attribute	NA	transform-list
 transform	text	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribute	7.6 The ‘transform’ attribute	NA	transform-list
 transform	use	TRUE	coords.html#TransformAttribute	coords.html	TransformAttribute	7.6 The ‘transform’ attribute	NA	transform-list
-viewBox	marker	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list {4}
-viewBox	pattern	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list {4}
-viewBox	svg	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list {4}
-viewBox	symbol	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list {4}
-viewBox	view	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list {4}
+viewBox	marker	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list
+viewBox	pattern	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list
+viewBox	svg	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list
+viewBox	symbol	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list
+viewBox	view	TRUE	coords.html#ViewBoxAttribute	coords.html	ViewBoxAttribute	7.7 The ‘viewBox’ attribute	NA	cmm-list
 target	a	TRUE	linking.html#AElementTargetAttribute	linking.html	AElementTargetAttribute	_replace	NA	ignore
 viewTarget	view	FALSE	linking.html#ViewElementViewTargetAttribute	linking.html	ViewElementViewTargetAttribute	 "XML_Name [XML_NAME]*"	NA	ignore
 xlink:actuate	a	FALSE	linking.html#AElementXLinkActuateAttribute	linking.html	AElementXLinkActuateAttribute	"onRequest"	NA	ignore
@@ -1423,7 +1423,7 @@ xlink:type	textPath	FALSE	linking.html#XLinkTypeAttribute	linking.html	XLinkType
 xlink:type	tref	FALSE	linking.html#XLinkTypeAttribute	linking.html	XLinkTypeAttribute	 "simple"	**	ignore
 xlink:type	use	FALSE	linking.html#XLinkTypeAttribute	linking.html	XLinkTypeAttribute	 "simple"	**	ignore
 x	cursor	TRUE	interact.html#CursorElementXAttribute	interact.html	CursorElementXAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
-xlink:href	cursor	TRUE	interact.html#CursorElementHrefAttribute	interact.html	CursorElementHrefAttribute	<funciri>	types.html#DataTypeFuncIRI	funciri
+xlink:href	cursor	TRUE	interact.html#CursorElementHrefAttribute	interact.html	CursorElementHrefAttribute	<funciri>	types.html#DataTypeFuncIRI	ignore
 y	cursor	TRUE	interact.html#CursorElementYAttribute	interact.html	CursorElementYAttribute	<coordinate>	types.html#DataTypeCoordinate	ignore
 zoomAndPan	svg	FALSE	interact.html#ZoomAndPanAttribute	interact.html	ZoomAndPanAttribute	Magnification represents a complete, uniform transformation on an SVG document fragment, where the magnify operation scales all graphical elements by the same amount. A magnify operation has the effect of a supplemental scale and translate transformation placed at the outermost level on the SVG document fragment (i.e., outside the outermost svg element).	intro.html#TermOutermostSVGElement	ignore
 zoomAndPan	view	FALSE	interact.html#ZoomAndPanAttribute	interact.html	ZoomAndPanAttribute	Magnification represents a complete, uniform transformation on an SVG document fragment, where the magnify operation scales all graphical elements by the same amount. A magnify operation has the effect of a supplemental scale and translate transformation placed at the outermost level on the SVG document fragment (i.e., outside the outermost svg element).	intro.html#TermOutermostSVGElement	ignore
