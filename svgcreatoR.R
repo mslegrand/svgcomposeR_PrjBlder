@@ -98,17 +98,6 @@ build.svgFnQ<-function(){
   #all attributes
   ele.tags.attributeName<-AET.DT[attr=="attributeName"]$element
   
-  #helper functions
-  # returns all possible combos for animation
-#   allAnimateCombos<-function(){ 
-#     COP.DT[,.(variable,value)]->COP2.DT
-#     split(COP.DT$value, COP2.DT$variable)->tmp
-#     lapply(tmp,unique)->combos
-#     combos[["in1"]]<-NULL
-#     deparse(combos)->dtmp
-#     pcombo<-paste0(c("combos<-",dtmp), collapse="")
-#     pcombo<-gsub("\"", "'", pcombo)
-#   }
   
   # build list of all combos for potential animation
   COP.DT[,.(variable,value)]->COP2.DT
@@ -117,6 +106,7 @@ build.svgFnQ<-function(){
   aaCombos[["in1"]]<-NULL
   
   
+  #helper function
   centerable<-function(ele.tag, AET.DT){
     ifelse(
       nrow(AET.DT[  element==ele.tag & 
@@ -126,64 +116,67 @@ build.svgFnQ<-function(){
       ""
     )  
   }
+  
+  #helper function
+  qcomboParamsFn<-function(etag){
+    tmp<-COP.DT[element==etag]
+    if(nrow(tmp)>0){
+      cp.list<-split(tmp$value, tmp$variable)
+      # for each element of tmp.list, add the appropriate quote
+      substitute(attrs<-comboParamHandler(attrs, cp ), list(cp=cp.list))
+    } else {
+      quote(NULL)
+    }
+  }
     
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
   
   createEleFnQ<-function(ele.tag, AET.DT){
     AET.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
-    #This is the extras 
+    
+  #Each fn body starts with
     body0<-c(
       quote( args <- list(...) ),
       quote( args <- promoteUnamedLists(args) ),
       quote( attrs <- named(args) )
     )
+    
+  #only one of these will occur
+    # set, animate, filter create lists
     if(ele.tag %in% c("set","animate")){
       body0<-append(body0, makeAni(ele.tag, aaCombos) ,2)
     }
     if(ele.tag=="filter"){
       body0<-append(body0,filterTagQuote,2)
     }
+    #feConvolve accepts matrix here
     if(ele.tag=="feConvolveMatrix"){
       body0<-append(body0,feConvolveMatrixTagQuote,3)
     }
-#     else {
-#       if( ele.tag=='defs'){
-#         body0<-append(body0,defsTagQuote,2)
-#       }
-#     }
-    
-    qcomboParamsFn<-function(etag){
-      tmp<-COP.DT[element==etag]
-      if(nrow(tmp)>0){
-        cp.list<-split(tmp$value, tmp$variable)
-        # for each element of tmp.list, add the appropriate quote
-        substitute(attrs<-comboParamHandler(attrs, cp ), list(cp=cp.list))
-      } else {
-        quote(NULL)
-      }
-    }
-        
+
+  # call comboParamHandler combo params for given ele.tag
     ppXtraCL<-list( qcomboParamsFn(ele.tag) )
        
     if(nrow(AET.DT[element==ele.tag & (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,])==4 ){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapCenteredXY(attrs) ) ) # append a call
     }
-
+    
+  # process elements which contain attributeName as an attribute
     if(ele.tag %in% ele.tags.attributeName){
       ppXtraCL<-c(ppXtraCL, quote(attrs<-mapAttributeName(attrs)))
     }
       
-    ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls
+    ppXtraCL[sapply(ppXtraCL, is.null)] <- NULL #remove any nulls #?move to end????
     body1<-ppXtraCL
     
     #Insert special handling for animate here
     if(ele.tag == "animate"){
-      cat("hello\n")
       body1<-c(body1, quote(attrs<-preProcAnimate(attrs) ) )
     }
          
-    # add code to treat special lists, ie. comma list, space list, semicolon list ...
+  # add code to treat special lists, ie. comma list, space list, semicolon list ...
+  # This becomes body2
     split(treat_attrs.dt, rownames(treat_attrs.dt))->tmp # (convert rows of treat_attrs.dt table to list)  
     preprocAttrValueFn<-function(tvaAttr){
       c(
@@ -194,18 +187,15 @@ build.svgFnQ<-function(){
     body2<-lapply(tmp, function(tvaAttr){preprocAttrValueFn(tvaAttr)}) 
     unlist(body2, use.names=F)->body2
     as.list(body2)->body2
-
     
-# **  add this for filter, feElements, etc.
+# **  This is necessary  for filter, feElements, etc. to return a list !!!
     body2<-c(body2, quote(rtv<-list()))
 
-    #add code to add to node children
+    #add code to add to node children and node from tag
     body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args),
                       suppressNamespaceWarning=getOption("suppressXMLNamespaceWarning", TRUE)), 
                       list(ele.tag=ele.tag)
     )
-# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
-# in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
 # **  add this for filter, feElements, etc.
     body3<-c(body3,
              quote({
@@ -219,7 +209,7 @@ build.svgFnQ<-function(){
 # ** prior to adding .children and attrs, we process for our custom
     # attribute=element assignments
     
-    # here we get the special cases for our quotes
+# here we get the special cases for our quotes
     attrsEle2Quote<-list(
       filter=c("g",PA.DT[attr=='filter' & variable=='Applies to']$value),
       fill=c("g",PA.DT[attr=='fill' & variable=='Applies to']$value),
@@ -227,58 +217,37 @@ build.svgFnQ<-function(){
       mask=c("g",PA.DT[attr=='mask' & variable=='Applies to']$value),
       marker=c("g",PA.DT[attr=="marker properties" & variable=='Applies to']$value)
     )
-    
-    #todo change this to consider only elements which can have a filter attribute 
-    # filter is a presentation attribute, so wc3 seems to say that
-    # filter can work on svg, defs and 40 or more other stuff
-    # Using PA.DT we see 20 elements
-    # PA.DT[attr=='filter' & variable=='Applies to']$value
-    # not sure what filter in animate does
-    #if(!(ele.tag %in% c('svg', 'defs'))){
+#special cases for elements with attributes filter, fill, clipPath, mask, marker
     if(ele.tag %in% attrsEle2Quote$filter){
         body3<-c(filterQuote,body3)
     }
-    # PA.DT[attr=='fill' & variable=='Applies to']$value (12 ele)
-    # PA.DT[attr=='clip-path' & variable=='Applies to'] (22 ele)
-    # PA.DT[attr=='mask' & variable=='Applies to'] (21 ele)
-    #if(TRUE){ #shapes, and what else? all are presentation attrs
-#       body3<-c(fillQuote, clipPathQuote, maskQuote, body3)
-#     } 
+    #fill
     if(ele.tag %in% attrsEle2Quote$fill){
       body3<-c(fillQuote,body3)
     }
+    # clipPath
     if(ele.tag %in% attrsEle2Quote$clip.path){
       body3<-c(clipPathQuote,body3)
     }
+    #mask
     if(ele.tag %in% attrsEle2Quote$mask){
       body3<-c(maskQuote,body3)
     }
-    
-    # all presentation attrs
-    # should be four elements
-    #PA.DT[attr=="marker properties" & variable=='Applies to']
-    #if(ele.tag %in% c('line', 'polyline', 'path', 'polygon')){ # and what else?
+    #marker
     if(ele.tag %in% attrsEle2Quote$marker){ # and what else?
         body3<-c(markerEndQuote, markerMidQuote, markerStartQuote, body3)
-    } 
-    #special cases for text (may replace this later)
+    }
+
+    #special cases for elements text (may replace this later)
     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
       body3<-c(textQuote, body3)    
     }
-    #special code for gradients
+    #special code for gradient elements
     if(ele.tag %in% c("linearGradient",  "radialGradient")){
       body3<-c(gradientColorQuote, body3 )    
     } 
-    
-#     if(ele.tag %in% c("animate")){
-#       #special handling of by, from to depending on attributeName/type
-#       
-#     }
-#     if(ele.tag %in% c("use")){
-#       #allow for anything
-#     }  
 
-  if(ele.tag %in% filterElementTags){
+    if(ele.tag %in% filterElementTags){
       body3<-c(
         feQuote,
         body3,

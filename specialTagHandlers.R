@@ -4,41 +4,6 @@
 
 # in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
 
-#place after promoteUnamedLists
-animateTagQuote<-quote(
-{
-  combos<-list(cxy = c('cx', 'cy'), dxy = c('dx', 'dy'), 
-               fxy = c('fx', 'fy'), g12 = c('g1', 'g2'), 
-               'horiz-origin-xy' = c('horiz-origin-x', 
-                                     'horiz-origin-y'), 
-               in12 = c('in', 'in2'), k1234 = c('k1', 'k2', 'k3', 'k4'), 
-               pointsAtXYZ = c('pointsAtX', 'pointsAtY', 'pointsAtZ'), 
-               refXY = c('refX', 'refY'), rxy = c('rx', 'ry'), 
-               targetXY = c('targetX', 'targetY'), u12 = c('u1', 'u2'), 
-               'vert-origin-xy' = c('vert-origin-x', 'vert-origin-y'), 
-               wh = c('width', 'height'), x12 = c('x1', 'x2'), xy = c('x', 'y'), 
-               xy1 = c('x1', 'y1'), xy2 = c('x2', 'y2'),     xyz = c('x', 'y', 'z'), 
-               y12 = c('y1', 'y2'))
-  attributeName<-args[["attributeName"]]
-  if( !is.null(attributeName) && attributeName %in% names(combos) ){
-    attributeNames<-combos[[attributeName]]
-    N<-length(attributeNames)
-    tmp<-lapply( 1:N, function(i){
-      args2<-args
-      args2[["attributeName"]]<-attributeNames[i]
-      tmp<-c("from","to","values")
-      ind<-intersect(names(args),tmp)
-      args2[ind]<-lapply(args2[ind], function(vec){
-        j<-min(i,length(vec))
-        vec[j]
-      })              
-      animate(args2)
-    })
-    return(tmp)    
-  }
-}
-)
-
 
 
 feConvolveMatrixTagQuote<-quote(
