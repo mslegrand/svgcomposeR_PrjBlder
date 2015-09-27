@@ -93,9 +93,29 @@ build.svgFnQ<-function(){
     fread("dataTables/presentationAttr.tsv")->PA.DT
   }
   
+  # all elements
   ele.tags<-unique(AET.DT$element)
-  
+  #all attributes
   ele.tags.attributeName<-AET.DT[attr=="attributeName"]$element
+  
+  #helper functions
+  # returns all possible combos for animation
+#   allAnimateCombos<-function(){ 
+#     COP.DT[,.(variable,value)]->COP2.DT
+#     split(COP.DT$value, COP2.DT$variable)->tmp
+#     lapply(tmp,unique)->combos
+#     combos[["in1"]]<-NULL
+#     deparse(combos)->dtmp
+#     pcombo<-paste0(c("combos<-",dtmp), collapse="")
+#     pcombo<-gsub("\"", "'", pcombo)
+#   }
+  
+  # build list of all combos for potential animation
+  COP.DT[,.(variable,value)]->COP2.DT
+  split(COP2.DT$value, COP2.DT$variable)->tmp
+  lapply(tmp,unique)->aaCombos
+  aaCombos[["in1"]]<-NULL
+  
   
   centerable<-function(ele.tag, AET.DT){
     ifelse(
@@ -108,6 +128,7 @@ build.svgFnQ<-function(){
   }
     
   # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
+  
   createEleFnQ<-function(ele.tag, AET.DT){
     AET.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
@@ -117,6 +138,9 @@ build.svgFnQ<-function(){
       quote( args <- promoteUnamedLists(args) ),
       quote( attrs <- named(args) )
     )
+    if(ele.tag %in% c("set","animate")){
+      body0<-append(body0, makeAni(ele.tag, aaCombos) ,2)
+    }
     if(ele.tag=="filter"){
       body0<-append(body0,filterTagQuote,2)
     }

@@ -1,8 +1,45 @@
-cat
+
 
 #special tag handling
 
 # in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
+
+#place after promoteUnamedLists
+animateTagQuote<-quote(
+{
+  combos<-list(cxy = c('cx', 'cy'), dxy = c('dx', 'dy'), 
+               fxy = c('fx', 'fy'), g12 = c('g1', 'g2'), 
+               'horiz-origin-xy' = c('horiz-origin-x', 
+                                     'horiz-origin-y'), 
+               in12 = c('in', 'in2'), k1234 = c('k1', 'k2', 'k3', 'k4'), 
+               pointsAtXYZ = c('pointsAtX', 'pointsAtY', 'pointsAtZ'), 
+               refXY = c('refX', 'refY'), rxy = c('rx', 'ry'), 
+               targetXY = c('targetX', 'targetY'), u12 = c('u1', 'u2'), 
+               'vert-origin-xy' = c('vert-origin-x', 'vert-origin-y'), 
+               wh = c('width', 'height'), x12 = c('x1', 'x2'), xy = c('x', 'y'), 
+               xy1 = c('x1', 'y1'), xy2 = c('x2', 'y2'),     xyz = c('x', 'y', 'z'), 
+               y12 = c('y1', 'y2'))
+  attributeName<-args[["attributeName"]]
+  if( !is.null(attributeName) && attributeName %in% names(combos) ){
+    attributeNames<-combos[[attributeName]]
+    N<-length(attributeNames)
+    tmp<-lapply( 1:N, function(i){
+      args2<-args
+      args2[["attributeName"]]<-attributeNames[i]
+      tmp<-c("from","to","values")
+      ind<-intersect(names(args),tmp)
+      args2[ind]<-lapply(args2[ind], function(vec){
+        j<-min(i,length(vec))
+        vec[j]
+      })              
+      animate(args2)
+    })
+    return(tmp)    
+  }
+}
+)
+
+
 
 feConvolveMatrixTagQuote<-quote(
   if(inherits(attrs$kernelMatrix,"matrix")){
@@ -45,7 +82,6 @@ feQuote<-quote({
     tmp<-attrs[indx]
     attrs<-attrs[-indx]
     rtv<-c(rtv,tmp)
-    #rtv<-c(tmp,rtv)
   }
   
   indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
@@ -61,7 +97,6 @@ feQuote<-quote({
     }
     if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
       resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
-      #rtv<-c( rtv, feNode ) 
       rtv<-c( rtv, XfeNode=feNode)
       attrs[[n]]<-resultStr            
     }
@@ -99,12 +134,8 @@ filterQuote<-quote(if( "filter" %in%  names(attrs) ){
       if(xmlName(filterNode)!="filter"){ # check tag name
         stop("Not a filter node")
       }
-      #print(filterNode)
       fid<-getsafeNodeAttr("id",filterNode)
-      #cat("fid=",fid,"\n")
-      #may want to change later, but for now just promote
       rtv<-c(rtv,filterNode)
-      #add filter to the return set
       attrs[[n]]=paste0("url(#",fid,")")
     }  
   }  
@@ -148,30 +179,7 @@ gradientColorQuote<-quote(
     }
   })
 
-#TODO
-
-# - clipPath: clip-path="url(#MyClip)"
-# - mask:  mask = mask
-
-
-# fillQuote<-quote(if( "fill" %in%  names(attrs) ){
-#   # grab all occurances, and proccess each
-#   indx<-which(names(attrs) =="fill") 
-#   for( n in indx){
-#     aNode<-attrs[[n]]
-#     if(inherits(aNode, "XMLAbstractNode")){
-#       if(!(xmlName(aNode) %in% c("pattern", "linearGradient", "radialGradient")))
-#         { # check tag name
-#         stop("Bad fill parameter")
-#       }
-#       fid<-getsafeNodeAttr("id",aNode)
-#       rtv<-c(rtv,aNode)
-#       attrs[[n]]=paste0("url(#",fid,")")
-#     }  
-#   }  
-# }
-# )
-
+#template for different quotes
 makeSpecTr<-function(aName, aElements, aMssg){
   ptree<-substitute(  
   if( aName %in%  names(attrs) ){
@@ -201,12 +209,33 @@ markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="
 maskQuote<-makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask")
 clipPathQuote<-makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter")
 
+makeAni<-function(etag, aaCombos){
+  #etag is the tag element tag (animate, set)
+  #aaCombos is all the animate combos
+  c(
+    substitute(combos<-aaCombos, list(aaCombos=aaCombos )),
+    quote(attributeName<-args[["attributeName"]]),
+    substitute(
+      if( !is.null(attributeName) && attributeName %in% names(combos) ){
+        attributeNames<-combos[[attributeName]]
+        N<-length(attributeNames)
+        tmp<-lapply( 1:N, function(i){
+          args2<-args
+          args2[["attributeName"]]<-attributeNames[i]
+          tmp<-c("from","to","values")
+          ind<-intersect(names(args),tmp)
+          args2[ind]<-lapply(args2[ind], function(vec){
+            j<-min(i,length(vec))
+            vec[j]
+          })              
+          etag(args2)
+        })
+        return(tmp)    
+      },
+      list(etag=etag, aaCombos=aaCombos)
+    )  
+  )
+}
 
-# Done
-# - filter: filter = filter
-# - pattern: fill="url(#TrianglePattern)"  
-# - radialGradient fill=linearGradient
-# - linearGradient:  fill="url(#MyGradient)"
-# - marker :  marker-end="url(#Triangle)" 
-# - marker :  marker-start="url(#Triangle)" 
-# - marker :  marker-mid="url(#Triangle)" 
+
+
