@@ -48,22 +48,22 @@ feQuote<-quote({
     attrs<-attrs[-indx]
     rtv<-c(rtv,tmp)
   }
-  
+  # pickout all indices if any an "in" attribute
   indx.in<-which(names(attrs)=='in' | names(attrs)=='in2')
-  
+  # for each in attribute, 
   for(n in indx.in){
-    an<-attrs[[n]]
-    if (inherits(an, 'list') && length(an)>=1){ 
+    an<-attrs[[n]] #an is 'in' attribute n
+    if (inherits(an, 'list') && length(an)>=1){ # if non-trivial list
       len<-length(an)
-      rtv<-c(rtv, an[1:(len-1)])
-      feNode=an[[len]]}
+      rtv<-c(rtv, an[1:(len-1)]) #move into rtv the prefix
+      feNode=an[[len]]} # an set feNode to an
     else{
       feNode=an
     }
     if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
       resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
-      rtv<-c( rtv, XfeNode=feNode)
-      attrs[[n]]<-resultStr            
+      rtv<-c( rtv, XfeNode=feNode) #rtv biw contains all feNodes at that location
+      attrs[[n]]<-resultStr  #attrs contains a link to that node          
     }
   }          
 })
@@ -174,33 +174,86 @@ markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="
 maskQuote<-makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask")
 clipPathQuote<-makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter")
 
+# makeAni<-function(etag, aaCombos){
+#   #etag is the tag element tag (animate, set)
+#   #aaCombos is all the animate combos
+#   c(
+#     substitute(combos<-aaCombos, list(aaCombos=aaCombos )),
+#     quote(attributeName<-args[["attributeName"]]),
+#     substitute(
+#       if( !is.null(attributeName) && attributeName %in% names(combos) ){
+#         attributeNames<-combos[[attributeName]]
+#         N<-length(attributeNames)
+#         tmp<-lapply( 1:N, function(i){
+#           args2<-args
+#           args2[["attributeName"]]<-attributeNames[i]
+#           tmp<-c("from","to","values")
+#           ind<-intersect(names(args),tmp)
+#           args2[ind]<-lapply(args2[ind], function(vec){
+#             j<-min(i,length(vec))
+#             vec[j]
+#           })              
+#           etag(args2)
+#         })
+#         return(tmp)    
+#       },
+#       list(etag=etag, aaCombos=aaCombos)
+#     )  
+#   )
+# }
+
+
 makeAni<-function(etag, aaCombos){
-  #etag is the tag element tag (animate, set)
-  #aaCombos is all the animate combos
+  eFns<-list(set=quote(set), animate=quote(animate) )
+  fn<-eFns[[etag]]
   c(
     substitute(combos<-aaCombos, list(aaCombos=aaCombos )),
     quote(attributeName<-args[["attributeName"]]),
+    "# combo should have (values) Xor (from or to)",
+    quote(if(is.null(attributeName)) stop("missing attributName in animation")),
+    quote( aNames <- combos[[attributeName]]),  #for example aNames=c("x","y","z"),
     substitute(
-      if( !is.null(attributeName) && attributeName %in% names(combos) ){
-        attributeNames<-combos[[attributeName]]
-        N<-length(attributeNames)
-        tmp<-lapply( 1:N, function(i){
+      if(!is.null(aNames) ){  
+        # 1 eList={from, to , values}
+        eListNames<-intersect(names(args), c("from", "to", "values"))
+        eList<-sapply(eListNames, function(an){
+          vals<-args[[an]]
+          if(an=="values"){
+            if(inherits(vals, "character")){
+              vals<-paste(vals,collapse=";")
+              vals<-strsplit(vals, ";")[[1]]
+              vals<-vals[ grepl("[0-9]", vals) ]
+              vals<-as.list(vals)
+              vals<-strsplit(vals, "[ ,]+")[[1]]
+            }
+            vals<-extractValues(vals, aNames)
+          } else { #an== from or to
+            if(inherits(vals, "character")){
+              vals<-paste(vals, collapse=" ")
+              vals<-strsplit(vals, "[ ,]+")[[1]]
+            }
+            vals<-as.list(vals)
+            if(!(length(vals)[1]==length(aNames) )) stop(paste0("animated combo attribute has incorrect '",an,"' count"))
+            names(vals)<-aNames
+          }
+          vals }, simplify = FALSE, USE.NAMES = TRUE)
+        rtv<-lapply( aNames,   function(an){
           args2<-args
-          args2[["attributeName"]]<-attributeNames[i]
-          tmp<-c("from","to","values")
-          ind<-intersect(names(args),tmp)
-          args2[ind]<-lapply(args2[ind], function(vec){
-            j<-min(i,length(vec))
-            vec[j]
-          })              
-          etag(args2)
+          args2[["attributeName"]] <- an
+          eListAN<-lapply(eList, function(el){
+            el[[an]]
+          } )
+          args2[eListNames]<-eListAN
+          node<-fn(args2)
+          node
         })
-        return(tmp)    
+        return(rtv)
       },
-      list(etag=etag, aaCombos=aaCombos)
-    )  
+      list(fn=fn, aaCombos=aaCombos)    
+    )
   )
 }
+
 
 
 
