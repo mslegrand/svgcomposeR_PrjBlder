@@ -24,15 +24,19 @@
 
 #testing 123
 
+source("./tableLoader.R")
+
+requireTable( es.DT, eaCS.DT, PA.DT, COP.DT)
+
 #buildDocumentation
-library(data.table)
-#fread("./dataTables/elementSummary.csv")->es.DT #triples: element, type, value
-if(!exists("es.DT")){
-  fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
-  fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
-  fread("dataTables/presentationAttr.tsv")->PA.DT
-  fread("dataTables/comboParams.tsv")->COP.DT
-}
+
+#library(data.table)
+#if(!exists("es.DT")){
+  #fread("./dataTables/elementSummary.tsv")->es.DT #triples: element, type, value 
+  #fread("./dataTables/elementAttrCategorySummary.tsv")->eaCS.DT
+  #fread("dataTables/presentationAttr.tsv")->PA.DT
+  #fread("dataTables/comboParams.tsv")->COP.DT
+#}
 
 #------------------------ATTENTION!!!!-----------------------------------------
 # tmp kludge to remove the presentation attrs
@@ -178,4 +182,4 @@ do.documentation<-function(es.DT, composerFiles="svgR"){
   #cat(attrDefDoc, file=paste(composerFiles, "attrDefDoc.R", sep="/") ) 
 }
 
-#do.documentation(es.DT)
+do.documentation(es.DT)

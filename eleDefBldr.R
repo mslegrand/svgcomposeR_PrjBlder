@@ -10,8 +10,7 @@
 
 
 eleDefBldr<-function(svgFnQ, targetDir="svgR"){
-  
-  
+  svgFnQ<-build.svgFnQ()
   tmp<-paste(deparse(svgFnQ),collapse="\n")
   #tmp<-gsub('}, ', "}, \n",tmp)
   tmp3<-gsub('}, ', "}, \n",tmp)

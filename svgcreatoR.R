@@ -3,6 +3,7 @@
 
 library(data.table)
 library(XML)
+if(!exists("requireTable")){ source("tableLoader.R") }
 source("specialTagHandlers.R")
 
 #notess to self
@@ -26,16 +27,19 @@ source("specialTagHandlers.R")
 
 # Builds the svgFnQ stuff
 build.svgFnQ<-function(){
-  if(!exists("AET.DT")){
-    fread("./dataTables/AETTable.tsv")->AET.DT  
-  }
-  if(!exists("COP.DT")){
-    fread("dataTables/comboParams.tsv")->COP.DT
-  }
-  if(!exists("PA.DT")){
-    fread("dataTables/presentationAttr.tsv")->PA.DT
-  }
-  
+ 
+  requireTable(AET.DT, COP1.DT, PA.DT)
+#   if(!exists("AET.DT")){
+#     fread("./dataTables/AETTable.tsv")->AET.DT  
+#   }
+#   
+#   #we need to insure that this is unadultrated.
+#   fread("dataTables/comboParams.tsv")->COP1.DT
+# 
+#   if(!exists("PA.DT")){
+#     fread("dataTables/presentationAttr.tsv")->PA.DT
+#   }
+#   
   # all elements
   ele.tags<-unique(AET.DT$element)
   #all attributes
@@ -51,7 +55,7 @@ build.svgFnQ<-function(){
   )
   
   # build list of all combos for potential animation
-  COP.DT[,.(variable,value)]->COP2.DT
+  COP1.DT[,.(variable,value)]->COP2.DT
   split(COP2.DT$value, COP2.DT$variable)->tmp
   lapply(tmp,unique)->aaCombos
   aaCombos[["in1"]]<-NULL
@@ -69,7 +73,7 @@ build.svgFnQ<-function(){
   
   #helper function
   qcomboParamsFn<-function(etag){
-    tmp<-COP.DT[element==etag]
+    tmp<-COP1.DT[element==etag]
     if(nrow(tmp)>0){
       cp.list<-split(tmp$value, tmp$variable)
       # for each element of tmp.list, add the appropriate quote
@@ -254,34 +258,42 @@ build.svgFnQ<-function(){
   tmpFn<-svgFnQ[indx]
   names(tmpFn)<-gsub("-",".",names(tmpFn))
   svgFnQ<-c(svgFnQ, tmpFn,
-            list(
-              getNode=function(rootNode,id){
-                if(id!='root'){
-                  kidV <- getNodeSet(rootNode, paste("//*[@id=\"", id, "\"]", sep=""))
-                } else {
-                  kidV <- list(rootNode)
-                }
-                if (length(kidV)==0){
-                  stop("Cannot find node with id=",id)
-                }
-                kidV
-              }
-  )
+    list(
+      getNode=function(rootNode,id){
+        if(id!='root'){
+          kidV <- getNodeSet(rootNode, paste("//*[@id=\"", id, "\"]", sep=""))
+        } else {
+          kidV <- list(rootNode)
+        }
+        if (length(kidV)==0){
+          stop("Cannot find node with id=",id)
+        }
+        kidV
+      },
+      script=function(...){
+        args <- list(...)
+        stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
+        paste(args,collapse="\n")->js
+        newXMLNode('script', attrs= list(type="text/JavaScript"),
+                   newXMLCDataNode(js), 
+                   suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
+        )
+      }
+    )
   )
   svgFnQ
 }
+# svgFnQ<-build.svgFnQ()
 
-svgFnQ<-build.svgFnQ()
-
-svgFnQ$script<-function(...){
-  args <- list(...)
-  stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
-  paste(args,collapse="\n")->js
-  newXMLNode('script', attrs= list(type="text/JavaScript"),
-             newXMLCDataNode(js), 
-             suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
-  )
-}
+#svgFnQ$script<-function(...){
+  #args <- list(...)
+  #stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
+  #paste(args,collapse="\n")->js
+  #newXMLNode('script', attrs= list(type="text/JavaScript"),
+             #newXMLCDataNode(js), 
+             #suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
+  #)
+#}
 
 #type="text/JavaScript"
 
