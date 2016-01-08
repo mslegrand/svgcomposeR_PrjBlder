@@ -216,6 +216,32 @@ build.svgFnQ<-function(){
                    newXMLCDataNode(js), 
                    suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
         )
+      },
+      translate=function(x,y=NULL){
+        if(length(c(x,y)!=2)){
+          stop("bad translate arguments")
+        }
+        list(translate=c(x,y))
+      },
+      rotate=function(angle, x=NULL, y=NULL){
+        if(!(length(c(angle,x,y)) %in% c(1,3))){
+          stop("bad rotate arguments")
+        }
+        list(rotate=c(angle,x,y))     
+      },
+      rotatR=function(angle, x=NULL, y=NULL){
+        if(!(length(c(angle,x,y)) %in% c(1,3))){
+          stop("bad rotate arguments")
+        }
+        tmp<-c(angle,x,y)
+        tmp[1]<-as.numeric(tmp[1])*180/pi #convert from radians to degrees
+        list(rotate=tmp)     
+      },
+      scale=function(x,y=NULL){
+        if(length(c(x,y)!=2)){
+          stop("bad translate arguments")
+        }
+        list(scale=c(x,y))
       }
     )
   )
