@@ -1,5 +1,7 @@
 library(data.table)
 
+#This is used to make the AET.DT data.table from the AVEL.DT data.table
+
 if(!exists("AVEL.DT")){
   fread("./dataTables/AVELTable.tsv")->AVEL.DT  
 }

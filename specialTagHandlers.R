@@ -89,6 +89,30 @@ svgTagQuote<-quote({
 })
 
 
+
+#template for different quotes
+makeSpecTr<-function(aName, aElements, aMssg){
+  ptree<-substitute(  
+  if( aName %in%  names(attrs) ){
+    # grab all occurances, and proccess each
+    indx<-which(names(attrs) ==aName)
+    for( n in indx){
+      aNode<-attrs[[n]]
+      if(inherits(aNode, "XMLAbstractNode")){
+        if(!(xmlName(aNode) %in% aElements)){ 
+          stop(aMssg)
+        }
+        fid<-getsafeNodeAttr("id",aNode)
+        #rtv<-c(rtv,XdefsNode=aNode)
+        rtv<-c(rtv, aNode)
+        attrs[[n]]=paste0("url(#",fid,")")
+      }  
+    }  
+  }, list(aName=aName, aElements=aElements, aMssg=aMssg))
+  ptree
+}
+
+# looks like filterQuote can be generated using makeSpecTr
 filterQuote<-quote(if( "filter" %in%  names(attrs) ){
   # grab all occurances, and proccess each
   indx<-which(names(attrs) =="filter") 
@@ -144,28 +168,7 @@ gradientColorQuote<-quote(
     }
   })
 
-#template for different quotes
-makeSpecTr<-function(aName, aElements, aMssg){
-  ptree<-substitute(  
-  if( aName %in%  names(attrs) ){
-    # grab all occurances, and proccess each
-    indx<-which(names(attrs) ==aName)
-    for( n in indx){
-      aNode<-attrs[[n]]
-      if(inherits(aNode, "XMLAbstractNode")){
-        if(!(xmlName(aNode) %in% aElements)){ 
-          stop(aMssg)
-        }
-        fid<-getsafeNodeAttr("id",aNode)
-        #rtv<-c(rtv,XdefsNode=aNode)
-        rtv<-c(rtv, aNode)
-        attrs[[n]]=paste0("url(#",fid,")")
-      }  
-    }  
-  }, list(aName=aName, aElements=aElements, aMssg=aMssg))
-  ptree
-}
-
+ 
 
 fillQuote<-makeSpecTr(aName="fill", aElements = c("pattern", "linearGradient", "radialGradient"), aMssg="Bad fill parameter")
 markerEndQuote<-makeSpecTr(aName="marker-end", aElements = "marker", aMssg="Bad marker parameter")
@@ -173,6 +176,52 @@ markerMidQuote<-makeSpecTr(aName="marker-mid", aElements = "marker", aMssg="Bad 
 markerStartQuote<-makeSpecTr(aName="marker-start", aElements = "marker", aMssg="Bad marker parameter")
 maskQuote<-makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask")
 clipPathQuote<-makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter")
+
+
+#todo: migrate to specialTreatments
+specialTreatments<-list(
+    fill=makeSpecTr(aName="fill", aElements = c("pattern", "linearGradient", "radialGradient"), aMssg="Bad fill parameter"),
+    markerEnd=makeSpecTr(aName="marker-end", aElements = "marker", aMssg="Bad marker parameter"),
+    markerMid=makeSpecTr(aName="marker-mid", aElements = "marker", aMssg="Bad marker parameter"),
+    markerStart=makeSpecTr(aName="marker-start", aElements = "marker", aMssg="Bad marker parameter"),
+    mask=makeSpecTr(aName="mask", aElements = "mask", aMssg="Bad mask"),
+    clipPath=makeSpecTr(aName="clip-path", aElements = "clipPath", aMssg="Bad clipPath parameter"),
+    filter=makeSpecTr(aName="filter", aElements = "filter", aMssg="Not a filter node"),
+    text=quote(if(!is.null(names(attrs))){
+      attr.names<-names(attrs)
+      attr.names<-gsub("^(((style))|((weight))|((variant))|((size))|((family)))$", "font-\\1",attr.names, fixed=F)
+      attr.names<-gsub("^anchor$","text-anchor",attr.names)
+      names(attrs)<-attr.names
+      if(!is.null(attrs[["cxy"]])){
+        attrs[["text-anchor"]]<-'middle'
+        attrs[["dominant-baseline"]]="central"
+        attrs[["xy"]]=attrs[["cxy"]]
+        attrs[["cxy"]]=NULL
+      }
+      attrs<-mapArg(attrs,"xy", c("x","y"))
+      text<-NULL
+      if("text" %in% attr.names){ ### use value instead of text???
+        text<-attrs["text"]
+        attrs["text"]<-NULL
+      }
+    }),
+    gradientColor=quote(
+      if("colors" %in% names(attrs)){
+        colors<-attrs[["colors"]]
+        attrs[["colors"]]<-NULL
+        if("offsets" %in% names(attrs)){
+          offsets<-attrs[["offsets"]]
+          attrs[["offsets"]]<-NULL
+        } else {
+          offsets<-seq(0,100,length.out=length(colors))
+        }
+        for(i in 1:length(colors)){
+          attrs.si<-list(offset=sprintf("%d%%", as.integer(offsets[i])), "stop-color"= colors[i])
+          stopi<-newXMLNode("stop", attrs=attrs.si)
+          args<-c(args,stopi)
+        }
+      })
+)
 
 # makeAni<-function(etag, aaCombos){
 #   #etag is the tag element tag (animate, set)
@@ -254,6 +303,10 @@ makeAni<-function(etag, aaCombos){
   )
 }
 
+
+codeSeg<-list(
+
+)
 
 
 

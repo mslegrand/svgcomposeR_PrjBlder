@@ -15,8 +15,6 @@ source("specialTagHandlers.R")
 
 
 # Some questions 
-# for filter should we always append % to the x,y width, heigth values???
-# k for k1,k2,k3,k4 in feComposite ?
 #1. how to add function completion:
 # i) utils:::.addFunctionInfo(fn=c("cat","dog")) #note 3 colons
 # ii)alternatively: 
@@ -29,16 +27,6 @@ source("specialTagHandlers.R")
 build.svgFnQ<-function(){
  
   requireTable(AET.DT, COP1.DT, PA.DT)
-#   if(!exists("AET.DT")){
-#     fread("./dataTables/AETTable.tsv")->AET.DT  
-#   }
-#   
-#   #we need to insure that this is unadultrated.
-#   fread("dataTables/comboParams.tsv")->COP1.DT
-# 
-#   if(!exists("PA.DT")){
-#     fread("dataTables/presentationAttr.tsv")->PA.DT
-#   }
 #   
   # all elements
   ele.tags<-unique(AET.DT$element)
@@ -82,16 +70,12 @@ build.svgFnQ<-function(){
       quote(NULL)
     }
   }
-    
-  # "ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
-  
-  
-  
+       
   createEleFnQ<-function(ele.tag, AET.DT){
     AET.DT[element==ele.tag & treatValueAs!="ignore",]->ele.dt
     ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
     
-    
+    #helper fn
     animateComboParam<-function(ele.tag){
       if(ele.tag %in% c("set","animate")){
         body0<-append(body0, makeAni(ele.tag, aaCombos) ,2)
@@ -100,6 +84,7 @@ build.svgFnQ<-function(){
       }
     }
     
+    #helper fn
     insertConditionalCode<-function(ele.tag, ele.tag.set, fn, ...){
       if(ele.tag %in% ele.tag.set){
         fn(ele.tag, ...)
@@ -108,6 +93,7 @@ build.svgFnQ<-function(){
       }     
     }
     
+    #helper fn
     echoQuote<-function(ele.tag, q){
       q
     }
@@ -121,19 +107,6 @@ build.svgFnQ<-function(){
       quote( attrs <- named(args) ),
       insertConditionalCode(ele.tag,'feConvolveMatrix', echoQuote, feConvolveMatrixTagQuote)   
     )
-    
-#   #only one of these will occur
-#     # set, animate, filter create lists
-#     if(ele.tag %in% c("set","animate")){
-#       body0<-append(body0, makeAni(ele.tag, aaCombos) ,2)
-#     }
-#     if(ele.tag=="filter"){
-#       body0<-append(body0,filterTagQuote,2)
-#     }
-#     #feConvolve accepts matrix here
-#     if(ele.tag=="feConvolveMatrix"){
-#       body0<-append(body0,feConvolveMatrixTagQuote,3)
-#     }
 
   # call comboParamHandler combo params for given ele.tag
     ppXtraCL<-list( qcomboParamsFn(ele.tag) )
@@ -168,7 +141,6 @@ build.svgFnQ<-function(){
     unlist(body2, use.names=F)->body2
     as.list(body2)->body2
 
-
 # **  This is necessary  for filter, feElements, etc. to return a list !!!
     body2<-c(body2, 
              quote(rtv<-list()), #rtv begins life here and is populated by the following
@@ -202,40 +174,6 @@ build.svgFnQ<-function(){
 # ** prior to adding .children and attrs, we process for our custom
     # attribute=element assignments
     
-    
-
-#special cases for elements with attributes filter, fill, clipPath, mask, marker
-#     if(ele.tag %in% attrsEle2Quote$filter){
-#         body3<-c(filterQuote,body3)
-#     }
-#     #fill
-#     if(ele.tag %in% attrsEle2Quote$fill){
-#       body3<-c(fillQuote,body3)
-#     }
-#     # clipPath
-#     if(ele.tag %in% attrsEle2Quote$clip.path){
-#       body3<-c(clipPathQuote,body3)
-#     }
-#     #mask
-#     if(ele.tag %in% attrsEle2Quote$mask){
-#       body3<-c(maskQuote,body3)
-#     }
-#     #marker
-#     if(ele.tag %in% attrsEle2Quote$marker){ # and what else?
-#         body3<-c(markerEndQuote, markerMidQuote, markerStartQuote, body3)
-#     }
-# 
-
-
-    #special cases for elements text (may replace this later)
-#     if(ele.tag %in% c('text' , 'textPath' , 'tspan')){
-#       body3<-c(textQuote, body3)    
-#     }
-    #special code for gradient elements
-#     if(ele.tag %in% c("linearGradient",  "radialGradient")){
-#       body3<-c(gradientColorQuote, body3 )    
-#     } 
-
     if(ele.tag %in% filterElementTags){
       body3<-c(
         feQuote, # moves  feElements form args to rtv prior to node creation,

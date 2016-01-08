@@ -14,7 +14,13 @@ eleDefBldr<-function(svgFnQ, targetDir="svgR"){
   tmp<-paste(deparse(svgFnQ),collapse="\n")
   #tmp<-gsub('}, ', "}, \n",tmp)
   tmp3<-gsub('}, ', "}, \n",tmp)
-  cat("eleDefs<-\n",tmp3, 
+  desc<-"# About:
+  # The code in this file was programmiclly generated,
+  # the program responsible can be found at
+  # https://github.com/mslegrand/svgcomposeR_PrjBlder
+  #
+  "
+  cat(desc,"eleDefs<-\n",tmp3, 
       file=paste(targetDir,"eleDefs.R", sep="/"))
 }
 
