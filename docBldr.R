@@ -23,8 +23,11 @@
 # write examples!!!
 
 #testing 123
+library(data.table)
 
 source("./tableLoader.R")
+
+source("./commonDoc.R")
 
 requireTable( es.DT, eaCS.DT, PA.DT, COP.DT)
 
@@ -37,113 +40,30 @@ eaCS.DT[name!="presentation attributes"]->eaCS.DT
 #rbind(eaCS.DT, data.table(name="presentation attributes", value="alignment-baseline"))
 #------------------------END KLUDGE!!!!-----------------------------------------
 
-# eCS.DT<-eaCS.DT[grep("elements$", eaCS.DT$name)]
-# aCS.DT<-eaCS.DT[grep("attributes$", eaCS.DT$name)]
-
-capitalizeIt<-function(name){
-  gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", name, perl=TRUE)
+#------------------------ATTENTION!!!!-----------------------------------------
+#  kludge to clean es.DT 
+#------------------------BEGIN KLUDGE!!!!-----------------------------------------
+es.DT.Cleaner<-function(){
+  es.DT$value->values # extract last column
+  
+  #restrict our attention to content.mode
+  grep('content.model', es.DT$variable)->content.indx
+  
+  grep('altGlyphDef',es.DT$element)->rpl.indx
+  indx<-intersect(content.indx,rpl.indx)
+  if(length(indx)!=3){stop("altGlyphDef issues")}
+  values[indx]<-c('glyphRef', 'altGlyphItem', '')
+  
+  values<-gsub('elements?$','elements:',values)
+  values
 }
+  values<-es.DT.Cleaner()
+  es.DT[,value:=values]
+  es.DT<-es.DT[value!=""] #remove row with empty value
+#------------------------END KLUDGE!!!!-----------------------------------------
 
 
-asDot<-function(aName){
-  gsub('[-:]','.', aName)
-}
 
-
-nameWithLink<-function(aName, aLink=NULL){
-  if(is.null(aLink)){
-    aLink<-aName
-  }
-  aName<-asDot(aName)
-  #paste0("\\link[=", aLink,"]{",aName,"}")
-  paste0("\\code{\\link[=", aLink,"]{",aName,"}}")
-}
-
-
-#we need 
-# 1. element name link: 
-#   a. In genElemDoc
-#       currently done in "elements.by.category.listing"
-#       and appears to use the dot name 
-#   b. reg attrs use dot name for elements via elementsRD
-#   c. CO atttrs use dot name via elementsRD
-#   d. pres attrs use dot name for elements via "elements.by.category.listing"
-
-# 2. reg attr name link
-#   are derived from the location in given in  AVEL.DT
-#   
-# 3. pres attr name link
-#   derived by prepending presAttrs. and replacing - with dot
-#   done in getPresAttrsLoc
-# 4. comb attr name link
-#    links are generated from AVEL.DT loc and co.loc2 and are dot
-#  
-# 4. attr value name link ??
-# asRDLink<-function(aName){
-#   title<-asDot
-#   paste0("\\link[=", component.loc,"]{",component,"}")
-#   dashName<-aName[indx]
-#   if(length(dashName))
-# }
-
-#element listings occur in 
-# gen.all.Elem.Index (alphabetical index)
-# generate.ele.cat.Index (index by cat) # done by oneCatListing
-# content elements in elepages # elements.by.category.listing
-# used by reg attrs, combo attrs via elementsRD
-# pres attrs #done by elements.by.category.listing
-
-
-#1.attr is an uncombined attr
-#2. loc is loc for attr
-#3. variable is combined attr
-co.loc<-function(attr,loc, variable){
-  pattern<-paste0(attr[1],"Attribute$")
-  variable<-paste0(toupper(variable[1]),'Attribute')
-  sub(pattern, variable, loc, ignore.case=T)
-}
-
-
-# ------------------NOT USING BELOW ANYMORE!!!
-# generates an alphebetical Index of All Elements 
-gen.all.Elem.Index<-function(es.DT){
-  unique(es.DT$element)->ele
-  sort(gsub("-",".", ele))->ele
-  ele<-paste(" \\item \\code{\\link[svgcomposeR]{", ele, "}}", sep="")
-  txt<-c(
-    paste("\\itemize{"),
-    ele,
-    "}",
-    paste("@name",  "All Elements Index- Alhabetically"),
-    paste("@title", "An Alphabetical Index of All Elements")
-  )
-  tmp<-paste("#' ", txt, sep="", collapse="\n")  
-  tmp<-paste(tmp,"\nNULL\n") 
-}
-
-#returns doc listing elements for each category
-get.Elem.categories<-function(es.DT){
-  addEleCategoryEntry<-function(name, elemArgs, description="", visible=TRUE ){
-    txt<-c(
-      paste0("@name ", gsub(' ','',name),"s"), #blue
-      paste0("@title ", name,"s"), #!!!todo add something
-      paste("@description ", description),
-      paste("\\itemize{"),
-      paste(" \\item \\code{\\link{", elemArgs, "}}", sep=""),
-      "}",
-      "@keywords internal"
-    )
-    tmp<-paste("#' ", txt, sep="", collapse="\n")
-  }  
-  es.DT[variable=="category", list(list(I(.I))), by=value]->tmp
-  tmp<-tmp[order(value)]
-  catsL<-sapply(1:nrow(tmp), 
-                function(i){ addEleCategoryEntry(name=tmp$value[i], elemArgs= es.DT$element[ tmp$V1[[i]] ] )}
-  )
-  rtv<-paste(catsL, "\nNULL\n", collapse="\n")
-}
-
-# ------------------NOT USING ABOVE ANYMORE!!! 
 
 source('genElemDocPages.R')
 
@@ -159,13 +79,15 @@ do.documentation<-function(es.DT, composerFiles="svgR"){
   ele.pages<-generate.element.pages()
   cat(ele.pages, file=paste(composerFiles, "doc_ElePages.R", sep="/") )
 
+  #regular attribute documentation
   regAttrDocPages<-generate.Reg.Attr.Pages()
   cat(regAttrDocPages, file=paste(composerFiles, "doc_RegAttrPages.R", sep="/") )
 
+  #presentation Attributes
   presAttrDocPages<-generate.Pres.Attr.Pages()
   cat(presAttrDocPages, file=paste(composerFiles, "doc_PresAttrPages.R", sep="/") )
 
-
+  #comboAttrDocPages
   combAttrDocPages<-generate.CO.Attr.Pages()
   cat(combAttrDocPages, file=paste(composerFiles, "doc_CombAttrPages.R", sep="/") )
   

@@ -1,5 +1,31 @@
 
+#needs 1. loc (becomes @Name)
+#      2. AttrName = @title
+#      3. Attr Values
+#      4. Attr Values Des
+#      5. Elements which attr applies to
+#      6. Animatable??
+#      7. related attrs??
+# 
 
+
+#' not used, but can replace 
+#' elements.by.category.listing to  get element listing
+#' as a single comma seperated list
+elementsRD<-function(elements){
+  sort(elements)->elements
+  if(any(grepl('Empty', elements))|
+       any(grepl('Any element',elements))){
+    paste("\\code{", elements, "}", sep="", collapse=", ")
+  } else {
+    paste( nameWithLink(elements), sep="", collapse=", ")
+  }  
+}
+
+
+#----Regular Attribute Pages------
+
+# used only in generate.Reg.Attr.Pages
 cleanAttrValue<-function(vd){
   vd<-gsub('[-:]',".",vd)
   vd<-gsub('[‘’]',"'",vd)  
@@ -11,31 +37,37 @@ cleanAttrValue<-function(vd){
   vd
 }
 
-#' not used, but can replace 
-#' elements.by.category.listing to  get element listing
-#' as a single comma seperated list
-elementsRD<-function(elements){
-  sort(elements)->elements
-  if(any(grepl('Empty', elements))|
-     any(grepl('Any element',elements))){
-    paste("\\code{", elements, "}", sep="", collapse=", ")
-  } else {
-    paste( nameWithLink(elements), sep="", collapse=", ")
-  }  
-}
+requireTable(AVD.DT, AVEL.DT)
 
-#needs 1. loc (becomes @Name)
-#      2. AttrName = @title
-#      3. Attr Values
-#      4. Attr Values Des
-#      5. Elements which attr applies to
-#      6. Animatable??
-#      7. related attrs??
-#     
+#-------------Kludge to clean AVD.DT-----------------------------
+preserveAlpha.Def="A value of false indicates that the convolution will be applied to all channels, including the alpha channel. A value of true indicates the convolution is to be applied to only the color channels"
+indx<-grep("preserveAlpha",AVD.DT$attr)
+AVD.DT[indx,value.def:=preserveAlpha.Def]
+
+restart.Def=c(
+  "The animation can be restarted at any time (The default)",
+  "The animation can be restarted only when not active (i.e. the active end)",
+  "The element cannot be restarted for the duration of the parent container."
+)
+
+indx<-grep("restart",AVD.DT$attr)
+AVD.DT[indx,value.def:=restart.Def]
+
+
+#--------------------------------------------------------------------------
+
+
 generate.Reg.Attr.Pages<-function(){
   #requries AVD.DT, AVEL.DT
   addAttributeEntry<-function(alink){
     #showMe(alink)
+    #AVD.DT[loc=='KeyTimesAttribute']
+    AVD.DT[loc=='KeyTimesAttribute']$value.def->txt
+    strsplit(txt,"In particular, see")[[1]]->stxt
+    txt<-stxt[1]
+    AVD.DT[loc=='KeyTimesAttribute', value.def:=txt]
+    
+    
     tmp1.DT<-AVEL.DT[loc==alink]
     elements<-tmp1.DT$element
     #elements<-gsub("-",".",elements)
@@ -46,29 +78,56 @@ generate.Reg.Attr.Pages<-function(){
     values<-cleanAttrValue(values)
     valDes<-cleanAttrValue(valDes)
     title<-unique(AVEL.DT[loc==alink]$attr )
+    if(alink=="KeyTimesAttribute"){
+      cat("\n**KeyTimesAttribute**\n")
+      #values="xx"
+      valDes="yy"
+    }
     elemArgsItems<- elements.by.category.listing(elements)
 
+    
     txt<-c(
-      paste("@name", alink),
-      paste("@title",asDot(title)), 
-      paste("@section Available Attribute Values:"),     
-      paste("\\describe{"),
-      paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
-      "}",
-      paste("@section Used by the Elements:"), 
-      "\\describe{",
-      elemArgsItems,
-      "}",
-      "@keywords internal"
-      )
-    tmp<-paste("#' ", txt, sep="", collapse="\n")  
+      rd.name(alink),
+      rd.title(asDot(title)),
+      rd.description("ToDo: Needs to be written!!!"),
+      if(length(values)>0){
+        c(rd.section("Available Attribute Values"),     
+        rd.describe( rd.item(values,valDes) ) )
+      } else {
+        cat("WARNING",alink, ": missing attribute values\n")
+        NULL
+      },   
+      rd.section("Used by the Elements"), 
+      rd.describe( elemArgsItems),
+      rd.keywords("internal") 
+    )
+    tmp<-paste0(rd.close(txt) , collapse="\n" )
+    tmp
   }
+#     txt<-c(
+#       paste("@name", alink),
+#       paste("@title",asDot(title)), 
+#       paste("@section Available Attribute Values:"),     
+#       paste("\\describe{"),
+#       paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
+#       "}",
+#       paste("@section Used by the Elements:"), 
+#       "\\describe{",
+#       elemArgsItems,
+#       "}",
+#       "@keywords internal"
+#       )
+#     tmp<-paste("#' ", txt, sep="", collapse="\n")  
+#  }
+
   links<-unique(AVEL.DT$loc)
   attrDefsPages.List<-lapply( links, addAttributeEntry)
   
-  rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
+  rtv<-paste(attrDefsPages.List,  collapse="\n")
   rtv 
 }
+
+#--------Combo Attribute Pages----------------------
 
 
 generate.CO.Attr.Pages<-function(){
@@ -83,6 +142,7 @@ generate.CO.Attr.Pages<-function(){
     }
     )   
   }
+    
     
   #1. get the COLCL.DT data
   AL.DT<- AVEL.DT[, list(element, attr, loc)]
@@ -108,36 +168,54 @@ generate.CO.Attr.Pages<-function(){
     component.loc<-unique(tmp1.DT$component.loc)
     elemArgsItems<- elements.by.category.listing(elements)
 
-    componentWLink<-paste0("\\link[=", component.loc,"]{",component,"}")
-    componentComma<-paste(componentWLink, sep="", collapse=", ")
     
     valueN<-paste0("value.",toupper(component))
     equivI<-paste0(title, "=c(",paste(valueN, collapse=","), ")")
     equivII<-paste(component,"=",valueN, collapse="; ")
 
     txt<-c(
-      paste("@name", alink),
-      paste("@title",asDot(title)), 
-      paste("@section Combines:"),
-      componentComma,
-      "@section Equivalence:",
-        "\\describe{",
-          paste0("\\item{}{",   asDot(equivI), "}"),
-          paste0("\\item{and}{",asDot(equivII),"}"),
-        "}",  
-      paste("@section Used by the Elements:"), 
-        "\\describe{",
-        elemArgsItems,
-        "}",
-        "@keywords internal"
+      rd.name(alink),
+      rd.title(asDot(title)),
+      rd.description("ToDo: Needs to be written!!!"),
+      rd.section("Combines"),     
+      rd.comma(nameWithLink(component, component.loc)),
+      rd.section("Equivalence"),
+      rd.describe( 
+        c( rd.item("", asDot(equivI)),
+            rd.item("and", asDot(equivII))
+        )
+      ),
+      rd.section("Used by the Elements"), 
+      rd.describe( elemArgsItems ),
+      rd.keywords("internal")
     )
-    tmp<-paste("#' ", txt, sep="", collapse="\n")  
+    tmp<-paste0(rd.close(txt) , collapse="\n" )
+    tmp
   } #end addAttributeEntry
+  
+#   txt<-c(
+#       paste("@name", alink),
+#       paste("@title",asDot(title)), 
+#       paste("@section Combines:"),
+#       componentComma,
+#       "@section Equivalence:",
+#         "\\describe{",
+#           paste0("\\item{}{",   asDot(equivI), "}"),
+#           paste0("\\item{and}{",asDot(equivII),"}"),
+#         "}",  
+#       paste("@section Used by the Elements:"), 
+#         "\\describe{",
+#         elemArgsItems,
+#         "}",
+#         "@keywords internal"
+#     )
+#     tmp<-paste("#' ", txt, sep="", collapse="\n")  
+#   } #end addAttributeEntry
   
   #for each location, get the subtable, and process
   links<-unique(COLCL.DT$loc)
   attr.Pages.List<-lapply( links, addAttributeEntry)  
-  rtv<-paste(attr.Pages.List, "\nNULL\n", collapse="\n")
+  rtv<-paste(attr.Pages.List,  collapse="\n")
   rtv 
 }
 
@@ -173,27 +251,40 @@ generate.Pres.Attr.Pages<-function(){
     values<-tmp1.DT[variable=="Value"]$value
     Percentages<-tmp1.DT[variable=="Percentages"]$value
     
-    valDes<-"**to do** "
+    valDes<-"**ToDo!!!** "
     #title<-gsub("[-:]", ".", attribute) 
     presAttrLoc<-getPresAttrsLoc(attribute)
     # AppliesTo.elements<-paste("\\code{\\link{", AppliesTo.elements, "}}", sep="", collapse=", ")
     txt<-c(
-      paste("@name", presAttrLoc),
-      paste("@title", asDot(attribute)), 
-      paste("@section Available Attribute Values:"),     
-      paste("\\itemize{"), #paste("\\describe{"),
-      paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
-      "}",
-      paste("@section Used by the Elements:"), 
-      "\\describe{",
-      elemArgsItems,
-      "}",
-      "@keywords internal"
+      rd.name(presAttrLoc),
+      rd.title(asDot(attribute)),
+      rd.description("ToDo: Needs to be written!!!"),
+      rd.section("Available Attribute Values"),     
+      rd.itemize( rd.item(values, valDes)),
+      rd.section("Used by the Elements"),
+      rd.describe( elemArgsItems),
+      rd.keywords("internal")
     )
-    tmp<-paste("#' ", txt, sep="", collapse="\n")  
+    tmp<-paste0(rd.close(txt) , collapse="\n" )
+    tmp 
   }
+      #txt<-c(
+      #paste("@name", presAttrLoc),
+      #paste("@title", asDot(attribute)), 
+      #paste("@section Available Attribute Values:"),     
+      #paste("\\itemize{"), #paste("\\describe{"),
+      #paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
+      #"}",
+      #paste("@section Used by the Elements:"), 
+      #"\\describe{",
+      #elemArgsItems,
+      #"}",
+      #"@keywords internal"
+    #)
+    #tmp<-paste("#' ", txt, sep="", collapse="\n")  
+  #}
   attrs<-unique(PA.DT[variable=="Applies to"]$attr)
   attrDefsPages.List<-lapply( attrs, addAttributeEntry)  
-  rtv<-paste(attrDefsPages.List, "\nNULL\n", collapse="\n")
+  rtv<-paste(attrDefsPages.List, collapse="\n")
   rtv 
 }
