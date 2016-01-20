@@ -91,14 +91,9 @@ getPresAttrsLoc<-function(presAttrs){ #USED 3 PLACES
 #' generates element documentation  for each element found in es.DT
 #' That is creates all individual element pages
 generate.element.pages<-function(){
-  
+  source('elementDescription.R')
   # ---------BEGIN HELPERS:generate.element.pages
   
-  #todo replace reference to eaCS.DT: 
-  # with AVEL.DT and PA.DT
-  # done: replace for attrs, but still used to
-  # expand element categories (to get content.elements)
- 
   # replaces shape elements, descriptive elements, ... with the actual elements
   expand.content.ele.names<-function(arg.names){
     arg.names<-gsub(":$","",arg.names)
@@ -125,24 +120,7 @@ generate.element.pages<-function(){
     rtv<-c(expansion,regArgs)
     rtv
   }
-  
-  
-   
-#   # convert a vector of elements into a list index by category
-#   # todo!!! rewrite ele.by.cat.list to replace extract.CatMember.List
-#   ele.by.cat.list<-function(elements, other="Unclassified"){
-#     setkey(eaCS.DT,name) #should do only once!
-#     if(length(elements)==0){
-#       tmp.list<-list()
-#     } else {
-#       rowNum<-match(elements, eaCS.DT$value, nomatch=0L)
-#       cats<-rep("ZZZ",length(elements))
-#       cats[rowNum>0]<-eaCS.DT$name[rowNum>0]
-#       tmp.list<-split(elements,cats)
-#     } 
-#     tmp.list
-#   }
-#   
+
   #--------
   requireTable(AVEL.DT)
 
@@ -226,12 +204,30 @@ generate.element.pages<-function(){
     
     #--- attribute  handeling---------------------------------------      
       attrArgsItems<-makeAttrLinkItems2(elName)   #requries AVEL.DT
-       
+      
     #---pulling it together 
+    #cat("elName=",elName,"\n")
+    description<-element.decriptions[[elName]]["description"]
+    title<-      element.decriptions[[elName]]["title"]
+    if(is.null(description)){
+      description<-"ToDo: Needs to be written!!!"
+    }
+    if(is.null(title)){
+      title<-paste0("ala ",asDot(elName))
+    }
+    
+    
     txt<-c(
       rd.name(elName), 
-      rd.title(asDot(elName)), 
-      rd.description("ToDo: Needs to be written!!!"),
+      #rd.title(asDot(elName)), 
+      rd.title(title), 
+      if(asDot(elName)!=elName){
+        rd.aliases(asDot(elName))
+      } else{
+        NULL
+      },
+      rd.description(description),
+      
       rd.section("Available Attributes (Named Parameters)" ),
       rd.describe( attrArgsItems ), 
       if(length(elemArgsItems)>0){
