@@ -39,23 +39,6 @@ cleanAttrValue<-function(vd){
 
 requireTable(AVD.DT, AVEL.DT)
 
-#-------------Kludge to clean AVD.DT-----------------------------
-preserveAlpha.Def="A value of false indicates that the convolution will be applied to all channels, including the alpha channel. A value of true indicates the convolution is to be applied to only the color channels"
-indx<-grep("preserveAlpha",AVD.DT$attr)
-AVD.DT[indx,value.def:=preserveAlpha.Def]
-
-restart.Def=c(
-  "The animation can be restarted at any time (The default)",
-  "The animation can be restarted only when not active (i.e. the active end)",
-  "The element cannot be restarted for the duration of the parent container."
-)
-
-indx<-grep("restart",AVD.DT$attr)
-AVD.DT[indx,value.def:=restart.Def]
-
-
-#--------------------------------------------------------------------------
-
 
 generate.Reg.Attr.Pages<-function(){
   #requries AVD.DT, AVEL.DT
@@ -104,21 +87,7 @@ generate.Reg.Attr.Pages<-function(){
     tmp<-paste0(rd.close(txt) , collapse="\n" )
     tmp
   }
-#     txt<-c(
-#       paste("@name", alink),
-#       paste("@title",asDot(title)), 
-#       paste("@section Available Attribute Values:"),     
-#       paste("\\describe{"),
-#       paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
-#       "}",
-#       paste("@section Used by the Elements:"), 
-#       "\\describe{",
-#       elemArgsItems,
-#       "}",
-#       "@keywords internal"
-#       )
-#     tmp<-paste("#' ", txt, sep="", collapse="\n")  
-#  }
+
 
   links<-unique(AVEL.DT$loc)
   attrDefsPages.List<-lapply( links, addAttributeEntry)
@@ -193,25 +162,6 @@ generate.CO.Attr.Pages<-function(){
     tmp
   } #end addAttributeEntry
   
-#   txt<-c(
-#       paste("@name", alink),
-#       paste("@title",asDot(title)), 
-#       paste("@section Combines:"),
-#       componentComma,
-#       "@section Equivalence:",
-#         "\\describe{",
-#           paste0("\\item{}{",   asDot(equivI), "}"),
-#           paste0("\\item{and}{",asDot(equivII),"}"),
-#         "}",  
-#       paste("@section Used by the Elements:"), 
-#         "\\describe{",
-#         elemArgsItems,
-#         "}",
-#         "@keywords internal"
-#     )
-#     tmp<-paste("#' ", txt, sep="", collapse="\n")  
-#   } #end addAttributeEntry
-  
   #for each location, get the subtable, and process
   links<-unique(COLCL.DT$loc)
   attr.Pages.List<-lapply( links, addAttributeEntry)  
@@ -268,21 +218,7 @@ generate.Pres.Attr.Pages<-function(){
     tmp<-paste0(rd.close(txt) , collapse="\n" )
     tmp 
   }
-      #txt<-c(
-      #paste("@name", presAttrLoc),
-      #paste("@title", asDot(attribute)), 
-      #paste("@section Available Attribute Values:"),     
-      #paste("\\itemize{"), #paste("\\describe{"),
-      #paste("\\item{ ",   values, "}{", valDes,"}", sep=""),
-      #"}",
-      #paste("@section Used by the Elements:"), 
-      #"\\describe{",
-      #elemArgsItems,
-      #"}",
-      #"@keywords internal"
-    #)
-    #tmp<-paste("#' ", txt, sep="", collapse="\n")  
-  #}
+      
   attrs<-unique(PA.DT[variable=="Applies to"]$attr)
   attrDefsPages.List<-lapply( attrs, addAttributeEntry)  
   rtv<-paste(attrDefsPages.List, collapse="\n")
