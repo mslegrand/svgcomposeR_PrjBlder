@@ -146,9 +146,8 @@ altGlyph	attr	format
 altGlyph	attr	rotate
 altGlyph	attr	xlink:href
 altGlyphDef	category	Uncategorized Element
-altGlyphDef	content.model	one or more glyphRef elements or
-altGlyphDef	content.model	
-altGlyphDef	content.model	one or more altGlyphItem elements.
+altGlyphDef	content.model	glyphRef
+altGlyphDef	content.model	altGlyphItem
 altGlyphDef	attr	core attributes:
 altGlyphItem	category	Uncategorized Element
 altGlyphItem	content.model	glyphRef
@@ -190,7 +189,7 @@ set	attr	animation timing attributes:
 set	attr	externalResourcesRequired
 set	attr	to
 animateMotion	category	Animation Element
-animateMotion	content.model	descriptive elements
+animateMotion	content.model	descriptive elements:
 animateMotion	content.model	mpath
 animateMotion	attr	conditional processing attributes:
 animateMotion	attr	core attributes:
@@ -746,8 +745,8 @@ feConvolveMatrix	attr	edgeMode
 feConvolveMatrix	attr	kernelUnitLength
 feConvolveMatrix	attr	preserveAlpha
 feDiffuseLighting	category	Filter Primitive Element
-feDiffuseLighting	content.model	descriptive elements
-feDiffuseLighting	content.model	light source element
+feDiffuseLighting	content.model	descriptive elements:
+feDiffuseLighting	content.model	light source elements:
 feDiffuseLighting	attr	core attributes:
 feDiffuseLighting	attr	presentation attributes:
 feDiffuseLighting	attr	filter primitive attributes:
@@ -837,8 +836,8 @@ feOffset	attr	in1
 feOffset	attr	dx
 feOffset	attr	dy
 feSpecularLighting	category	Filter Primitive Element
-feSpecularLighting	content.model	descriptive elements
-feSpecularLighting	content.model	light source element
+feSpecularLighting	content.model	descriptive elements:
+feSpecularLighting	content.model	light source elements:
 feSpecularLighting	attr	core attributes:
 feSpecularLighting	attr	presentation attributes:
 feSpecularLighting	attr	filter primitive attributes:
@@ -977,7 +976,7 @@ vkern	attr	u2
 vkern	attr	g2
 vkern	attr	k
 font-face	category	Uncategorized Element
-font-face	content.model	descriptive elements
+font-face	content.model	descriptive elements:
 font-face	content.model	font-face-src
 font-face	attr	core attributes:
 font-face	attr	font-family
