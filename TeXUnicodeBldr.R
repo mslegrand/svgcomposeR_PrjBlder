@@ -12,16 +12,16 @@ TeXUnicodeBldr<-function(composerFiles="composerFiles"){
   latUni.DT<-latUni.DT[ substr(no.,1,1)=="0"]
   latUni.DT<-latUni.DT[ , uni:=sub("0","\\\\u", no.)]
   
-  #latUni.DT<-latUni.DT[ , uni:=gsub("$0","\\u", no.)]
   
   
   latUni.V<-latUni.DT$uni
   
   names(latUni.V)<-latUni.DT$LaTeX
   
-  TeX2Uni<-sapply(latUni.V, function(x){parse(text=shQuote(x))[[1]]})
+  # TeX2Uni<-sapply(latUni.V, function(x){parse(text=shQuote(x))[[1]]})
   
-  deparse(TeX2Uni)->tmp
-  cat("TeXUniCode<-",tmp, 
+  #deparse(TeX2Uni)->tmp
+  deparse(latUni.V)->tmp
+  cat("TeXUniCode<-",tmp, "\n\nTeXUniCode<-sapply(TeXUniCode, function(x){parse(text=shQuote(x))[[1]]})\n",
       file=paste(composerFiles,"TeXUniCode.R", sep="/"))  
 }
