@@ -48,6 +48,9 @@ rd.name<-function(x){
 rd.title<-function(x){
   paste("@title",x)
 }
+rd.aliases<-function(x){
+  paste("@aliases",paste0(x,collapse=" "))
+}
 rd.section<-function(x){
   paste0("@section ",x,":")
 }
