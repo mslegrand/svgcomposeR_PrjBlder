@@ -40,31 +40,6 @@ eaCS.DT[name!="presentation attributes"]->eaCS.DT
 #rbind(eaCS.DT, data.table(name="presentation attributes", value="alignment-baseline"))
 #------------------------END KLUDGE!!!!-----------------------------------------
 
-#------------------------ATTENTION!!!!-----------------------------------------
-#  kludge to clean es.DT 
-#------------------------BEGIN KLUDGE!!!!-----------------------------------------
-es.DT.Cleaner<-function(){
-  es.DT$value->values # extract last column
-  
-  #restrict our attention to content.mode
-  grep('content.model', es.DT$variable)->content.indx
-  
-  grep('altGlyphDef',es.DT$element)->rpl.indx
-  indx<-intersect(content.indx,rpl.indx)
-  if(length(indx)!=3){stop("altGlyphDef issues")}
-  values[indx]<-c('glyphRef', 'altGlyphItem', '')
-  
-  values<-gsub('elements?$','elements:',values)
-  values
-}
-  values<-es.DT.Cleaner()
-  es.DT[,value:=values]
-  es.DT<-es.DT[value!=""] #remove row with empty value
-#------------------------END KLUDGE!!!!-----------------------------------------
-
-
-
-
 source('genElemDocPages.R')
 
 # requires es.DT, AVEL.DT, AVD.DT,
