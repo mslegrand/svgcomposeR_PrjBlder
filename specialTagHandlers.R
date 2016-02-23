@@ -2,6 +2,10 @@
 
 #special tag handling
 
+# for text ele
+insertTextNodeQuote<-function(ele.tag )quote(args <- insertImpliedTextNodes(args))
+ 
+
 # in.defs.only.elements<-c("clipPath", "cursor", "filter", "linearGradient", "marker", "mask", "pattern", "radialGradient", "symbol")
 
 
@@ -62,6 +66,7 @@ feQuote<-quote({
     }
     if(inherits(feNode, "XMLAbstractNode")){ #may want to require tag is fe!=feMergeNode??
       resultStr<-getsafeNodeAttr("result", feNode) #only if !=fe
+      #feNode$attrs[["result"]]<-resultStr
       rtv<-c( rtv, XfeNode=feNode) #rtv biw contains all feNodes at that location
       attrs[[n]]<-resultStr  #attrs contains a link to that node          
     }
@@ -103,6 +108,7 @@ makeSpecTr<-function(aName, aElements, aMssg){
           stop(aMssg)
         }
         fid<-getsafeNodeAttr("id",aNode)
+        #aNode$attrs[["id"]]<-fid
         #rtv<-c(rtv,XdefsNode=aNode)
         rtv<-c(rtv, aNode)
         attrs[[n]]=paste0("url(#",fid,")")
@@ -124,6 +130,7 @@ filterQuote<-quote(if( "filter" %in%  names(attrs) ){
         stop("Not a filter node")
       }
       fid<-getsafeNodeAttr("id",filterNode)
+      filterNode$attrs[["id"]]<-fid
       rtv<-c(rtv,filterNode)
       attrs[[n]]=paste0("url(#",fid,")")
     }  
@@ -163,7 +170,7 @@ gradientColorQuote<-quote(
     }
     for(i in 1:length(colors)){
       attrs.si<-list(offset=sprintf("%d%%", as.integer(offsets[i])), "stop-color"= colors[i])
-      stopi<-newXMLNode("stop", attrs=attrs.si)
+      stopi<-XMLAbstractNode$new("stop", attrs=attrs.si)
       args<-c(args,stopi)
     }
   })
@@ -217,7 +224,7 @@ specialTreatments<-list(
         }
         for(i in 1:length(colors)){
           attrs.si<-list(offset=sprintf("%d%%", as.integer(offsets[i])), "stop-color"= colors[i])
-          stopi<-newXMLNode("stop", attrs=attrs.si)
+          stopi<-XMLAbstractNode$new("stop", attrs=attrs.si)
           args<-c(args,stopi)
         }
       })

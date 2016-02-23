@@ -2,7 +2,7 @@
 #utils:::.addFunctionInfo(svg=c("cat","dog"))
 
 library(data.table)
-library(XML)
+#library(XML)
 if(!exists("requireTable")){ source("tableLoader.R") }
 source("specialTagHandlers.R")
 
@@ -20,7 +20,6 @@ source("specialTagHandlers.R")
 # ii)alternatively: 
 #    pkgEnv = getNamespace("MyPackage")
 #    attach(pkgEnv)
-#2. How to add function documentation???
 
 
 # Builds the svgFnQ stuff
@@ -102,6 +101,7 @@ build.svgFnQ<-function(){
     body0<-c(
       quote( args <- list(...) ),
       quote( args <- promoteUnamedLists(args) ),
+      insertConditionalCode(ele.tag,c('text' , 'textPath' , 'tspan'), insertTextNodeQuote),
       insertConditionalCode(ele.tag,c('set', 'animate'),makeAni, aaCombos),
       insertConditionalCode(ele.tag,'filter', echoQuote, filterTagQuote),
       quote( attrs <- named(args) ),
@@ -156,20 +156,19 @@ build.svgFnQ<-function(){
     )
 
     #add code to add to node children and node from tag
-    body3<-substitute(node<-newXMLNode(ele.tag, attrs=attrs, .children=allGoodChildern(args),
-                      suppressNamespaceWarning=getOption("suppressXMLNamespaceWarning", TRUE)), 
+    body3<-substitute(node<-XMLAbstractNode$new(tag=ele.tag, attrs=attrs, .children=allGoodChildern(args)), 
                       list(ele.tag=ele.tag)
     )
 
-    body3<-c(body3,
-             # **  add this for filter, feElements, etc.
-             quote({ 
-               if(length(rtv)>0){
-                 node<-c(rtv,node)
-               }
-               node
-             })
-    )
+body3<-c(body3,
+         # **  add this for filter, feElements, etc.
+         quote({ 
+           if(length(rtv)>0){
+             node<-c(rtv,node)
+           }
+           node
+         })
+)
 
 # ** prior to adding .children and attrs, we process for our custom
     # attribute=element assignments
@@ -177,10 +176,13 @@ build.svgFnQ<-function(){
     if(ele.tag %in% filterElementTags){
       body3<-c(
         feQuote, # moves  feElements form args to rtv prior to node creation,
-        body3, 
-        quote(node<-c(rtv,node)) # returns an rtv list + node
+        body3#, 
+        #quote(node<-c(rtv,node)) # returns an rtv list + node
       )   
     }
+
+
+
 
     fn<-function(...){}
     body(fn)<-as.call(c(as.name("{"), body0, body1, body2, body3))
@@ -190,38 +192,35 @@ build.svgFnQ<-function(){
   
   svgFnQ<-lapply(ele.tags, createEleFnQ, AET.DT=AET.DT )
   names(svgFnQ)<-ele.tags
-
+  svgFnQ$script=script=function(...){
+    args <- list(...)
+    stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
+    paste(args,collapse="\n")->js
+    XMLAbstractNode$new('script', attrs= list(type="text/JavaScript"),
+               XMLCDataNode$new(.children=as.list(js))  )
+  }
   #here we handle element names with -
   indx<-grep("-", names(svgFnQ))
   tmpFn<-svgFnQ[indx]
   names(tmpFn)<-gsub("-",".",names(tmpFn))
   svgFnQ<-c(svgFnQ, tmpFn,
     list(
-      getNode=function(rootNode,id){
-        if(id!='root'){
-          kidV <- getNodeSet(rootNode, paste("//*[@id=\"", id, "\"]", sep=""))
-        } else {
-          kidV <- list(rootNode)
-        }
-        if (length(kidV)==0){
-          stop("Cannot find node with id=",id)
-        }
-        kidV
-      },
-      script=function(...){
-        args <- list(...)
-        stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
-        paste(args,collapse="\n")->js
-        newXMLNode('script', attrs= list(type="text/JavaScript"),
-                   newXMLCDataNode(js), 
-                   suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
-        )
-      },
-      translate=function(x,y=NULL){
-        if(length(c(x,y)!=2)){
+#       getNode=function(rootNode,id){
+#         if(id!='root'){
+#           kidV <- getNodeSet(rootNode, paste("//*[@id=\"", id, "\"]", sep=""))
+#         } else {
+#           kidV <- list(rootNode)
+#         }
+#         if (length(kidV)==0){
+#           stop("Cannot find node with id=",id)
+#         }
+#         kidV
+#       },
+      translate=function(dx,dy=NULL){
+        if(length(c(dx,dy))!=2){
           stop("bad translate arguments")
         }
-        list(translate=c(x,y))
+        list(translate=c(dx,dy))
       },
       rotate=function(angle, x=NULL, y=NULL){
         if(!(length(c(angle,x,y)) %in% c(1,3))){
@@ -237,12 +236,22 @@ build.svgFnQ<-function(){
         tmp[1]<-as.numeric(tmp[1])*180/pi #convert from radians to degrees
         list(rotate=tmp)     
       },
-      scale=function(x,y=NULL){
-        if(length(c(x,y)!=2)){
-          stop("bad translate arguments")
+      scale=function(dx,dy=NULL){
+        if(!(length(c(dx,dy)) %in% 2)){
+          stop("bad scale arguments")
         }
-        list(scale=c(x,y))
-      }
+        list(scale=c(dx,dy))
+      },
+      u.em=function(x)paste0(x,'em'),
+      u.ex=function(x)paste0(x,'ex'),
+      u.px=function(x)paste0(x,'px'),
+      u.pt=function(x)paste0(x,'pt'),
+      u.pc=function(x)paste0(x,'pc'),
+      u.cm=function(x)paste0(x,'cm'),
+      u.mm=function(x)paste0(x,'mm'),
+      u.in=function(x)paste0(x,'in'),
+      u.prct=function(x)paste0(x,'%'),
+      u.rad=function(x)x*180/pi 
     )
   )
   svgFnQ
@@ -253,8 +262,8 @@ build.svgFnQ<-function(){
   #args <- list(...)
   #stopifnot( length(args)>0 , sapply(args, function(x)inherits(x,"character")))
   #paste(args,collapse="\n")->js
-  #newXMLNode('script', attrs= list(type="text/JavaScript"),
-             #newXMLCDataNode(js), 
+  #XMLAbstractNode$new('script', attrs= list(type="text/JavaScript"),
+             #XMLCDataNode$new(js), 
              #suppressNamespaceWarning = getOption("suppressXMLNamespaceWarning",                                                   TRUE)
   #)
 #}

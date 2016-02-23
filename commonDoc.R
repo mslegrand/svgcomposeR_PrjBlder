@@ -60,6 +60,17 @@ rd.keywords<-function(x){
 rd.description<-function(x){
   c("@description ",x)
 }
+rd.param<-function(param, param.def){
+  paste("@param ", param, param.def, sep="   ")
+}
+
+rd.usage<-function(x){
+  c("@usage", paste(x, collpase="; "))
+}
+
+rd.details<-function(x){
+  c("@details",x)
+}
 
 rd.close<-function(xs){
   tmp<-paste0("#' ", xs ) 
